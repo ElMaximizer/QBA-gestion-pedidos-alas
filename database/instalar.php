@@ -18,6 +18,7 @@ try {
     $db->exec("USE `{$config['database']}`");
     $db->exec(file_get_contents(__DIR__ . '/estructura.sql'));
     $db->exec(file_get_contents(__DIR__ . '/clientes.sql'));
+    $db->exec(file_get_contents(__DIR__ . '/acceso-clientes.sql'));
     if (in_array('--demo', $argv, true)) {
         $db->exec(file_get_contents(__DIR__ . '/productos_demo.sql'));
     }

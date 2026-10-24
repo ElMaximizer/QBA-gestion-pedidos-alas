@@ -62,8 +62,40 @@ no se cambia automáticamente a la bandeja local. No hay reintentos automáticos
 el botón de reenvío genera otro código y reemplaza el anterior. Que SMTP acepte
 el mensaje no garantiza su llegada a la bandeja de entrada.
 
-El inicio de sesión corresponde a **HU17**. HU16 no inicia una sesión de cliente
-automáticamente ni asocia pedidos con una identidad todavía no autenticada.
+HU16 no inicia una sesión de cliente automáticamente. Al completar la
+verificación se ofrece continuar al acceso de **HU17**.
+
+## HU17 — Iniciar sesión
+
+**Acceso clientes** abre el formulario de correo y contraseña con el mismo diseño
+del proyecto anterior. El cliente debe haber verificado el correo mediante HU16.
+Si la contraseña es correcta pero falta la verificación, se ofrece completar ese
+paso sin otorgar una sesión autenticada ni enviar otro código automáticamente.
+
+Al ingresar se vuelve al inicio y aparece el menú **Hola, nombre** con **Cerrar
+sesión**. El registro y el acceso reutilizan el campo de contraseña, sus estilos
+BEM y el control para mostrarla. Los formularios funcionan sin JavaScript.
+La recuperación de contraseña, el acceso del equipo y el historial de **HU20**
+no forman parte de esta implementación.
+
+La identidad se guarda únicamente en el servidor y se revalida contra la base
+una vez por petición. Al ingresar o salir se renuevan la cookie y CSRF, se conserva
+el carrito y se invalidan los formularios y confirmaciones de la identidad
+anterior. La sesión de cliente vence después de 30 minutos sin actividad.
+Cerrar sesión requiere POST y CSRF; una visita a un enlace no cierra la cuenta.
+
+Seis contraseñas incorrectas para un mismo correo bloquean el acceso durante un
+minuto, incluso desde otra sesión. Los intentos aislados vencen a los diez minutos
+y un acceso correcto los reinicia. La tabla intentos_acceso_cliente conserva una
+clave SHA-256 del correo, contadores y fechas UTC; no guarda contraseñas. Se limpian
+hasta cien registros de más de un día al intentar un acceso. Un correo inexistente
+y una contraseña incorrecta reciben el mismo mensaje.
+
+Los pedidos nuevos realizados con sesión quedan asociados al id_cliente de esa
+cuenta. El nombre se precarga y puede ajustarse para el retiro; modificarlo no
+cambia la identidad asociada. Un id_cliente enviado desde el navegador se ignora.
+Los pedidos anteriores conservan su asociación original, incluidos los de
+invitados con NULL. La consulta del historial se implementará en HU20.
 
 ## HU18 — Realizar un pedido
 
@@ -72,9 +104,9 @@ al carrito, actualizarlo y completar sus datos para coordinar el retiro. Al
 confirmar, el pedido y sus líneas se guardan en MySQL como **Pendiente**, se vacía
 el carrito y se muestra el número del pedido.
 
-Se conserva el comportamiento anterior de admitir pedidos sin iniciar sesión.
-HU17 incorporará la autenticación y su asociación con los pedidos; por ahora,
-id_cliente queda en NULL. No hay cobros en línea, registro de señas, envío de
+Se conserva el comportamiento anterior de admitir pedidos sin iniciar sesión:
+en esos casos id_cliente queda en NULL. Con HU17 se toma la identidad de la sesión.
+No hay cobros en línea, registro de señas, envío de
 correos, panel administrativo ni historial de pedidos en esta historia.
 Los enlaces de nosotros y contacto siguen inactivos.
 
@@ -86,7 +118,7 @@ Los enlaces de nosotros y contacto siguen inactivos.
 - Para las pruebas: extensiones cURL y DOM, y proc_open habilitado.
 
 No se necesitan Composer ni Node. Los formularios funcionan sin JavaScript;
-el registro lo usa únicamente para mostrar y ocultar la contraseña.
+el registro y el acceso lo usan únicamente para mostrar y ocultar la contraseña.
 
 PHPMailer 7.1.1 está incluido en lib/PHPMailer/, copiado del ZIP de su
 [publicación oficial](https://github.com/PHPMailer/PHPMailer/releases/tag/v7.1.1).
@@ -106,12 +138,17 @@ Desde la raíz del repositorio, en PowerShell:
     C:\xampp\php\php.exe database\instalar.php --demo
 
 El instalador crea la base y las tablas productos, pedidos, pedido_detalles,
-clientes y correos_locales. database/clientes.sql incorpora las tablas de HU16
+clientes, correos_locales e intentos_acceso_cliente. database/clientes.sql incorpora las tablas de HU16
 sobre la base existente, conservando los productos y pedidos registrados.
 La opción --demo agrega tres productos de muestra, con sus textos e ingredientes
 de demostración. Se deben revisar esos datos antes de usar un catálogo real.
 Sin esa opción se crea solamente la estructura. La instalación se puede repetir
 y no importa datos del repositorio anterior.
+
+Si ya tenías HU16 instalado, ejecutá el instalador sin --demo para incorporar
+la tabla de HU17 conservando los datos existentes:
+
+    C:\xampp\php\php.exe database\instalar.php
 
 ## Ejecutar en desarrollo
 
@@ -135,6 +172,8 @@ La raíz pública de un virtual host debe apuntar a public/.
 - app/Models/Carrito.php: cantidades y resumen del carrito.
 - app/Models/Pedido.php: validaciones y guardado transaccional.
 - app/Models/Cliente.php: registro, códigos y activación de cuentas.
+- app/Models/AccesoCliente.php: credenciales, límite de intentos e identidad verificada.
+- app/Controllers/AccesoController.php: inicio y cierre de sesión de HU17.
 - app/Controllers/RegistroController.php: formularios y resultados de HU16.
 - app/Services/RegistroCliente.php: coordina registro y entrega del código.
 - app/Services/CorreoVerificacion.php: bandeja local o envío SMTP con PHPMailer.
@@ -148,10 +187,11 @@ La raíz pública de un virtual host debe apuntar a public/.
 - public/css/inicio.css: estilos compartidos y portada.
 - public/css/componentes.css: formularios, tarjetas, avisos y botones compartidos.
 - public/css/pedidos.css: componentes de HU18.
-- public/css/registro.css y public/js/registro.js: presentación y control de contraseña de HU16.
+- public/css/registro.css y public/js/registro.js: presentación y control de contraseña de HU16/HU17.
 - public/images/: cinco imágenes originales.
 - tests/pedidos.php: pruebas del dominio y del flujo HTTP.
 - tests/registro.php: pruebas del registro y de la activación.
+- tests/acceso.php: pruebas de autenticación, sesiones y asociación de pedidos.
 - tests/soporte.php: base, servidor y sesiones temporales compartidos por las pruebas.
 
 El punto de entrada selecciona un controlador. El controlador coordina la
@@ -174,6 +214,8 @@ Todas se acceden a través de public/index.php:
 | registro | GET, HEAD, POST | Crear una cuenta |
 | verificar-cuenta | GET, HEAD, POST | Activar una cuenta o reenviar el código |
 | registro-completado | GET, HEAD | Confirmación del registro verificado |
+| cliente-login | GET, HEAD, POST | Iniciar sesión con una cuenta verificada |
+| cerrar-sesion | POST | Cerrar la sesión de cliente conservando el carrito |
 
 Las rutas desconocidas responden 404 y los métodos no permitidos, 405.
 Las modificaciones requieren POST y CSRF. Después de una operación correcta se
@@ -204,14 +246,17 @@ inicio.css conserva la portada y la cabecera/pie compartidos; componentes.css
 reúne los formularios y tarjetas reutilizados. pedidos.css y registro.css
 contienen los estilos de cada flujo. El registro usa los bloques registro y
 contrasena, con elementos como registro__tarjeta y contrasena__boton.
+El acceso reutiliza esos mismos componentes. El menú autenticado usa el bloque
+cuenta y elementos como cuenta__activador y cuenta__salir.
 
 ## Verificación
 
     C:\xampp\php\php.exe tests\pedidos.php
     C:\xampp\php\php.exe tests\registro.php
+    C:\xampp\php\php.exe tests\acceso.php
     C:\xampp\php\php.exe tests\correo.php
 
-Las pruebas crean una base temporal qba_hu16_test_* o qba_hu18_test_*, un servidor local y sus
+Las pruebas crean una base temporal qba_hu16_test_*, qba_hu17_test_* o qba_hu18_test_*, un servidor local y sus
 sesiones, y los eliminan al terminar. Requieren permisos locales para crear y
 eliminar esa base y crear un trigger de prueba. Cubren validaciones, precios
 manipulados o modificados, productos retirados, CSRF, formularios malformados,
@@ -222,6 +267,9 @@ Las pruebas fuerzan la bandeja local o un receptor SMTP temporal en 127.0.0.1;
 no usan las credenciales de Gmail ni envían correos fuera de esta máquina.
 tests/correo.php comprueba la entrega real de PHPMailer a ese receptor, UTF-8,
 reenvío, activación y recuperación después de un rechazo SMTP.
+HU17 comprueba cuentas sin verificar, contraseñas inválidas, bloqueos persistentes,
+renovación de cookies y CSRF, vencimiento de la sesión, conservación del carrito,
+aislamiento entre identidades y asociación del pedido desde el servidor.
 
 Para comprobar toda la sintaxis PHP en PowerShell:
 

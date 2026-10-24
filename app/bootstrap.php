@@ -18,6 +18,7 @@ spl_autoload_register(static function (string $clase): void {
 
 if (PHP_SAPI !== 'cli' && session_status() !== PHP_SESSION_ACTIVE) {
     ini_set('session.use_strict_mode', '1');
+    ini_set('session.use_only_cookies', '1');
     session_name('QBA_SESSION');
     session_start([
         'cookie_httponly' => true,

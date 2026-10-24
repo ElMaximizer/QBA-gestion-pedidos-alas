@@ -31,6 +31,20 @@
                     Carrito <span class="carrito__cantidad"><?= $cantidadCarrito ?></span>
                 </a>
             </nav>
-            <a class="boton boton--dorado encabezado__acceso" href="<?= $url('registro') ?>">Acceso clientes</a>
+            <?php if ($clienteActual): ?>
+            <div class="cuenta">
+                <details class="cuenta__menu">
+                    <summary class="cuenta__activador"><span>Hola, <strong class="cuenta__nombre"><?= $escapar($clienteActual['nombre']) ?></strong></span><span class="cuenta__flecha" aria-hidden="true">⌄</span></summary>
+                    <div class="cuenta__desplegable">
+                        <form class="cuenta__formulario" method="post" action="<?= $url('cerrar-sesion') ?>">
+                            <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                            <button class="cuenta__salir">Cerrar sesión</button>
+                        </form>
+                    </div>
+                </details>
+            </div>
+            <?php else: ?>
+            <a class="boton boton--dorado encabezado__acceso" href="<?= $url('cliente-login') ?>">Acceso clientes</a>
+            <?php endif; ?>
         </div>
     </header>

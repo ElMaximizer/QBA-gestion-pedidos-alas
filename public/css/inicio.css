@@ -199,6 +199,103 @@ a:focus-visible {
     min-width: 110px;
 }
 
+.cuenta {
+    min-width: 0;
+    max-width: 260px;
+    margin-left: auto;
+    font-size: 13px;
+}
+
+.cuenta__menu {
+    position: relative;
+}
+
+.cuenta__activador {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    border: 1px solid #ffffff38;
+    border-radius: 999px;
+    color: var(--white);
+    cursor: pointer;
+    list-style: none;
+    transition: background-color .2s, border-color .2s;
+}
+
+.cuenta__activador > span:first-child {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cuenta__activador::-webkit-details-marker {
+    display: none;
+}
+
+.cuenta__activador:hover,
+.cuenta__menu[open] .cuenta__activador {
+    border-color: var(--gold);
+    background: #ffffff1a;
+}
+
+.cuenta__nombre {
+    color: var(--gold);
+    font-weight: 600;
+}
+
+.cuenta__flecha {
+    color: var(--gold);
+    font-size: 18px;
+    line-height: 1;
+    transition: transform .2s;
+}
+
+.cuenta__menu[open] .cuenta__flecha {
+    transform: rotate(180deg);
+}
+
+.cuenta__desplegable {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 12px);
+    right: 0;
+    width: min(310px, calc(100vw - 32px));
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--white);
+    color: var(--navy);
+    box-shadow: 0 18px 45px #07192b33;
+}
+
+.cuenta__formulario {
+    margin: 0;
+}
+
+.cuenta__salir {
+    width: 100%;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--navy);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+}
+
+.cuenta__salir:hover {
+    background: var(--cream);
+}
+
+.cuenta__activador:focus-visible,
+.cuenta__salir:focus-visible {
+    outline: 3px solid var(--gold);
+    outline-offset: 4px;
+}
+
 .carrito {
     display: inline-flex;
     align-items: center;
@@ -606,6 +703,12 @@ a:focus-visible {
         min-width: 90px;
         min-height: 44px;
         padding: 11px 18px;
+    }
+
+    .cuenta {
+        flex: 1 1 0;
+        max-width: 45%;
+        font-size: 11px;
     }
 
     .navegacion {
