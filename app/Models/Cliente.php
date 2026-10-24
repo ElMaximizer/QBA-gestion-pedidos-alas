@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Core\DatosCuenta;
 use DomainException;
 use PDO;
 use PDOException;
@@ -16,19 +17,9 @@ final class Cliente
 
     public function registrar(string $nombre, string $email, string $password, string $confirmacion): array
     {
-        $nombre = trim($nombre);
-        $email = self::normalizarEmail($email);
-        if ($nombre === '' || !mb_check_encoding($nombre, 'UTF-8') || mb_strlen($nombre) > 120) {
-            throw new DomainException('Ingresá tu nombre completo (máximo 120 caracteres).');
-        }
-        // PASSWORD_DEFAULT usa bcrypt en PHP 8.2: se evita el truncado a 72 bytes.
-        if (mb_strlen($password) < 8 || strlen($password) > 72 || str_contains($password, "\0")) {
-            throw new DomainException('Usá una contraseña de al menos 8 caracteres y de un máximo de 72 bytes.');
-        }
-        if ($password !== $confirmacion) {
-            throw new DomainException('Las contraseñas no coinciden. Volvé a confirmarla.');
-        }
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+        $nombre = DatosCuenta::nombre($nombre);
+        $email = DatosCuenta::email($email);
+        $passwordHash = DatosCuenta::hashPassword($password, $confirmacion);
         [$codigo, $codigoHash] = self::nuevoCodigo();
         $this->db->beginTransaction();
         try {
@@ -52,7 +43,7 @@ final class Cliente
 
     public function verificar(string $email, string $codigo): void
     {
-        $email = self::normalizarEmail($email);
+        $email = DatosCuenta::email($email);
         if (!preg_match('/^[0-9]{6}$/D', $codigo)) {
             throw new DomainException('Ingresá el código de seis dígitos del mensaje de verificación.');
         }
@@ -98,7 +89,7 @@ final class Cliente
 
     public function reenviar(string $email): ?array
     {
-        $email = self::normalizarEmail($email);
+        $email = DatosCuenta::email($email);
         [$codigo, $codigoHash] = self::nuevoCodigo();
         $this->db->beginTransaction();
         try {
@@ -126,15 +117,6 @@ final class Cliente
             }
             throw $error;
         }
-    }
-
-    private static function normalizarEmail(string $email): string
-    {
-        $email = strtolower(trim($email));
-        if (strlen($email) > 190 || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new DomainException('Ingresá un correo electrónico válido.');
-        }
-        return $email;
     }
 
     private static function nuevoCodigo(): array

@@ -21,6 +21,7 @@ while ($conexion = @stream_socket_accept($servidor, 30)) {
     fwrite($conexion, "220 localhost pruebas SMTP\r\n");
     while (($linea = fgets($conexion)) !== false) {
         $comando = strtoupper(strtok(trim($linea), ' '));
+        clearstatcache(true, $directorio . '/recuperado');
         if ($comando === 'EHLO' || $comando === 'HELO') {
             fwrite($conexion, "250-localhost\r\n250 8BITMIME\r\n");
         } elseif ($comando === 'RCPT' && str_contains($linea, 'fallo@example.test') && !is_file($directorio . '/recuperado')) {
