@@ -7,8 +7,8 @@ return [
     'host' => 'smtp.gmail.com',
     'port' => 587,
     'encryption' => 'tls',
-    'username' => 'elmaximizer@gmail.com', // Dirección completa de la cuenta de Gmail que envía.
-    'password' => 'avuvmfmcauhvbcal', // Contraseña de aplicación de Google, sin espacios.
-    'from_email' => 'elmaximizer@gmail.com', // Vacío: utiliza la misma dirección que username.
+    'username' => '', // Dirección completa de la cuenta de Gmail que envía.
+    'password' => '', // Contraseña de aplicación de Google, sin espacios.
+    'from_email' => '', // Vacío: utiliza la misma dirección que username.
     'from_name' => 'Panadería Alas',
 ];
