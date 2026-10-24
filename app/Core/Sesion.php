@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Models\AccesoCliente;
+use App\Models\AccesoEquipo;
 use DomainException;
 use RuntimeException;
 
@@ -11,6 +12,48 @@ final class Sesion
 {
     private static bool $clienteConsultado = false;
     private static ?array $clienteActual = null;
+    private static bool $equipoConsultado = false;
+    private static ?array $equipoActual = null;
+
+    public static function equipo(): ?array
+    {
+        if (self::$equipoConsultado) {
+            return self::$equipoActual;
+        }
+        self::$equipoConsultado = true;
+        $idUsuario = $_SESSION['qba']['equipo_id'] ?? null;
+        if (!is_int($idUsuario) || $idUsuario < 1) {
+            return null;
+        }
+        if (($_SESSION['qba']['equipo_ultimo_acceso'] ?? 0) < time() - 1800) {
+            self::cerrarEquipo();
+            return null;
+        }
+        self::$equipoActual = (new AccesoEquipo(Conexion::obtener()))->buscarAprobado($idUsuario);
+        if (self::$equipoActual === null) {
+            self::cerrarEquipo();
+            return null;
+        }
+        $_SESSION['qba']['equipo_ultimo_acceso'] = time();
+        return self::$equipoActual;
+    }
+
+    public static function requerirEquipo(): array
+    {
+        return self::equipo() ?? Http::redirigir('equipo-login');
+    }
+
+    public static function iniciarEquipo(int $idUsuario): void
+    {
+        self::renovarIdentidad();
+        $_SESSION['qba']['equipo_id'] = $idUsuario;
+        $_SESSION['qba']['equipo_ultimo_acceso'] = time();
+    }
+
+    public static function cerrarEquipo(): void
+    {
+        self::renovarIdentidad();
+    }
 
     public static function cliente(): ?array
     {
@@ -57,6 +100,8 @@ final class Sesion
         $_SESSION['qba'] = ['carrito' => $carrito, 'csrf' => bin2hex(random_bytes(32))];
         self::$clienteActual = null;
         self::$clienteConsultado = false;
+        self::$equipoActual = null;
+        self::$equipoConsultado = false;
     }
 
     public static function csrf(): string

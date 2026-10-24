@@ -31,7 +31,7 @@
                     <input class="campo__entrada" type="password" name="confirm_password" placeholder="Repite la contraseña" minlength="8" maxlength="72" autocomplete="new-password" required>
                 </label>
                 <button class="boton boton--dorado boton--completo">Enviar solicitud</button>
-                <a class="enlace-texto" href="index.php">Volver al sitio</a>
+                <a class="enlace-texto" href="<?= $url('equipo-login') ?>">Ya tengo usuario · Iniciar sesión</a>
             </form>
         </section>
     </div>

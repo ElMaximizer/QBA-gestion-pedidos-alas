@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AccesoController;
+use App\Controllers\AccesoEquipoController;
 use App\Controllers\CarritoController;
 use App\Controllers\InicioController;
 use App\Controllers\PedidoController;
@@ -30,6 +31,9 @@ $rutas = [
     'cerrar-sesion' => [AccesoController::class, 'salir', ['POST']],
     'equipo-registro' => [RegistroEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-solicitud-enviada' => [RegistroEquipoController::class, 'enviado', ['GET', 'HEAD']],
+    'equipo-login' => [AccesoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-panel' => [AccesoEquipoController::class, 'panel', ['GET', 'HEAD']],
+    'equipo-cerrar-sesion' => [AccesoEquipoController::class, 'salir', ['POST']],
 ];
 $ruta = $_GET['ruta'] ?? 'inicio';
 $rutaAdicional = $_SERVER['PATH_INFO'] ?? '';
@@ -48,6 +52,7 @@ if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', $metodos, true)) {
 
 try {
     Sesion::cliente();
+    Sesion::equipo();
     (new $controlador())->$accion();
 } catch (DomainException $error) {
     http_response_code(422);

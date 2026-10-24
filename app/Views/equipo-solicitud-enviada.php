@@ -14,7 +14,7 @@
                 <h2 class="recuadro__titulo">Pendiente de aprobación</h2>
                 <p class="recuadro__descripcion">El dueño revisará tus datos para continuar.</p>
             </aside>
-            <a class="boton boton--dorado boton--completo" href="index.php">Volver al sitio</a>
+            <a class="boton boton--dorado boton--completo" href="<?= $url('equipo-login') ?>">Volver a iniciar sesión</a>
         </section>
     </div>
 </main>

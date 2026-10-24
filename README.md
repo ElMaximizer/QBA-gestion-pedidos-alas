@@ -5,7 +5,7 @@ Proyecto PHP con MVC y CSS según BEM. Conserva el diseño público del
 
 ## Registro del equipo
 
-Desde **Acceso al equipo**, en el pie del sitio, se puede solicitar un usuario
+Desde **Acceso al equipo → Solicitar usuario**, en el pie del sitio, se puede solicitar un usuario
 con nombre, cédula, correo y contraseña. Se conserva el formulario del proyecto
 anterior y el flujo de solicitud pendiente de aprobación del dueño.
 
@@ -28,8 +28,8 @@ el carrito y, si existe, la sesión de cliente. Las contraseñas no se recuperan
 en el formulario ni se guardan en la sesión.
 
 Esta etapa incorpora el registro y la confirmación de la solicitud. La aprobación,
-el rechazo, la asignación de otros roles y el inicio de sesión del equipo se
-implementarán en sus pasos correspondientes. Todavía no hay un panel de revisión
+el rechazo y la asignación de otros roles se implementarán en sus pasos
+correspondientes. Todavía no hay un panel de revisión
 ni una cuenta de dueño creada automáticamente.
 
 Para incorporar la tabla sobre una instalación existente:
@@ -38,6 +38,45 @@ Para incorporar la tabla sobre una instalación existente:
 
 El instalador conserva los clientes, productos y pedidos existentes. El origen
 visual y funcional es el [registro del equipo anterior](https://github.com/ElMaximizer/software-pedidos-alas/blob/produccion/app/Views/auth/pagina.php).
+
+## Inicio de sesión del equipo
+
+**Acceso al equipo**, en el pie del sitio, abre el formulario de cédula y
+contraseña del diseño anterior. Solo ingresan cuentas de usuarios_equipo con
+estado aprobado y rol empleado, administrador o dueño. Una contraseña incorrecta
+y una cédula inexistente reciben el mismo error. Una solicitud pendiente o
+rechazada no obtiene acceso; el aviso de aprobación se muestra únicamente
+después de comprobar la contraseña.
+
+Al ingresar aparece una pantalla protegida con el nombre, el rol y el cierre
+de sesión. Esta pantalla es el punto de entrada para las funciones que se
+implementen después; no incorpora la gestión de pedidos, usuarios o permisos.
+El menú **Hola, nombre → Panel del equipo** permite regresar desde el sitio.
+La recuperación de contraseña y el panel de aprobación siguen pendientes.
+No se crean dueños ni se aprueban solicitudes automáticamente.
+
+La sesión guarda el identificador del usuario y consulta su aprobación y rol
+en la base una vez por petición. Un cambio de rol se refleja en la siguiente
+petición; revocar la aprobación cierra el acceso. Vence después de treinta
+minutos sin actividad. Al ingresar o salir se renuevan la cookie y CSRF, se
+conserva el carrito y se invalidan los formularios de la identidad anterior.
+Iniciar sesión como cliente sustituye la sesión del equipo y viceversa.
+El cierre requiere POST y CSRF; la pantalla de acceso y el panel no se guardan
+en caché.
+
+Ambos accesos comparten la comprobación de contraseñas y el límite persistente
+de intentos, con contadores independientes. Seis contraseñas incorrectas para
+la misma cédula bloquean el acceso durante un minuto, incluso desde otra sesión.
+Los ceros iniciales no permiten eludirlo. Los intentos aislados vencen a los diez
+minutos; un acceso con contraseña correcta los elimina. La tabla
+intentos_acceso_equipo conserva una clave SHA-256 de la cédula, contadores y
+fechas UTC, sin contraseñas. Se limpian hasta cien registros de más de un día
+por intento. El acceso no envía correos.
+
+En una instalación existente, ejecutá el instalador sin --demo para agregar
+la tabla de intentos conservando los datos y las aprobaciones actuales:
+
+    C:\xampp\php\php.exe database\instalar.php
 
 ## HU16 — Registrarse
 
@@ -111,7 +150,7 @@ paso sin otorgar una sesión autenticada ni enviar otro código automáticamente
 Al ingresar se vuelve al inicio y aparece el menú **Hola, nombre** con **Cerrar
 sesión**. El registro y el acceso reutilizan el campo de contraseña, sus estilos
 BEM y el control para mostrarla. Los formularios funcionan sin JavaScript.
-La recuperación de contraseña, el acceso del equipo y el historial de **HU20**
+La recuperación de contraseña y el historial de **HU20**
 no forman parte de esta implementación.
 
 La identidad se guarda únicamente en el servidor y se revalida contra la base
@@ -174,7 +213,8 @@ Desde la raíz del repositorio, en PowerShell:
     C:\xampp\php\php.exe database\instalar.php --demo
 
 El instalador crea la base y las tablas productos, pedidos, pedido_detalles,
-clientes, correos_locales, intentos_acceso_cliente y usuarios_equipo. database/clientes.sql incorpora las tablas de HU16
+clientes, correos_locales, intentos_acceso_cliente, usuarios_equipo e
+intentos_acceso_equipo. database/clientes.sql incorpora las tablas de HU16
 sobre la base existente, conservando los productos y pedidos registrados.
 La opción --demo agrega tres productos de muestra, con sus textos e ingredientes
 de demostración. Se deben revisar esos datos antes de usar un catálogo real.
@@ -209,9 +249,12 @@ La raíz pública de un virtual host debe apuntar a public/.
 - app/Models/Pedido.php: validaciones y guardado transaccional.
 - app/Models/Cliente.php: registro, códigos y activación de cuentas.
 - app/Models/AccesoCliente.php: credenciales, límite de intentos e identidad verificada.
+- app/Models/AccesoEquipo.php: credenciales del equipo e identidad aprobada.
+- app/Models/IntentosAcceso.php: límite persistente compartido, con contadores independientes.
 - app/Models/UsuarioEquipo.php: validación de cédula y guardado de solicitudes pendientes.
-- app/Core/DatosCuenta.php: reglas de nombre, correo y contraseña compartidas por ambos registros.
+- app/Core/DatosCuenta.php: reglas compartidas de nombre, correo, cédula y contraseñas.
 - app/Controllers/AccesoController.php: inicio y cierre de sesión de HU17.
+- app/Controllers/AccesoEquipoController.php: acceso, pantalla protegida y cierre del equipo.
 - app/Controllers/RegistroController.php: formularios y resultados de HU16.
 - app/Controllers/RegistroEquipoController.php: registro y confirmación de solicitudes del equipo.
 - app/Services/RegistroCliente.php: coordina registro y entrega del código.
@@ -234,6 +277,7 @@ La raíz pública de un virtual host debe apuntar a public/.
 - tests/registro.php: pruebas del registro y de la activación.
 - tests/acceso.php: pruebas de autenticación, sesiones y asociación de pedidos.
 - tests/equipo.php: validaciones, duplicados, solicitud pendiente y aislamiento de identidades.
+- tests/acceso-equipo.php: aprobación, intentos, sesiones del equipo y cambio de identidad.
 - tests/soporte.php: base, servidor y sesiones temporales compartidos por las pruebas.
 
 El punto de entrada selecciona un controlador. El controlador coordina la
@@ -260,6 +304,9 @@ Todas se acceden a través de public/index.php:
 | cerrar-sesion | POST | Cerrar la sesión de cliente conservando el carrito |
 | equipo-registro | GET, HEAD, POST | Solicitar un usuario del equipo |
 | equipo-solicitud-enviada | GET, HEAD | Confirmación de la solicitud de esta sesión |
+| equipo-login | GET, HEAD, POST | Iniciar sesión con cédula y contraseña |
+| equipo-panel | GET, HEAD | Pantalla de la cuenta aprobada del equipo |
+| equipo-cerrar-sesion | POST | Cerrar la sesión del equipo conservando el carrito |
 
 Las rutas desconocidas responden 404 y los métodos no permitidos, 405.
 Las modificaciones requieren POST y CSRF. Después de una operación correcta se
@@ -294,7 +341,7 @@ El acceso reutiliza esos mismos componentes. El menú autenticado usa el bloque
 cuenta y elementos como cuenta__activador y cuenta__salir.
 El registro del equipo reutiliza registro, campo y contrasena; campo__ayuda
 presenta las indicaciones de cédula, correo y contraseña. La ilustración lateral
-se comparte entre el formulario y su confirmación.
+se comparte entre los formularios, la confirmación y la pantalla protegida.
 
 ## Verificación
 
@@ -302,6 +349,7 @@ se comparte entre el formulario y su confirmación.
     C:\xampp\php\php.exe tests\registro.php
     C:\xampp\php\php.exe tests\acceso.php
     C:\xampp\php\php.exe tests\equipo.php
+    C:\xampp\php\php.exe tests\acceso-equipo.php
     C:\xampp\php\php.exe tests\correo.php
 
 Las pruebas crean una base temporal qba_hu16_test_*, qba_hu17_test_*, qba_hu18_test_* o qba_equipo_test_*, un servidor local y sus
@@ -322,6 +370,10 @@ El registro del equipo también comprueba cédula y correo únicos, roles y esta
 manipulados, guardado y entrega fallidos, ausencia de contraseñas en la sesión y
 conservación de la identidad de cliente. La prueba SMTP incluye el aviso de
 recepción del equipo tanto aceptado como rechazado por el receptor temporal.
+El acceso del equipo comprueba los tres roles, solicitudes no aprobadas,
+bloqueo persistente, cambio y revocación de permisos, vencimiento, renovación
+de cookies y CSRF, protección del panel y sustitución de la identidad de cliente.
+Las cuentas aprobadas de prueba existen únicamente en la base temporal.
 
 Para comprobar toda la sintaxis PHP en PowerShell:
 

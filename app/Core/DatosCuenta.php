@@ -8,6 +8,25 @@ use DomainException;
 /** Reglas compartidas por el registro de clientes y del equipo. */
 final class DatosCuenta
 {
+    // Evita una salida inmediata al comprobar una identidad inexistente.
+    private const HASH_INEXISTENTE = '$2y$10$mE29SiS9Om07yVEj3hV8yOq6ANKnjGXXhghK9a9lzzxIKuy4CoAMW';
+
+    public static function cedula(string $cedula): int
+    {
+        $cedula = trim($cedula);
+        if (!preg_match('/^[0-9]{6,8}$/D', $cedula)) {
+            throw new DomainException('Ingresá una cédula de 6 a 8 dígitos, sin puntos ni guiones.');
+        }
+        return (int) $cedula;
+    }
+
+    public static function passwordCorrecto(string $password, ?string $hash): bool
+    {
+        $valido = $password !== '' && strlen($password) <= 72 && !str_contains($password, "\0");
+        $coincide = password_verify($valido ? $password : '', $hash ?? self::HASH_INEXISTENTE);
+        return $valido && $hash !== null && $coincide;
+    }
+
     public static function nombre(string $nombre): string
     {
         $nombre = trim($nombre);
