@@ -10,7 +10,7 @@
                     <span class="etiqueta pie-pagina__etiqueta">EXPLORA ALAS</span>
                     <div class="pie-pagina__enlaces">
                         <a class="pie-pagina__enlace" href="index.php">Inicio</a>
-                        <a class="pie-pagina__enlace" role="link" aria-disabled="true">Productos</a>
+                        <a class="pie-pagina__enlace" href="<?= $url('productos') ?>">Productos</a>
                         <a class="pie-pagina__enlace" role="link" aria-disabled="true">Nosotros</a>
                         <a class="pie-pagina__enlace" role="link" aria-disabled="true">Contacto</a>
                     </div>
