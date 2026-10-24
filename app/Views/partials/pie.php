@@ -24,7 +24,7 @@
             </div>
             <div class="pie-pagina__base">
                 <small class="pie-pagina__legal">© <?= date('Y') ?> Panadería Alas</small>
-                <a class="pie-pagina__enlace" href="<?= $url('equipo-registro') ?>">Acceso al equipo →</a>
+                <a class="pie-pagina__enlace" href="<?= $url($equipoActual ? 'equipo-panel' : 'equipo-login') ?>">Acceso al equipo →</a>
             </div>
         </div>
     </footer>

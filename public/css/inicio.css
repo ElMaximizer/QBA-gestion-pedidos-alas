@@ -274,7 +274,9 @@ a:focus-visible {
     margin: 0;
 }
 
+.cuenta__enlace,
 .cuenta__salir {
+    display: block;
     width: 100%;
     padding: 12px 14px;
     border: 0;
@@ -286,11 +288,13 @@ a:focus-visible {
     cursor: pointer;
 }
 
+.cuenta__enlace:hover,
 .cuenta__salir:hover {
     background: var(--cream);
 }
 
 .cuenta__activador:focus-visible,
+.cuenta__enlace:focus-visible,
 .cuenta__salir:focus-visible {
     outline: 3px solid var(--gold);
     outline-offset: 4px;

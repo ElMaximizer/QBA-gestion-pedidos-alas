@@ -31,12 +31,15 @@
                     Carrito <span class="carrito__cantidad"><?= $cantidadCarrito ?></span>
                 </a>
             </nav>
-            <?php if ($clienteActual): ?>
+            <?php $cuentaActual = $equipoActual ?? $clienteActual; if ($cuentaActual): ?>
             <div class="cuenta">
                 <details class="cuenta__menu">
-                    <summary class="cuenta__activador"><span>Hola, <strong class="cuenta__nombre"><?= $escapar($clienteActual['nombre']) ?></strong></span><span class="cuenta__flecha" aria-hidden="true">⌄</span></summary>
+                    <summary class="cuenta__activador"><span>Hola, <strong class="cuenta__nombre"><?= $escapar($cuentaActual['nombre']) ?></strong></span><span class="cuenta__flecha" aria-hidden="true">⌄</span></summary>
                     <div class="cuenta__desplegable">
-                        <form class="cuenta__formulario" method="post" action="<?= $url('cerrar-sesion') ?>">
+                        <?php if ($equipoActual): ?>
+                        <a class="cuenta__enlace" href="<?= $url('equipo-panel') ?>">Panel del equipo</a>
+                        <?php endif; ?>
+                        <form class="cuenta__formulario" method="post" action="<?= $url($equipoActual ? 'equipo-cerrar-sesion' : 'cerrar-sesion') ?>">
                             <input type="hidden" name="csrf" value="<?= $csrf ?>">
                             <button class="cuenta__salir">Cerrar sesión</button>
                         </form>

@@ -75,7 +75,7 @@ try {
     $entorno->iniciarServidor();
     $solicitar = $entorno->solicitar(...);
     [, $inicio] = $solicitar('index.php');
-    comprobar(str_contains($inicio, 'href="index.php?ruta=equipo-registro">Acceso al equipo'), 'El pie permite abrir el registro del equipo');
+    comprobar(str_contains($inicio, 'href="index.php?ruta=equipo-login">Acceso al equipo'), 'El pie permite abrir el acceso del equipo');
     comprobar($solicitar('index.php?ruta=equipo-solicitud-enviada')[0] === 303, 'La confirmación exige una solicitud de esta sesión');
     comprobar($solicitar('index.php?ruta=equipo-solicitud-enviada', [])[0] === 405, 'La confirmación solo admite lectura');
     [$estado, $html] = $solicitar('index.php?ruta=equipo-registro');

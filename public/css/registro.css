@@ -52,6 +52,13 @@
     margin-bottom: 20px;
 }
 
+.registro__separador {
+    width: 100%;
+    margin: 8px 0 0;
+    border: 0;
+    border-top: 1px solid var(--border);
+}
+
 .contrasena {
     position: relative;
     display: block;
