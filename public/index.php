@@ -7,6 +7,7 @@ use App\Controllers\InicioController;
 use App\Controllers\PedidoController;
 use App\Controllers\ProductoController;
 use App\Controllers\RegistroController;
+use App\Controllers\RegistroEquipoController;
 use App\Core\Sesion;
 use App\Core\Vista;
 
@@ -27,6 +28,8 @@ $rutas = [
     'registro-completado' => [RegistroController::class, 'completado', ['GET', 'HEAD']],
     'cliente-login' => [AccesoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'cerrar-sesion' => [AccesoController::class, 'salir', ['POST']],
+    'equipo-registro' => [RegistroEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-solicitud-enviada' => [RegistroEquipoController::class, 'enviado', ['GET', 'HEAD']],
 ];
 $ruta = $_GET['ruta'] ?? 'inicio';
 $rutaAdicional = $_SERVER['PATH_INFO'] ?? '';

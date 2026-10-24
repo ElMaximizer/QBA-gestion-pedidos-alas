@@ -50,7 +50,7 @@ final class EntornoPruebas
 
     public function __construct(string $historia, private readonly array $correo = [])
     {
-        if (!preg_match('/^hu[0-9]{2}$/D', $historia)) {
+        if (!preg_match('/^(?:hu[0-9]{2}|equipo)$/D', $historia)) {
             throw new InvalidArgumentException('Historia de prueba inválida.');
         }
         $this->base = 'qba_' . $historia . '_test_' . bin2hex(random_bytes(6));
@@ -64,7 +64,7 @@ final class EntornoPruebas
             $this->db->exec("CREATE DATABASE `{$this->base}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
             $this->baseCreada = true;
             $this->db->exec("USE `{$this->base}`");
-            foreach (['estructura.sql', 'clientes.sql', 'acceso-clientes.sql', 'productos_demo.sql'] as $archivo) {
+            foreach (['estructura.sql', 'clientes.sql', 'acceso-clientes.sql', 'equipo.sql', 'productos_demo.sql'] as $archivo) {
                 $this->db->exec(file_get_contents(dirname(__DIR__) . '/database/' . $archivo));
             }
         } catch (Throwable $error) {
@@ -186,7 +186,7 @@ final class EntornoPruebas
             proc_terminate($this->servidor);
             proc_close($this->servidor);
         }
-        if ($this->baseCreada && preg_match('/^qba_hu[0-9]{2}_test_[a-f0-9]{12}$/D', $this->base)) {
+        if ($this->baseCreada && preg_match('/^qba_(?:hu[0-9]{2}|equipo)_test_[a-f0-9]{12}$/D', $this->base)) {
             $this->db->exec("DROP DATABASE `{$this->base}`");
         }
         if (is_dir($this->directorio)) {

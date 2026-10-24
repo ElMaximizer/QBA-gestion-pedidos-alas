@@ -3,6 +3,42 @@
 Proyecto PHP con MVC y CSS según BEM. Conserva el diseño público del
 [repositorio anterior](https://github.com/ElMaximizer/software-pedidos-alas/tree/6e4a0b26bc2ba412db66dd1541acb209d3e4f6ae).
 
+## Registro del equipo
+
+Desde **Acceso al equipo**, en el pie del sitio, se puede solicitar un usuario
+con nombre, cédula, correo y contraseña. Se conserva el formulario del proyecto
+anterior y el flujo de solicitud pendiente de aprobación del dueño.
+
+La solicitud se guarda en **usuarios_equipo**, con rol empleado y estado
+pendiente fijados por el servidor. El formulario no permite elegir privilegios.
+La cédula acepta de 6 a 8 dígitos sin puntos ni guiones y se guarda numéricamente,
+como en el sistema anterior: los ceros iniciales no permiten duplicarla.
+Cédula y correo tienen restricciones únicas en MySQL. El correo se normaliza y
+la contraseña se guarda mediante password_hash, conservando sus espacios.
+
+Después del guardado se envía un aviso de recepción mediante PHPMailer y la
+misma configuración de correo de HU16. Ese aviso no incluye cédula ni contraseña.
+Si falla, la solicitud permanece pendiente y la confirmación informa el problema.
+No se envía un código de verificación para este registro: la habilitación depende
+de la revisión posterior del dueño, igual que en el flujo activo anterior.
+
+Solicitar acceso no inicia sesión ni concede permisos. Las cuentas del equipo
+y de clientes permanecen independientes y pueden compartir correo. Se conserva
+el carrito y, si existe, la sesión de cliente. Las contraseñas no se recuperan
+en el formulario ni se guardan en la sesión.
+
+Esta etapa incorpora el registro y la confirmación de la solicitud. La aprobación,
+el rechazo, la asignación de otros roles y el inicio de sesión del equipo se
+implementarán en sus pasos correspondientes. Todavía no hay un panel de revisión
+ni una cuenta de dueño creada automáticamente.
+
+Para incorporar la tabla sobre una instalación existente:
+
+    C:\xampp\php\php.exe database\instalar.php
+
+El instalador conserva los clientes, productos y pedidos existentes. El origen
+visual y funcional es el [registro del equipo anterior](https://github.com/ElMaximizer/software-pedidos-alas/blob/produccion/app/Views/auth/pagina.php).
+
 ## HU16 — Registrarse
 
 Desde **Acceso clientes** se puede crear una cuenta con nombre, correo y
@@ -138,7 +174,7 @@ Desde la raíz del repositorio, en PowerShell:
     C:\xampp\php\php.exe database\instalar.php --demo
 
 El instalador crea la base y las tablas productos, pedidos, pedido_detalles,
-clientes, correos_locales e intentos_acceso_cliente. database/clientes.sql incorpora las tablas de HU16
+clientes, correos_locales, intentos_acceso_cliente y usuarios_equipo. database/clientes.sql incorpora las tablas de HU16
 sobre la base existente, conservando los productos y pedidos registrados.
 La opción --demo agrega tres productos de muestra, con sus textos e ingredientes
 de demostración. Se deben revisar esos datos antes de usar un catálogo real.
@@ -173,10 +209,15 @@ La raíz pública de un virtual host debe apuntar a public/.
 - app/Models/Pedido.php: validaciones y guardado transaccional.
 - app/Models/Cliente.php: registro, códigos y activación de cuentas.
 - app/Models/AccesoCliente.php: credenciales, límite de intentos e identidad verificada.
+- app/Models/UsuarioEquipo.php: validación de cédula y guardado de solicitudes pendientes.
+- app/Core/DatosCuenta.php: reglas de nombre, correo y contraseña compartidas por ambos registros.
 - app/Controllers/AccesoController.php: inicio y cierre de sesión de HU17.
 - app/Controllers/RegistroController.php: formularios y resultados de HU16.
+- app/Controllers/RegistroEquipoController.php: registro y confirmación de solicitudes del equipo.
 - app/Services/RegistroCliente.php: coordina registro y entrega del código.
-- app/Services/CorreoVerificacion.php: bandeja local o envío SMTP con PHPMailer.
+- app/Services/Correo.php: transporte compartido de correo local o SMTP con PHPMailer.
+- app/Services/CorreoVerificacion.php: contenido del código de verificación de clientes.
+- app/Services/RegistroEquipo.php: guardado de la solicitud y aviso de recepción.
 - app/Core/: conexión PDO, lectura de campos HTTP, CSRF y renderizado.
 - app/Views/: presentación de inicio, catálogo, producto, carrito, formulario y
   confirmación. Los parciales reutilizan cabecera, pie y tarjeta de producto.
@@ -192,6 +233,7 @@ La raíz pública de un virtual host debe apuntar a public/.
 - tests/pedidos.php: pruebas del dominio y del flujo HTTP.
 - tests/registro.php: pruebas del registro y de la activación.
 - tests/acceso.php: pruebas de autenticación, sesiones y asociación de pedidos.
+- tests/equipo.php: validaciones, duplicados, solicitud pendiente y aislamiento de identidades.
 - tests/soporte.php: base, servidor y sesiones temporales compartidos por las pruebas.
 
 El punto de entrada selecciona un controlador. El controlador coordina la
@@ -216,6 +258,8 @@ Todas se acceden a través de public/index.php:
 | registro-completado | GET, HEAD | Confirmación del registro verificado |
 | cliente-login | GET, HEAD, POST | Iniciar sesión con una cuenta verificada |
 | cerrar-sesion | POST | Cerrar la sesión de cliente conservando el carrito |
+| equipo-registro | GET, HEAD, POST | Solicitar un usuario del equipo |
+| equipo-solicitud-enviada | GET, HEAD | Confirmación de la solicitud de esta sesión |
 
 Las rutas desconocidas responden 404 y los métodos no permitidos, 405.
 Las modificaciones requieren POST y CSRF. Después de una operación correcta se
@@ -248,15 +292,19 @@ contienen los estilos de cada flujo. El registro usa los bloques registro y
 contrasena, con elementos como registro__tarjeta y contrasena__boton.
 El acceso reutiliza esos mismos componentes. El menú autenticado usa el bloque
 cuenta y elementos como cuenta__activador y cuenta__salir.
+El registro del equipo reutiliza registro, campo y contrasena; campo__ayuda
+presenta las indicaciones de cédula, correo y contraseña. La ilustración lateral
+se comparte entre el formulario y su confirmación.
 
 ## Verificación
 
     C:\xampp\php\php.exe tests\pedidos.php
     C:\xampp\php\php.exe tests\registro.php
     C:\xampp\php\php.exe tests\acceso.php
+    C:\xampp\php\php.exe tests\equipo.php
     C:\xampp\php\php.exe tests\correo.php
 
-Las pruebas crean una base temporal qba_hu16_test_*, qba_hu17_test_* o qba_hu18_test_*, un servidor local y sus
+Las pruebas crean una base temporal qba_hu16_test_*, qba_hu17_test_*, qba_hu18_test_* o qba_equipo_test_*, un servidor local y sus
 sesiones, y los eliminan al terminar. Requieren permisos locales para crear y
 eliminar esa base y crear un trigger de prueba. Cubren validaciones, precios
 manipulados o modificados, productos retirados, CSRF, formularios malformados,
@@ -270,6 +318,10 @@ reenvío, activación y recuperación después de un rechazo SMTP.
 HU17 comprueba cuentas sin verificar, contraseñas inválidas, bloqueos persistentes,
 renovación de cookies y CSRF, vencimiento de la sesión, conservación del carrito,
 aislamiento entre identidades y asociación del pedido desde el servidor.
+El registro del equipo también comprueba cédula y correo únicos, roles y estados
+manipulados, guardado y entrega fallidos, ausencia de contraseñas en la sesión y
+conservación de la identidad de cliente. La prueba SMTP incluye el aviso de
+recepción del equipo tanto aceptado como rechazado por el receptor temporal.
 
 Para comprobar toda la sintaxis PHP en PowerShell:
 

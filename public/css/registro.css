@@ -48,6 +48,10 @@
     margin-top: 18px;
 }
 
+.registro__insignia {
+    margin-bottom: 20px;
+}
+
 .contrasena {
     position: relative;
     display: block;

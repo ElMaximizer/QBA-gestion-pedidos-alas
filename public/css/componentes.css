@@ -218,6 +218,11 @@ h2.vacio__titulo {
     opacity: 1;
 }
 
+.campo__ayuda {
+    font-size: 12px;
+    font-weight: 400;
+}
+
 .campo__entrada--multilinea {
     resize: vertical;
 }

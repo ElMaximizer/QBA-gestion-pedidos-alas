@@ -117,6 +117,23 @@ try {
             comprobar($error->getMessage() === 'La configuración SMTP está incompleta o no es válida.', 'Rechaza una configuración incompleta o sin cifrado antes de conectarse');
         }
     }
+    $camposEquipo = ['csrf' => $csrf, 'nombre' => 'Equipo Ñandú', 'cedula' => '87654321', 'email' => 'equipo.smtp@example.test',
+        'password' => 'ClaveEquipo17!', 'confirm_password' => 'ClaveEquipo17!', 'rol' => 'dueno', 'estado' => 'aprobado'];
+    comprobar($solicitar('index.php?ruta=equipo-registro', $camposEquipo)[0] === 303, 'El registro del equipo entrega el aviso mediante PHPMailer');
+    [$cabecerasEquipo, $contenidoEquipo] = explode("\r\n\r\n", file_get_contents($directorio . '/mensaje-4.eml'), 2);
+    $contenidoEquipo = base64_decode($contenidoEquipo, true);
+    comprobar(str_contains($cabecerasEquipo, 'equipo.smtp@example.test') && str_contains($contenidoEquipo, 'Hola Equipo Ñandú,')
+        && str_contains($contenidoEquipo, 'debe aprobarla'), 'El aviso SMTP del equipo conserva destinatario, texto y acentos');
+    comprobar(!str_contains($contenidoEquipo, $camposEquipo['password']) && !str_contains($contenidoEquipo, $camposEquipo['cedula']), 'El aviso SMTP no incluye contraseña ni cédula');
+    $usuarioEquipo = $db->query('SELECT rol, estado FROM usuarios_equipo')->fetch();
+    comprobar($usuarioEquipo['rol'] === 'empleado' && $usuarioEquipo['estado'] === 'pendiente', 'El envío SMTP no concede acceso ni acepta privilegios del navegador');
+    unlink($directorio . '/recuperado');
+    $camposEquipo = array_replace($camposEquipo, ['cedula' => '76543210', 'email' => 'fallo@example.test']);
+    comprobar($solicitar('index.php?ruta=equipo-registro', $camposEquipo)[0] === 303, 'Un rechazo SMTP del aviso no borra la solicitud del equipo');
+    [, $confirmacionEquipo] = $solicitar('index.php?ruta=equipo-solicitud-enviada');
+    comprobar(str_contains($confirmacionEquipo, 'Tu solicitud quedó guardada, pero no pudimos enviar el correo')
+        && count(glob($directorio . '/mensaje-*.eml')) === 4, 'La confirmación informa la entrega fallida');
+    comprobar((int) $db->query('SELECT COUNT(*) FROM correos_locales')->fetchColumn() === 0, 'El aviso SMTP fallido no se copia a la bandeja local');
     comprobar(!preg_match('/Fatal error:|Warning:|Notice:|sin-datos-privados/', $entorno->errores()), 'El flujo no expone errores de SMTP en el registro del servidor');
     echo "Correcto: $comprobaciones comprobaciones de correo SMTP.\n";
 } catch (Throwable $error) {
