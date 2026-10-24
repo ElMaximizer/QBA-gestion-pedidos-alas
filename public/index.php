@@ -5,6 +5,7 @@ use App\Controllers\CarritoController;
 use App\Controllers\InicioController;
 use App\Controllers\PedidoController;
 use App\Controllers\ProductoController;
+use App\Controllers\RegistroController;
 use App\Core\Vista;
 
 require dirname(__DIR__) . '/app/bootstrap.php';
@@ -19,6 +20,9 @@ $rutas = [
     'carrito' => [CarritoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'realizar-pedido' => [PedidoController::class, 'crear', ['GET', 'HEAD', 'POST']],
     'pedido-confirmado' => [PedidoController::class, 'confirmado', ['GET', 'HEAD']],
+    'registro' => [RegistroController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'verificar-cuenta' => [RegistroController::class, 'verificar', ['GET', 'HEAD', 'POST']],
+    'registro-completado' => [RegistroController::class, 'completado', ['GET', 'HEAD']],
 ];
 $ruta = $_GET['ruta'] ?? 'inicio';
 $rutaAdicional = $_SERVER['PATH_INFO'] ?? '';

@@ -1,0 +1,142 @@
+/* Registro y verificación. Los formularios comparten componentes.css con HU18. */
+.registro-pagina {
+    padding-block: 48px;
+}
+
+.registro-pagina h1 {
+    line-height: 1.16;
+}
+
+.registro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 48px;
+}
+
+.registro__titulo-historia {
+    margin: 28px 0;
+    font-size: 52px;
+}
+
+.registro__descripcion {
+    margin-bottom: 24px;
+    font-size: 20px;
+    line-height: 1.5;
+}
+
+.registro__imagen {
+    width: 100%;
+    height: 350px;
+    border-radius: var(--radius);
+    object-fit: cover;
+}
+
+.registro__tarjeta {
+    padding: 40px;
+}
+
+.registro__etiqueta {
+    margin-bottom: 20px;
+}
+
+.registro__titulo {
+    font-size: 48px;
+}
+
+.registro__reenvio {
+    margin-top: 18px;
+}
+
+.contrasena {
+    position: relative;
+    display: block;
+}
+
+.contrasena__entrada {
+    padding-right: 85px;
+}
+
+.contrasena__boton {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 400;
+}
+
+@media (max-width: 1150px) {
+    .registro {
+        gap: 32px;
+    }
+
+    .registro__titulo-historia {
+        font-size: 42px;
+    }
+
+    .registro__tarjeta {
+        padding: 28px;
+    }
+
+    .registro__titulo {
+        font-size: 38px;
+    }
+}
+
+@media (max-width: 850px) {
+    .registro {
+        grid-template-columns: 1fr;
+    }
+
+    .registro__historia {
+        display: none;
+    }
+
+    .registro__tarjeta {
+        justify-self: center;
+        width: 100%;
+        max-width: 648px;
+    }
+}
+
+@media (max-width: 600px) {
+    .registro-pagina {
+        padding-block: 28px;
+    }
+
+    .registro {
+        gap: 0;
+    }
+
+    .registro__tarjeta {
+        padding: 24px;
+    }
+
+    .registro__titulo {
+        overflow-wrap: anywhere;
+        font-size: 30px;
+    }
+
+    .registro__etiqueta {
+        margin-bottom: 18px;
+        font-size: 10px;
+    }
+
+    .registro__tarjeta > .aviso {
+        padding: 16px;
+    }
+
+    .registro__completado {
+        padding: 28px 24px;
+    }
+
+    .registro__completado .vacio__titulo {
+        font-size: 28px;
+    }
+
+    .registro__completado .acciones {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}

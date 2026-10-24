@@ -17,6 +17,7 @@ try {
     $db->exec("CREATE DATABASE IF NOT EXISTS `{$config['database']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     $db->exec("USE `{$config['database']}`");
     $db->exec(file_get_contents(__DIR__ . '/estructura.sql'));
+    $db->exec(file_get_contents(__DIR__ . '/clientes.sql'));
     if (in_array('--demo', $argv, true)) {
         $db->exec(file_get_contents(__DIR__ . '/productos_demo.sql'));
     }

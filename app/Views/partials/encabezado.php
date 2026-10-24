@@ -9,6 +9,9 @@
     <?php foreach ($estilos as $estilo): ?>
     <link rel="stylesheet" href="<?= $escapar($estilo) ?>">
     <?php endforeach; ?>
+    <?php foreach ($scripts as $script): ?>
+    <script src="<?= $escapar($script) ?>" defer></script>
+    <?php endforeach; ?>
 </head>
 <body class="pagina">
     <a class="salto-contenido" href="#contenido">Ir al contenido</a>
@@ -28,6 +31,6 @@
                     Carrito <span class="carrito__cantidad"><?= $cantidadCarrito ?></span>
                 </a>
             </nav>
-            <a class="boton boton--dorado encabezado__acceso" role="link" aria-disabled="true">Acceso clientes</a>
+            <a class="boton boton--dorado encabezado__acceso" href="<?= $url('registro') ?>">Acceso clientes</a>
         </div>
     </header>
