@@ -111,7 +111,7 @@ try {
     $campos = ['csrf' => $csrf, 'nombre' => 'Cliente web', 'email' => $emailWeb,
         'password' => $password, 'confirm_password' => $password];
     comprobar($solicitar('index.php?ruta=registro-completado')[0] === 303, 'Protege la confirmación sin un registro completado');
-    comprobar($solicitar('index.php?ruta=cliente-login')[0] === 404, 'HU16 no agrega el inicio de sesión de HU17');
+    comprobar($solicitar('index.php?ruta=cliente-login')[0] === 200, 'El registro permite continuar hacia el inicio de sesión');
     comprobar($solicitar('index.php?ruta=registro', array_replace($campos, ['csrf' => 'incorrecto']))[0] === 422, 'Exige CSRF en el registro');
     comprobar($solicitar('index.php?ruta=registro', array_replace($campos, ['nombre' => ['x']]))[0] === 422, 'Rechaza nombres malformados');
     comprobar($solicitar('index.php?ruta=registro', array_replace($campos, ['password' => ['x']]))[0] === 422, 'Rechaza contraseñas malformadas');

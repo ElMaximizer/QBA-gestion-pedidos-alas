@@ -1,11 +1,13 @@
 <?php
 declare(strict_types=1);
 
+use App\Controllers\AccesoController;
 use App\Controllers\CarritoController;
 use App\Controllers\InicioController;
 use App\Controllers\PedidoController;
 use App\Controllers\ProductoController;
 use App\Controllers\RegistroController;
+use App\Core\Sesion;
 use App\Core\Vista;
 
 require dirname(__DIR__) . '/app/bootstrap.php';
@@ -23,6 +25,8 @@ $rutas = [
     'registro' => [RegistroController::class, 'index', ['GET', 'HEAD', 'POST']],
     'verificar-cuenta' => [RegistroController::class, 'verificar', ['GET', 'HEAD', 'POST']],
     'registro-completado' => [RegistroController::class, 'completado', ['GET', 'HEAD']],
+    'cliente-login' => [AccesoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'cerrar-sesion' => [AccesoController::class, 'salir', ['POST']],
 ];
 $ruta = $_GET['ruta'] ?? 'inicio';
 $rutaAdicional = $_SERVER['PATH_INFO'] ?? '';
@@ -40,6 +44,7 @@ if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', $metodos, true)) {
 }
 
 try {
+    Sesion::cliente();
     (new $controlador())->$accion();
 } catch (DomainException $error) {
     http_response_code(422);

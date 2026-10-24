@@ -24,17 +24,12 @@
                 <label class="campo">Correo electrónico
                     <input class="campo__entrada" type="email" name="email" value="<?= $escapar($email) ?>" maxlength="190" autocomplete="email" required>
                 </label>
-                <label class="campo">Contraseña
-                    <span class="contrasena">
-                        <input class="campo__entrada contrasena__entrada" id="password" type="password" name="password" aria-label="Contraseña" minlength="8" maxlength="72" autocomplete="new-password" required>
-                        <button type="button" class="boton-texto contrasena__boton" data-toggle-password="password" aria-label="Mostrar contraseña" aria-controls="password" aria-pressed="false" hidden>Mostrar</button>
-                    </span>
-                </label>
+                <?php $autocompletePassword = 'new-password'; require __DIR__ . '/partials/campo-contrasena.php'; ?>
                 <label class="campo">Confirmar contraseña
                     <input class="campo__entrada" type="password" name="confirm_password" minlength="8" maxlength="72" autocomplete="new-password" required>
                 </label>
                 <button class="boton boton--dorado boton--completo">Crear cuenta</button>
-                <a class="enlace-texto" role="link" aria-disabled="true">Ya tengo cuenta · Iniciar sesión</a>
+                <a class="enlace-texto" href="<?= $url('cliente-login') ?>">Ya tengo cuenta · Iniciar sesión</a>
                 <?php if ($error || !empty($_SESSION['qba']['registro_pendiente_email'])): ?>
                 <a class="enlace-texto" href="<?= $url('verificar-cuenta') ?>">Verificar mi cuenta</a>
                 <?php endif; ?>

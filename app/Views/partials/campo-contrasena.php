@@ -1,0 +1,6 @@
+<label class="campo">Contraseña
+    <span class="contrasena">
+        <input class="campo__entrada contrasena__entrada" id="password" type="password" name="password" aria-label="Contraseña" minlength="8" maxlength="72" autocomplete="<?= $escapar($autocompletePassword) ?>" required>
+        <button type="button" class="boton-texto contrasena__boton" data-toggle-password="password" aria-label="Mostrar contraseña" aria-controls="password" aria-pressed="false" hidden>Mostrar</button>
+    </span>
+</label>

@@ -17,7 +17,8 @@ final class PedidoController
 {
     public function crear(): void
     {
-        $datos = ['cliente_nombre' => '', 'telefono' => '', 'fecha_retiro' => date('Y-m-d', strtotime('+1 day')),
+        $cliente = Sesion::cliente();
+        $datos = ['cliente_nombre' => $cliente['nombre'] ?? '', 'telefono' => '', 'fecha_retiro' => date('Y-m-d', strtotime('+1 day')),
             'hora_retiro' => '10:00', 'notas' => ''];
         $error = '';
         $token = '';
@@ -40,7 +41,8 @@ final class PedidoController
                 foreach (array_keys($datos) as $campo) {
                     $datos[$campo] = Http::texto($_POST, $campo);
                 }
-                $id = (new Pedido(Conexion::obtener()))->crear($datos, Carrito::cantidades(), $formulario['firma'], $token);
+                $id = (new Pedido(Conexion::obtener()))->crear($datos, Carrito::cantidades(), $formulario['firma'], $token,
+                    $cliente ? (int) $cliente['id_cliente'] : null);
                 Sesion::confirmar($token, $id);
                 Carrito::vaciar();
                 Http::redirigir('pedido-confirmado');

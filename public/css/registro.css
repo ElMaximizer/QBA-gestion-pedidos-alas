@@ -1,4 +1,4 @@
-/* Registro y verificación. Los formularios comparten componentes.css con HU18. */
+/* Acceso, registro y verificación. Los formularios reutilizan componentes.css. */
 .registro-pagina {
     padding-block: 48px;
 }

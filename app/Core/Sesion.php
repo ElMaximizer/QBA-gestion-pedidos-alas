@@ -3,10 +3,62 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Models\AccesoCliente;
 use DomainException;
+use RuntimeException;
 
 final class Sesion
 {
+    private static bool $clienteConsultado = false;
+    private static ?array $clienteActual = null;
+
+    public static function cliente(): ?array
+    {
+        if (self::$clienteConsultado) {
+            return self::$clienteActual;
+        }
+        self::$clienteConsultado = true;
+        $idCliente = $_SESSION['qba']['cliente_id'] ?? null;
+        if (!is_int($idCliente) || $idCliente < 1) {
+            return null;
+        }
+        if (($_SESSION['qba']['cliente_ultimo_acceso'] ?? 0) < time() - 1800) {
+            self::cerrarCliente();
+            return null;
+        }
+        self::$clienteActual = (new AccesoCliente(Conexion::obtener()))->buscarVerificado($idCliente);
+        if (self::$clienteActual === null) {
+            self::cerrarCliente();
+            return null;
+        }
+        $_SESSION['qba']['cliente_ultimo_acceso'] = time();
+        return self::$clienteActual;
+    }
+
+    public static function iniciarCliente(int $idCliente): void
+    {
+        self::renovarIdentidad();
+        $_SESSION['qba']['cliente_id'] = $idCliente;
+        $_SESSION['qba']['cliente_ultimo_acceso'] = time();
+    }
+
+    public static function cerrarCliente(): void
+    {
+        self::renovarIdentidad();
+    }
+
+    private static function renovarIdentidad(): void
+    {
+        if (!session_regenerate_id(true)) {
+            throw new RuntimeException('No se pudo renovar la sesión.');
+        }
+        $carrito = $_SESSION['qba']['carrito'] ?? [];
+        // Solo el carrito pasa a la identidad nueva; formularios y confirmaciones se invalidan.
+        $_SESSION['qba'] = ['carrito' => $carrito, 'csrf' => bin2hex(random_bytes(32))];
+        self::$clienteActual = null;
+        self::$clienteConsultado = false;
+    }
+
     public static function csrf(): string
     {
         return $_SESSION['qba']['csrf'] ??= bin2hex(random_bytes(32));

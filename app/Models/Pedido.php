@@ -14,7 +14,7 @@ final class Pedido
     {
     }
 
-    public function crear(array $datos, array $cantidades, string $firmaEsperada, string $token): int
+    public function crear(array $datos, array $cantidades, string $firmaEsperada, string $token, ?int $idCliente = null): int
     {
         self::validar($datos);
         if (!$cantidades || count($cantidades) > 50) {
@@ -22,11 +22,23 @@ final class Pedido
         }
         $this->db->beginTransaction();
         try {
-            $consulta = $this->db->prepare('SELECT id_pedido FROM pedidos WHERE token_confirmacion = ?');
+            $consulta = $this->db->prepare('SELECT id_pedido, id_cliente FROM pedidos WHERE token_confirmacion = ?');
             $consulta->execute([$token]);
-            if ($existente = $consulta->fetchColumn()) {
+            if ($existente = $consulta->fetch()) {
+                $propietario = $existente['id_cliente'] === null ? null : (int) $existente['id_cliente'];
+                if ($propietario !== $idCliente) {
+                    throw new DomainException('El formulario pertenece a otra sesión de cliente. Volvé al carrito.');
+                }
                 $this->db->commit();
-                return (int) $existente;
+                return (int) $existente['id_pedido'];
+            }
+            if ($idCliente !== null) {
+                $consulta = $this->db->prepare('SELECT id_cliente FROM clientes
+                    WHERE id_cliente = ? AND verificado = 1 LOCK IN SHARE MODE');
+                $consulta->execute([$idCliente]);
+                if (!$consulta->fetchColumn()) {
+                    throw new DomainException('La cuenta ya no está disponible. Volvé a iniciar sesión.');
+                }
             }
             $productos = (new Producto($this->db))->buscarVarios(array_keys($cantidades), true);
             if (count($productos) !== count($cantidades)) {
@@ -50,9 +62,9 @@ final class Pedido
                 throw new DomainException('El total supera el máximo permitido.');
             }
             $consulta = $this->db->prepare('INSERT INTO pedidos
-                (cliente_nombre, telefono, fecha_retiro, hora_retiro, notas, total, token_confirmacion)
-                VALUES (?, ?, ?, ?, ?, ?, ?)');
-            $consulta->execute([$datos['cliente_nombre'], $datos['telefono'], $datos['fecha_retiro'],
+                (id_cliente, cliente_nombre, telefono, fecha_retiro, hora_retiro, notas, total, token_confirmacion)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+            $consulta->execute([$idCliente, $datos['cliente_nombre'], $datos['telefono'], $datos['fecha_retiro'],
                 $datos['hora_retiro'], $datos['notas'], self::decimal($total), $token]);
             $idPedido = (int) $this->db->lastInsertId();
             $detalle = $this->db->prepare('INSERT INTO pedido_detalles

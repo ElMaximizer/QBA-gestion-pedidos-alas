@@ -64,7 +64,7 @@ final class EntornoPruebas
             $this->db->exec("CREATE DATABASE `{$this->base}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
             $this->baseCreada = true;
             $this->db->exec("USE `{$this->base}`");
-            foreach (['estructura.sql', 'clientes.sql', 'productos_demo.sql'] as $archivo) {
+            foreach (['estructura.sql', 'clientes.sql', 'acceso-clientes.sql', 'productos_demo.sql'] as $archivo) {
                 $this->db->exec(file_get_contents(dirname(__DIR__) . '/database/' . $archivo));
             }
         } catch (Throwable $error) {
@@ -82,6 +82,7 @@ final class EntornoPruebas
         $this->direccion = stream_socket_get_name($socket, false);
         fclose($socket);
         $this->servidor = proc_open([PHP_BINARY, '-d', 'session.save_path="' . $this->directorio . '"',
+            '-d', 'session.serialize_handler=php',
             '-S', $this->direccion, '-t', dirname(__DIR__) . '/public'], [0 => ['pipe', 'r'],
                 1 => ['file', $this->directorio . '/servidor.log', 'a'],
                 2 => ['file', $this->directorio . '/errores.log', 'a']], $tuberias, dirname(__DIR__),
@@ -101,12 +102,17 @@ final class EntornoPruebas
         throw new RuntimeException('El servidor de pruebas no respondió.');
     }
 
-    public function solicitar(string $ruta, ?array $campos = null): array
+    public function solicitar(string $ruta, ?array $campos = null, ?string $sesion = null): array
     {
-        $curl = curl_init('http://' . $this->direccion . '/' . $ruta);
+        $curl = curl_init($this->url() . '/' . $ruta);
         curl_setopt_array($curl, [CURLOPT_RETURNTRANSFER => true, CURLOPT_HEADER => true,
-            CURLOPT_COOKIEFILE => $this->directorio . '/cookies', CURLOPT_COOKIEJAR => $this->directorio . '/cookies',
             CURLOPT_CONNECTTIMEOUT => 1, CURLOPT_TIMEOUT => 5, CURLOPT_FOLLOWLOCATION => false]);
+        if ($sesion === null) {
+            curl_setopt_array($curl, [CURLOPT_COOKIEFILE => $this->directorio . '/cookies',
+                CURLOPT_COOKIEJAR => $this->directorio . '/cookies']);
+        } else {
+            curl_setopt($curl, CURLOPT_COOKIE, 'QBA_SESSION=' . $sesion);
+        }
         if ($campos !== null) {
             curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($campos));
         }
@@ -114,6 +120,42 @@ final class EntornoPruebas
         $estado = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         curl_close($curl);
         return [$estado, (string) $respuesta];
+    }
+
+    public function url(): string
+    {
+        return 'http://' . $this->direccion;
+    }
+
+    public function idSesion(): string
+    {
+        $id = '';
+        foreach (file($this->directorio . '/cookies', FILE_IGNORE_NEW_LINES) as $linea) {
+            $campos = explode("\t", $linea);
+            if (count($campos) === 7 && $campos[5] === 'QBA_SESSION') {
+                $id = $campos[6];
+            }
+        }
+        if (!preg_match('/^[a-zA-Z0-9,-]+$/D', $id)) {
+            throw new RuntimeException('No se encontró la sesión de pruebas.');
+        }
+        return $id;
+    }
+
+    /** Lee o modifica únicamente la sesión del servidor temporal para probar su vencimiento. */
+    public function sesion(?callable $actualizar = null): array
+    {
+        $archivo = $this->directorio . '/sess_' . $this->idSesion();
+        $contenido = file_get_contents($archivo);
+        if (!str_starts_with($contenido, 'qba|')) {
+            throw new RuntimeException('La sesión de pruebas no tiene el formato esperado.');
+        }
+        $datos = unserialize(substr($contenido, 4), ['allowed_classes' => false]);
+        if ($actualizar !== null) {
+            $datos = $actualizar($datos);
+            file_put_contents($archivo, 'qba|' . serialize($datos));
+        }
+        return $datos;
     }
 
     public function cli(string $archivo, array $argumentos): array
