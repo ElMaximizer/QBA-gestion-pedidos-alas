@@ -20,8 +20,11 @@ final class Vista
         $cantidadCarrito = Carrito::unidades();
         $seccionActiva = $variables['seccionActiva'] ?? '';
         $esGestionProducto = in_array($vista, ['equipo-productos', 'equipo-producto-form', 'equipo-producto-eliminar'], true);
+        $esGestionStock = $vista === 'equipo-stock';
+        $esPermisosEquipo = $vista === 'equipo-permisos';
         $esPersonalEquipo = $vista === 'equipo-personal';
-        $esPanel = ($variables['layoutEquipo'] ?? false) || $vista === 'equipo-panel' || $esGestionProducto || $esPersonalEquipo;
+        $esPanel = ($variables['layoutEquipo'] ?? false) || $vista === 'equipo-panel'
+            || $esGestionProducto || $esGestionStock || $esPermisosEquipo || $esPersonalEquipo;
         $esRegistro = in_array($vista, ['cliente-login', 'cliente-registro', 'cliente-verificar', 'registro-completado',
             'equipo-registro', 'equipo-solicitud-enviada', 'equipo-login'], true);
         $estilos = $vista === 'inicio' ? [] : ['css/componentes.css',
@@ -31,14 +34,29 @@ final class Vista
         if ($esGestionProducto) {
             $estilos[] = 'css/gestion-productos.css';
         }
+
+        if ($esGestionStock) {
+            $estilos[] = 'css/equipo-stock.css';
+        }
+
+        if ($vista === 'equipo-pedidos') {
+            $estilos[] = 'css/equipo-pedidos.css';
+        }
+
+        if ($esPermisosEquipo) {
+            $estilos[] = 'css/equipo-permisos.css';
+        }
+
         if ($esPersonalEquipo) {
             $estilos[] = 'css/equipo-personal.css';
         }
+
         if ($vista === 'equipo-producto-form') {
             $scripts[] = 'js/productos.js';
         }
 
         extract($variables, EXTR_SKIP);
+
         require dirname(__DIR__) . '/Views/partials/encabezado.php';
         require dirname(__DIR__) . '/Views/' . $vista . '.php';
         require dirname(__DIR__) . '/Views/partials/pie.php';
