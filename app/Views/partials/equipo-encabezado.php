@@ -1,4 +1,4 @@
-    <header class="encabezado encabezado-equipo">
+        <header class="encabezado encabezado-equipo">
         <div class="contenedor encabezado__contenido">
             <a class="marca" href="<?= $url('equipo-panel') ?>">
                 <strong class="marca__nombre">PANADERÍA ALAS</strong>
@@ -20,5 +20,8 @@
             <a class="boton boton--contorno navegacion-equipo__enlace" role="link" aria-disabled="true" title="Próximamente">Productos</a>
             <?php endif; ?>
             <a class="boton boton--contorno navegacion-equipo__enlace" role="link" aria-disabled="true" title="Próximamente">Pedidos</a>
+            <?php if ($administraProductos): ?>
+            <a class="boton <?= $seccionActiva === 'stock' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace" href="<?= $url('equipo-stock') ?>" <?= $seccionActiva === 'stock' ? 'aria-current="page"' : '' ?>>Stock</a>
+            <?php endif; ?>
         </div>
     </nav>
