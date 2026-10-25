@@ -5,6 +5,13 @@
         <p class="titulo-pagina__descripcion">Buscá pedidos y revisá sus productos, fecha de retiro y estado.</p>
     </div>
 
+    <?php if ($aviso !== ''): ?>
+    <p class="equipo-pedidos__mensaje equipo-pedidos__mensaje--exito" role="status"><?= $escapar($aviso) ?></p>
+    <?php endif; ?>
+    <?php if ($error !== ''): ?>
+    <p class="equipo-pedidos__mensaje equipo-pedidos__mensaje--error" role="alert"><?= $escapar($error) ?></p>
+    <?php endif; ?>
+
     <form class="equipo-pedidos__filtros" method="get" action="<?= $escapar($url('equipo-pedidos')) ?>">
         <label class="campo equipo-pedidos__busqueda">Buscar pedido
             <input class="campo__entrada" type="search" name="q" maxlength="100"
@@ -46,6 +53,22 @@
                 <div><dt>Teléfono</dt><dd><?= $escapar($pedido['telefono']) ?></dd></div>
                 <div><dt>Retiro</dt><dd><?= $escapar(date('d/m/Y', strtotime($pedido['fecha_retiro']))) ?> · <?= $escapar(substr((string) $pedido['hora_retiro'], 0, 5)) ?></dd></div>
                 <div><dt>Total</dt><dd><?= $dinero($pedido['total_centavos']) ?></dd></div>
+                <div class="equipo-pedido__sena"><dt>Seña</dt><dd>
+                    <?php if ($puedeRegistrarSena): ?>
+                    <form class="equipo-pedido__sena-form" method="post" action="<?= $escapar($url('equipo-pedidos')) ?>">
+                        <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
+                        <input type="hidden" name="id_pedido" value="<?= $pedido['id_pedido'] ?>">
+                        <input type="hidden" name="sena_recibida" value="0">
+                        <label class="equipo-pedido__sena-opcion">
+                            <input type="checkbox" name="sena_recibida" value="1" <?= $pedido['sena_recibida'] ? 'checked' : '' ?>>
+                            Seña recibida
+                        </label>
+                        <button class="boton boton--contorno equipo-pedido__sena-guardar">Guardar</button>
+                    </form>
+                    <?php else: ?>
+                    <?= $pedido['sena_recibida'] ? 'Recibida' : 'Pendiente' ?>
+                    <?php endif; ?>
+                </dd></div>
                 <div class="equipo-pedido__productos"><dt>Productos</dt><dd><?= $escapar($pedido['productos']) ?></dd></div>
             </dl>
         </article>

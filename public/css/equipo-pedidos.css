@@ -65,6 +65,48 @@
     grid-column: 1 / -1;
 }
 
+.equipo-pedido__sena-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.equipo-pedido__sena-opcion {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.equipo-pedido__sena-opcion input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.equipo-pedido__sena-guardar {
+    min-height: 40px;
+    padding: 8px 14px;
+}
+
+.equipo-pedidos__mensaje {
+    margin-block: 18px;
+    padding: 14px 16px;
+    border-radius: 10px;
+}
+
+.equipo-pedidos__mensaje--exito {
+    border: 1px solid #a8d5ba;
+    background: #eff9f2;
+    color: #215b35;
+}
+
+.equipo-pedidos__mensaje--error {
+    border: 1px solid #e3b3b3;
+    background: #fff3f3;
+    color: #7e2525;
+}
+
 @media (max-width: 850px) {
     .equipo-pedidos__filtros {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -92,5 +134,9 @@
     .equipo-pedido__datos {
         grid-template-columns: 1fr 1fr;
         gap: 14px 12px;
+    }
+
+    .equipo-pedido__sena {
+        grid-column: 1 / -1;
     }
 }

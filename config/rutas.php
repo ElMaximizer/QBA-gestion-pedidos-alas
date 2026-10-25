@@ -30,7 +30,7 @@ return [
     'equipo-solicitud-enviada' => ['equipo/solicitud-enviada', RegistroEquipoController::class, 'enviado', ['GET', 'HEAD']],
     'equipo-login' => ['equipo/login', AccesoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-panel' => ['equipo/panel', PanelEquipoController::class, 'index', ['GET', 'HEAD']],
-    'equipo-pedidos' => ['equipo/pedidos', PedidosEquipoController::class, 'index', ['GET', 'HEAD']],
+    'equipo-pedidos' => ['equipo/pedidos', PedidosEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-cerrar-sesion' => ['equipo/salir', AccesoEquipoController::class, 'salir', ['POST']],
     'equipo-productos' => ['equipo/productos', GestionProductoController::class, 'index', ['GET', 'HEAD']],
     'producto-agregar' => ['equipo/productos/agregar', GestionProductoController::class, 'agregar', ['GET', 'HEAD', 'POST']],

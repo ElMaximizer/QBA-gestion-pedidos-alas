@@ -52,7 +52,7 @@ final class ConsultaPedidos
         $pagina = min($pagina, $paginas);
 
         $consulta = $this->db->prepare('SELECT p.id_pedido, p.cliente_nombre, p.telefono, p.fecha_retiro,
-                p.hora_retiro, p.estado, p.total, p.creado_en,
+                p.hora_retiro, p.estado, p.total, p.sena_recibida, p.creado_en,
                 COALESCE(GROUP_CONCAT(CONCAT(d.nombre_producto, \' × \', d.cantidad)
                     ORDER BY d.id_detalle SEPARATOR \', \'), \'Sin detalle disponible\') AS productos
             FROM pedidos p LEFT JOIN pedido_detalles d ON d.id_pedido = p.id_pedido'
@@ -66,11 +66,28 @@ final class ConsultaPedidos
         $pedidos = $consulta->fetchAll();
         foreach ($pedidos as &$pedido) {
             $pedido['id_pedido'] = (int) $pedido['id_pedido'];
+            $pedido['sena_recibida'] = (bool) $pedido['sena_recibida'];
             $pedido['total_centavos'] = self::aCentavos((string) $pedido['total']);
         }
         unset($pedido);
 
         return ['pedidos' => $pedidos, 'total' => $total, 'pagina' => $pagina, 'paginas' => $paginas];
+    }
+
+    public function registrarSena(int $idPedido, bool $recibida): void
+    {
+        if ($idPedido < 1) {
+            throw new DomainException('Seleccioná un pedido válido.');
+        }
+
+        $consulta = $this->db->prepare('SELECT id_pedido FROM pedidos WHERE id_pedido = ?');
+        $consulta->execute([$idPedido]);
+        if (!$consulta->fetchColumn()) {
+            throw new DomainException('El pedido ya no está disponible. Actualizá el listado.');
+        }
+
+        $consulta = $this->db->prepare('UPDATE pedidos SET sena_recibida = ? WHERE id_pedido = ?');
+        $consulta->execute([$recibida ? 1 : 0, $idPedido]);
     }
 
     private static function aCentavos(string $importe): int
