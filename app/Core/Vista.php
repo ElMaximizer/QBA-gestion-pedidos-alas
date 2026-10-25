@@ -31,6 +31,10 @@ final class Vista
             $esPanel ? 'css/panel.css' : ($esRegistro ? 'css/registro.css' : 'css/pedidos.css')];
         $scripts = in_array($vista, ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login'], true) ? ['js/registro.js'] : [];
 
+        if ($vista === 'nosotros') {
+            $estilos[] = 'css/nosotros.css';
+        }
+
         if ($esGestionProducto) {
             $estilos[] = 'css/gestion-productos.css';
         }
