@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Models\Producto;
 use App\Core\Conexion;
 use App\Core\Http;
 use App\Core\Sesion;
@@ -53,4 +54,29 @@ final class RegistroEquipoController
         Vista::mostrar('equipo-solicitud-enviada', ['tituloPagina' => 'Solicitud recibida | Panadería Alas',
             'correoEnviado' => $solicitud['correo_enviado']]);
     }
+    
+    public function registrar(): void
+{
+    Sesion::requerirEquipo();
+
+    $datos = [
+        'cliente_nombre' => '',
+        'telefono' => '',
+        'fecha_retiro' => date('Y-m-d', strtotime('+1 day')),
+        'hora_retiro' => '10:00',
+        'notas' => '',
+    ];
+
+    $productos = Producto::catalogo()->listar();
+
+    Vista::mostrar('admin/pedido-form', [
+        'tituloPagina' => 'Agregar pedido | Panadería Alas',
+        'layoutEquipo' => true,
+        'seccionActiva' => 'pedidos',
+        'datos' => $datos,
+        'productos' => $productos,
+        'error' => '',
+    ]);
 }
+}
+

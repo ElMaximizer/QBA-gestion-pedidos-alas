@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 use App\Controllers\AccesoController;
@@ -40,4 +41,5 @@ return [
     'producto-agregar' => ['equipo/productos/agregar', GestionProductoController::class, 'agregar', ['GET', 'HEAD', 'POST']],
     'producto-editar' => ['equipo/productos/editar', GestionProductoController::class, 'editar', ['GET', 'HEAD', 'POST']],
     'producto-eliminar' => ['equipo/productos/eliminar', GestionProductoController::class, 'eliminar', ['GET', 'HEAD', 'POST']],
+    'equipo-pedido-registrar' => ['equipo/pedidos/registrar',PedidosEquipoController::class,'registrar',['GET', 'HEAD'],],
 ];
