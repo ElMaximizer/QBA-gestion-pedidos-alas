@@ -173,6 +173,68 @@ los datos; GestionProducto coordina el guardado con ImagenProducto. Las vistas
 reutilizan la estructura interna del panel y gestion-productos.css contiene sus
 estilos específicos.
 
+## HU09 — Registrar entregas de mercadería
+
+Desde **Panel → Registrar mercadería** o **Stock → Registrar mercadería**, una
+cuenta aprobada de administrador o dueño registra la recepción de un proveedor.
+Se indica proveedor, fecha de recepción (hasta hoy), comprobante y observaciones
+opcionales, y entre 1 y 20 materias primas activas con sus cantidades recibidas.
+Las unidades se toman del inventario de HU07; no se convierten unidades ni se
+modifican el stock mínimo o los productos del catálogo. Una materia prima se
+incluye una sola vez por entrega. El proveedor se registra por nombre, sin
+incorporar un módulo de administración de proveedores.
+
+Las cantidades admiten coma o punto y hasta tres decimales. El cálculo usa
+milésimas enteras, compartido con HU07 mediante CantidadStock. Solo se aceptan
+cantidades mayores que cero y el stock resultante no puede superar
+999.999.999,999. Los insumos se bloquean en orden dentro de una transacción:
+el historial, sus detalles y todo el stock se confirman juntos o se revierten.
+Esto evita perder sumas de otras recepciones concurrentes. Un formulario de
+ajuste manual de HU07 anterior a una recepción debe recargarse antes de guardar.
+
+CSRF y un formulario de sesión válido durante 30 minutos protegen el registro.
+Una clave única en la base evita duplicar una recepción por doble clic o reenvío
+del mismo formulario, también si dos solicitudes llegan al mismo tiempo. Después
+del guardado se redirige con 303 al historial. La identidad del responsable, las
+unidades y los saldos los determina el servidor; no se aceptan del navegador.
+El permiso se vuelve a comprobar en cada petición, incluido un formulario abierto.
+
+**Stock → Ver entregas de proveedores** muestra 25 recepciones por página y
+permite buscar por proveedor, comprobante o materia prima. Cada recepción
+conserva el responsable, fecha, observaciones y el nombre, unidad, cantidad y
+saldo anterior/resultante de cada insumo. Los nombres históricos se mantienen
+aunque luego cambie el inventario. Esta historia registra recepciones; no incluye
+edición, eliminación, devoluciones ni facturación de proveedores.
+
+El formulario y el historial reutilizan el diseño interno y los componentes de
+stock, con estilos BEM en mercaderia.css. JavaScript agrega y quita filas sin
+recargar; las mismas acciones funcionan mediante POST sin JavaScript y no
+modifican el stock hasta confirmar la recepción.
+
+Para actualizar una instalación existente, ejecutar desde la raíz del proyecto:
+
+    C:\xampp\php\php.exe database\instalar.php
+
+El instalador aplica **database/entregas-mercaderia.sql** después del inventario y
+las cuentas del equipo. Crea entregas_mercaderia y entrega_mercaderia_detalles
+sin borrar ni recargar datos. No usar --demo para actualizar una instalación real.
+Cambiar de rama no actualiza la base automáticamente.
+
+Rutas: **/equipo/stock/entregas** (GET/HEAD) y
+**/equipo/stock/entregas/registrar** (GET/HEAD/POST).
+EntregasMercaderiaController coordina el formulario y la sesión;
+EntregaMercaderia valida, registra la transacción y consulta el historial;
+StockMateriaPrima proporciona los insumos activos.
+
+Para probar esta historia en una base temporal aislada, con limpieza al terminar:
+
+    C:\xampp\php\php.exe tests\mercaderia.php
+
+Las pruebas cubren precisión decimal, validaciones, permisos, CSRF, reenvíos,
+recepciones simultáneas con conexiones independientes, rollback completo,
+integración con HU07, conservación del historial y la
+actualización de la base sin pérdida de recepciones.
+
 ## HU16 — Registrarse
 
 Desde **Acceso clientes** se puede crear una cuenta con nombre, correo y

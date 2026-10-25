@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Core\CantidadStock;
 use DomainException;
 use PDO;
 use Throwable;
@@ -13,6 +14,11 @@ final class StockMateriaPrima
 
     public function __construct(private readonly PDO $db)
     {
+    }
+
+    public function disponibles(): array
+    {
+        return $this->db->query('SELECT id_materia, nombre, unidad FROM materias_primas WHERE activo = 1 ORDER BY nombre')->fetchAll();
     }
 
     public function listar(string $busqueda = '', string $estado = '', int $pagina = 1): array
@@ -106,21 +112,8 @@ final class StockMateriaPrima
         return [
             'nombre' => $incluyeIdentidad ? trim($nombre) : '',
             'unidad' => $incluyeIdentidad ? $unidad : '',
-            'stock_actual' => self::decimal($datos['stock_actual'] ?? null, 'stock actual'),
-            'stock_minimo' => self::decimal($datos['stock_minimo'] ?? null, 'stock mínimo'),
+            'stock_actual' => CantidadStock::validar($datos['stock_actual'] ?? null, 'stock actual'),
+            'stock_minimo' => CantidadStock::validar($datos['stock_minimo'] ?? null, 'stock mínimo'),
         ];
-    }
-
-    private static function decimal(mixed $valor, string $campo): string
-    {
-        if (!is_string($valor)) {
-            throw new DomainException('Ingresá un valor válido para el ' . $campo . '.');
-        }
-        $valor = str_replace(',', '.', trim($valor));
-        if (!preg_match('/^(?:0|[0-9]{1,9})(?:\.[0-9]{1,3})?$/D', $valor)) {
-            throw new DomainException('El ' . $campo . ' debe ser un número no negativo con hasta tres decimales.');
-        }
-        [$entero, $decimal] = array_pad(explode('.', $valor, 2), 2, '');
-        return $entero . '.' . str_pad($decimal, 3, '0');
     }
 }

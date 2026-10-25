@@ -15,6 +15,7 @@ use App\Controllers\ProductoController;
 use App\Controllers\RegistroController;
 use App\Controllers\RegistroEquipoController;
 use App\Controllers\StockEquipoController;
+use App\Controllers\EntregasMercaderiaController;
 
 // Nombre interno => [dirección pública, controlador, acción, métodos].
 return [
@@ -39,6 +40,8 @@ return [
     'equipo-cerrar-sesion' => ['equipo/salir', AccesoEquipoController::class, 'salir', ['POST']],
     'equipo-productos' => ['equipo/productos', GestionProductoController::class, 'index', ['GET', 'HEAD']],
     'equipo-stock' => ['equipo/stock', StockEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-mercaderia' => ['equipo/stock/entregas', EntregasMercaderiaController::class, 'index', ['GET', 'HEAD']],
+    'mercaderia-registrar' => ['equipo/stock/entregas/registrar', EntregasMercaderiaController::class, 'registrar', ['GET', 'HEAD', 'POST']],
     'producto-agregar' => ['equipo/productos/agregar', GestionProductoController::class, 'agregar', ['GET', 'HEAD', 'POST']],
     'producto-editar' => ['equipo/productos/editar', GestionProductoController::class, 'editar', ['GET', 'HEAD', 'POST']],
     'producto-eliminar' => ['equipo/productos/eliminar', GestionProductoController::class, 'eliminar', ['GET', 'HEAD', 'POST']],
