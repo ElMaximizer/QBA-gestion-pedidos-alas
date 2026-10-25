@@ -1,0 +1,45 @@
+/* HU09. Reutiliza la presentación y los componentes del inventario. */
+.mercaderia { min-width: 0; }
+.mercaderia__formulario, .mercaderia__historial { display: grid; gap: 24px; }
+.mercaderia__seccion { min-width: 0; }
+.mercaderia__seccion h2 { margin: 0 0 20px; font-size: 22px; }
+.mercaderia__datos { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+.mercaderia__ayuda { margin: 16px 0 20px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+.mercaderia__lineas { display: grid; gap: 20px; }
+.mercaderia__linea { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) auto; gap: 18px; align-items: end; min-width: 0; margin: 0; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius); }
+.mercaderia__leyenda { padding-inline: 6px; font-size: 14px; font-weight: 600; }
+.mercaderia__quitar { min-height: 54px; padding: 8px; }
+.mercaderia__quitar:disabled { opacity: .45; cursor: default; }
+.mercaderia__agregar { margin-top: 20px; }
+.mercaderia__acciones { margin-bottom: 0; }
+.mercaderia__busqueda { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 20px; align-items: end; margin-top: 28px; }
+.mercaderia__busqueda .boton { min-height: 54px; }
+.mercaderia__cantidad, .mercaderia__metadatos { color: var(--muted); font-size: 14px; }
+.mercaderia__cantidad { margin-block: 24px; }
+.mercaderia__cabecera { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
+.mercaderia__proveedor { margin: 12px 0; font-size: 24px; }
+.mercaderia__metadatos { margin-block: 8px; }
+.mercaderia__detalles { list-style: none; padding: 0; margin: 24px 0 0; }
+.mercaderia__detalle { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding-block: 16px; border-top: 1px solid var(--border); }
+.mercaderia__movimiento { display: block; margin-top: 8px; font-size: 14px; color: var(--muted); }
+.mercaderia__recibido { color: var(--green); }
+.mercaderia__observaciones { margin: 16px 0 0; padding-top: 16px; border-top: 1px solid var(--border); white-space: pre-wrap; }
+.mercaderia__entrega, .mercaderia__vacio, .mercaderia__detalle > div { min-width: 0; overflow-wrap: anywhere; }
+.mercaderia select, .mercaderia input, .mercaderia textarea { min-width: 0; max-width: 100%; }
+.mercaderia__vacio { width: 100%; }
+
+@media (max-width: 850px) {
+    .mercaderia__datos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mercaderia__comprobante { grid-column: 1 / -1; }
+    .mercaderia__linea { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .mercaderia__quitar { grid-column: 1 / -1; justify-self: start; min-height: 44px; }
+}
+
+@media (max-width: 600px) {
+    .mercaderia__datos, .mercaderia__linea, .mercaderia__busqueda { grid-template-columns: minmax(0, 1fr); }
+    .mercaderia__cabecera, .mercaderia__detalle, .mercaderia__acciones { flex-direction: column; align-items: stretch; }
+    .mercaderia__cabecera .insignia { align-self: start; }
+    .mercaderia__seccion, .mercaderia__entrega, .mercaderia__vacio { padding: 20px; }
+    .mercaderia__agregar, .mercaderia__busqueda .boton { width: 100%; }
+    .mercaderia__vacio .vacio__titulo { font-size: 26px; }
+}

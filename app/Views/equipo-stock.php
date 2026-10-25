@@ -5,6 +5,11 @@
         <p class="titulo-pagina__descripcion">Consultá las materias primas y actualizá las cantidades disponibles y mínimas.</p>
     </div>
 
+    <div class="acciones">
+        <a class="boton boton--dorado" href="<?= $url('mercaderia-registrar') ?>">+ Registrar mercadería</a>
+        <a class="boton boton--contorno" href="<?= $url('equipo-mercaderia') ?>">Ver entregas de proveedores</a>
+    </div>
+
     <?php if ($aviso !== ''): ?><p class="equipo-stock__mensaje equipo-stock__mensaje--exito" role="status"><?= $escapar($aviso) ?></p><?php endif; ?>
     <?php if ($error !== ''): ?><p class="equipo-stock__mensaje equipo-stock__mensaje--error" role="alert"><?= $escapar($error) ?></p><?php endif; ?>
 

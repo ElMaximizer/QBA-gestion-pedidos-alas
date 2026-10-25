@@ -18,6 +18,7 @@
 
 .navegacion-equipo__contenido {
     display: flex;
+    flex-wrap: wrap;
     justify-content: flex-end;
     gap: 32px;
 }
