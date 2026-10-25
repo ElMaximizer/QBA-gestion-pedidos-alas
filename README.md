@@ -48,9 +48,9 @@ y una cédula inexistente reciben el mismo error. Una solicitud pendiente o
 rechazada no obtiene acceso; el aviso de aprobación se muestra únicamente
 después de comprobar la contraseña.
 
-Al ingresar aparece una pantalla protegida con el nombre, el rol y el cierre
-de sesión. Esta pantalla es el punto de entrada para las funciones que se
-implementen después; no incorpora la gestión de pedidos, usuarios o permisos.
+Al ingresar aparece el panel del equipo con el nombre, el rol y el cierre
+de sesión. Es el punto de entrada para las funciones que se implementen después;
+su estructura se describe en la sección siguiente.
 El menú **Hola, nombre → Panel del equipo** permite regresar desde el sitio.
 La recuperación de contraseña y el panel de aprobación siguen pendientes.
 No se crean dueños ni se aprueban solicitudes automáticamente.
@@ -77,6 +77,34 @@ En una instalación existente, ejecutá el instalador sin --demo para agregar
 la tabla de intentos conservando los datos y las aprobaciones actuales:
 
     C:\xampp\php\php.exe database\instalar.php
+
+## Panel del equipo — estructura visual
+
+La rama técnica admin/panel incorpora solamente la presentación del
+[panel anterior](https://github.com/ElMaximizer/software-pedidos-alas/blob/produccion/app/Views/admin/panel.php):
+cabecera interna con Salir, navegación, tarjetas de resumen, Próximos retiros,
+Atención del equipo y pie de gestión interna. Reutiliza los colores, tamaños y
+componentes existentes con clases BEM y adaptación a pantallas pequeñas.
+
+Empleado, administrador y dueño comparten la misma pantalla. Las opciones de
+Atención del equipo conservan la visibilidad del proyecto anterior: consultas
+para todos; alta de personal y bandeja local para administrador; gestión de
+personal, solicitudes, actividad y bandeja local para dueño. Esa visibilidad
+es únicamente presentación; los permisos de cada futura operación deberán
+validarse en su implementación correspondiente.
+
+Los contadores muestran — y el área de retiros muestra Próximamente. No se
+consultan pedidos, productos, ventas, mensajes ni solicitudes para llenar el
+panel. Los accesos a módulos futuros están deshabilitados y no tienen URL ni
+formularios de operación. Solo funcionan el regreso al sitio, el regreso al
+panel y el cierre de sesión ya existente. Esta etapa no implementa ninguna
+de las historias de gestión ni requiere cambios en la base de datos.
+
+PanelEquipoController obtiene la identidad aprobada de la sesión y prepara la
+vista equipo-panel. Los parciales equipo-encabezado y equipo-pie comparten la
+estructura HTML general del sitio; panel.css agrega los estilos internos sin
+cargar los estilos de registro o pedidos. La autenticación continúa a cargo
+de AccesoEquipoController y Sesion.
 
 ## HU16 — Registrarse
 
@@ -254,7 +282,8 @@ La raíz pública de un virtual host debe apuntar a public/.
 - app/Models/UsuarioEquipo.php: validación de cédula y guardado de solicitudes pendientes.
 - app/Core/DatosCuenta.php: reglas compartidas de nombre, correo, cédula y contraseñas.
 - app/Controllers/AccesoController.php: inicio y cierre de sesión de HU17.
-- app/Controllers/AccesoEquipoController.php: acceso, pantalla protegida y cierre del equipo.
+- app/Controllers/AccesoEquipoController.php: inicio y cierre de sesión del equipo.
+- app/Controllers/PanelEquipoController.php: presentación del panel para la identidad aprobada.
 - app/Controllers/RegistroController.php: formularios y resultados de HU16.
 - app/Controllers/RegistroEquipoController.php: registro y confirmación de solicitudes del equipo.
 - app/Services/RegistroCliente.php: coordina registro y entrega del código.
@@ -271,6 +300,7 @@ La raíz pública de un virtual host debe apuntar a public/.
 - public/css/inicio.css: estilos compartidos y portada.
 - public/css/componentes.css: formularios, tarjetas, avisos y botones compartidos.
 - public/css/pedidos.css: componentes de HU18.
+- public/css/panel.css: estructura visual del panel y navegación interna del equipo.
 - public/css/registro.css y public/js/registro.js: presentación y control de contraseña de HU16/HU17.
 - public/images/: cinco imágenes originales.
 - tests/pedidos.php: pruebas del dominio y del flujo HTTP.
@@ -305,7 +335,7 @@ Todas se acceden a través de public/index.php:
 | equipo-registro | GET, HEAD, POST | Solicitar un usuario del equipo |
 | equipo-solicitud-enviada | GET, HEAD | Confirmación de la solicitud de esta sesión |
 | equipo-login | GET, HEAD, POST | Iniciar sesión con cédula y contraseña |
-| equipo-panel | GET, HEAD | Pantalla de la cuenta aprobada del equipo |
+| equipo-panel | GET, HEAD | Panel visual de la cuenta aprobada del equipo |
 | equipo-cerrar-sesion | POST | Cerrar la sesión del equipo conservando el carrito |
 
 Las rutas desconocidas responden 404 y los métodos no permitidos, 405.
