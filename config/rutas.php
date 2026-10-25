@@ -8,6 +8,7 @@ use App\Controllers\InicioController;
 use App\Controllers\GestionProductoController;
 use App\Controllers\PanelEquipoController;
 use App\Controllers\PedidoController;
+use App\Controllers\PersonalEquipoController;
 use App\Controllers\ProductoController;
 use App\Controllers\RegistroController;
 use App\Controllers\RegistroEquipoController;
@@ -29,6 +30,7 @@ return [
     'equipo-solicitud-enviada' => ['equipo/solicitud-enviada', RegistroEquipoController::class, 'enviado', ['GET', 'HEAD']],
     'equipo-login' => ['equipo/login', AccesoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-panel' => ['equipo/panel', PanelEquipoController::class, 'index', ['GET', 'HEAD']],
+    'equipo-personal' => ['equipo/personal', PersonalEquipoController::class, 'index', ['GET', 'HEAD']],
     'equipo-cerrar-sesion' => ['equipo/salir', AccesoEquipoController::class, 'salir', ['POST']],
     'equipo-productos' => ['equipo/productos', GestionProductoController::class, 'index', ['GET', 'HEAD']],
     'producto-agregar' => ['equipo/productos/agregar', GestionProductoController::class, 'agregar', ['GET', 'HEAD', 'POST']],
