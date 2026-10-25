@@ -5,7 +5,7 @@
         <p class="vacio__descripcion vacio__descripcion--principal">Tu número es <strong>#<?= $idPedido ?></strong>. El equipo se comunicará para confirmar disponibilidad y retiro.</p>
         <div class="acciones vacio__acciones">
             <a class="boton boton--dorado" href="<?= $url('productos') ?>">Seguir explorando</a>
-            <a class="boton boton--contorno" href="index.php">Volver al inicio</a>
+            <a class="boton boton--contorno" href="<?= $url('inicio') ?>">Volver al inicio</a>
         </div>
     </section>
 </main>

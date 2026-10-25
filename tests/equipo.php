@@ -74,65 +74,65 @@ try {
 
     $entorno->iniciarServidor();
     $solicitar = $entorno->solicitar(...);
-    [, $inicio] = $solicitar('index.php');
-    comprobar(str_contains($inicio, 'href="index.php?ruta=equipo-login">Acceso al equipo'), 'El pie permite abrir el acceso del equipo');
-    comprobar($solicitar('index.php?ruta=equipo-solicitud-enviada')[0] === 303, 'La confirmación exige una solicitud de esta sesión');
-    comprobar($solicitar('index.php?ruta=equipo-solicitud-enviada', [])[0] === 405, 'La confirmación solo admite lectura');
-    [$estado, $html] = $solicitar('index.php?ruta=equipo-registro');
+    [, $inicio] = $solicitar('/');
+    comprobar(str_contains($inicio, 'href="/equipo/login">Acceso al equipo'), 'El pie permite abrir el acceso del equipo');
+    comprobar($solicitar('/equipo/solicitud-enviada')[0] === 303, 'La confirmación exige una solicitud de esta sesión');
+    comprobar($solicitar('/equipo/solicitud-enviada', [])[0] === 405, 'La confirmación solo admite lectura');
+    [$estado, $html] = $solicitar('/equipo/registro');
     comprobar($estado === 200 && str_contains($html, 'Solicitar usuario'), 'Muestra el formulario del equipo');
     comprobar(str_contains($html, 'registro.css') && str_contains($html, 'js/registro.js') && str_contains($html, 'Cache-Control: no-store'), 'Reutiliza los estilos y evita almacenar el formulario en caché');
     $csrf = oculto($html, 'csrf');
     $emailWeb = 'equipo.web@example.test';
     $campos = ['csrf' => $csrf, 'nombre' => 'Equipo web', 'cedula' => '65432109', 'email' => $emailWeb,
         'password' => $password, 'confirm_password' => $password];
-    comprobar($solicitar('index.php?ruta=equipo-registro', array_replace($campos, ['csrf' => 'incorrecto']))[0] === 422, 'Exige CSRF al registrar');
+    comprobar($solicitar('/equipo/registro', array_replace($campos, ['csrf' => 'incorrecto']))[0] === 422, 'Exige CSRF al registrar');
     foreach (['nombre', 'cedula', 'email', 'password', 'confirm_password'] as $campo) {
-        comprobar($solicitar('index.php?ruta=equipo-registro', array_replace($campos, [$campo => ['x']]))[0] === 422, 'Rechaza un campo malformado: ' . $campo);
+        comprobar($solicitar('/equipo/registro', array_replace($campos, [$campo => ['x']]))[0] === 422, 'Rechaza un campo malformado: ' . $campo);
     }
-    [, $htmlError] = $solicitar('index.php?ruta=equipo-registro', array_replace($campos,
+    [, $htmlError] = $solicitar('/equipo/registro', array_replace($campos,
         ['nombre' => '<script>prueba</script>', 'confirm_password' => 'Distinta17!']));
     comprobar(str_contains($htmlError, '&lt;script&gt;prueba&lt;/script&gt;') && !str_contains($htmlError, '<script>prueba</script>'), 'Escapa los valores recuperados tras un error');
     comprobar(!str_contains($htmlError, $password), 'No devuelve contraseñas en el formulario');
     comprobar($buscar($emailWeb) === false, 'Los formularios rechazados no crean solicitudes');
-    $solicitar('index.php?ruta=carrito', ['csrf' => $csrf, 'accion' => 'agregar', 'id_producto' => '1', 'cantidad' => '2']);
-    [$estado, $respuesta] = $solicitar('index.php?ruta=equipo-registro', $campos + ['rol' => 'dueno', 'estado' => 'aprobado', 'id_usuario' => '1']);
-    comprobar($estado === 303 && str_contains($respuesta, 'ruta=equipo-solicitud-enviada'), 'Registra y redirige a la confirmación');
+    $solicitar('/carrito', ['csrf' => $csrf, 'accion' => 'agregar', 'id_producto' => '1', 'cantidad' => '2']);
+    [$estado, $respuesta] = $solicitar('/equipo/registro', $campos + ['rol' => 'dueno', 'estado' => 'aprobado', 'id_usuario' => '1']);
+    comprobar($estado === 303 && str_contains($respuesta, '/equipo/solicitud-enviada'), 'Registra y redirige a la confirmación');
     $usuarioWeb = $buscar($emailWeb);
     comprobar($usuarioWeb['rol'] === 'empleado' && $usuarioWeb['estado'] === 'pendiente', 'Ignora un rol y una aprobación enviados por el navegador');
     $sesion = $entorno->sesion();
     comprobar(!isset($sesion['cliente_id']) && !isset($sesion['usuario_id']) && !isset($sesion['equipo_id']), 'Solicitar acceso no inicia ninguna sesión autenticada');
     comprobar(!str_contains(serialize($sesion), $password) && !str_contains(serialize($sesion), $usuarioWeb['password_hash']), 'La sesión no guarda contraseñas ni hashes del equipo');
-    [$estado, $html] = $solicitar('index.php?ruta=equipo-solicitud-enviada');
+    [$estado, $html] = $solicitar('/equipo/solicitud-enviada');
     comprobar($estado === 200 && str_contains($html, 'Pendiente de aprobación'), 'La confirmación explica que la solicitud todavía no habilita acceso');
     comprobar(!str_contains($html, $campos['cedula']) && !str_contains($html, $password), 'La confirmación no expone datos de identidad ni contraseñas');
     $cantidad = (int) $db->query('SELECT COUNT(*) FROM usuarios_equipo')->fetchColumn();
     $mensajes = (int) $db->query('SELECT COUNT(*) FROM correos_locales')->fetchColumn();
-    $solicitar('index.php?ruta=equipo-solicitud-enviada');
+    $solicitar('/equipo/solicitud-enviada');
     comprobar((int) $db->query('SELECT COUNT(*) FROM usuarios_equipo')->fetchColumn() === $cantidad
         && (int) $db->query('SELECT COUNT(*) FROM correos_locales')->fetchColumn() === $mensajes, 'Recargar no crea otra solicitud ni otro correo');
-    comprobar($solicitar('index.php?ruta=equipo-solicitud-enviada&id_usuario=' . $usuarioWeb['id_usuario'], null, str_repeat('a', 32))[0] === 303, 'Otra sesión no obtiene una confirmación indicando el id');
-    comprobar($solicitar('index.php?ruta=equipo-registro', $campos)[0] === 422, 'Un doble envío no duplica la solicitud');
-    [, $carrito] = $solicitar('index.php?ruta=carrito');
+    comprobar($solicitar('/equipo/solicitud-enviada?id_usuario=' . $usuarioWeb['id_usuario'], null, str_repeat('a', 32))[0] === 303, 'Otra sesión no obtiene una confirmación indicando el id');
+    comprobar($solicitar('/equipo/registro', $campos)[0] === 422, 'Un doble envío no duplica la solicitud');
+    [, $carrito] = $solicitar('/carrito');
     comprobar(str_contains($carrito, 'Carrito <span class="carrito__cantidad">2</span>'), 'El registro conserva el carrito');
 
     $db->exec("CREATE TRIGGER fallo_aviso BEFORE INSERT ON correos_locales FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Fallo de entrega de prueba'");
     $camposFallo = array_replace($campos, ['cedula' => '54321098', 'email' => 'fallo.web@example.test']);
-    comprobar($solicitar('index.php?ruta=equipo-registro', $camposFallo)[0] === 303, 'Un fallo de aviso permite continuar a la confirmación');
-    [, $html] = $solicitar('index.php?ruta=equipo-solicitud-enviada');
+    comprobar($solicitar('/equipo/registro', $camposFallo)[0] === 303, 'Un fallo de aviso permite continuar a la confirmación');
+    [, $html] = $solicitar('/equipo/solicitud-enviada');
     comprobar(str_contains($html, 'Tu solicitud quedó guardada, pero no pudimos enviar el correo'), 'Explica el fallo de correo sin afirmar una entrega');
     comprobar($buscar('fallo.web@example.test')['estado'] === 'pendiente', 'Conserva en la base la solicitud con aviso fallido');
     $db->exec('DROP TRIGGER fallo_aviso');
     $db->exec("CREATE TRIGGER fallo_guardado BEFORE INSERT ON usuarios_equipo FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Fallo de guardado de prueba'");
     $camposFallo = array_replace($campos, ['cedula' => '43210987', 'email' => 'fallo.guardado@example.test']);
-    comprobar($solicitar('index.php?ruta=equipo-registro', $camposFallo)[0] === 503, 'Informa un fallo de base sin mostrar éxito');
-    comprobar($buscar('fallo.guardado@example.test') === false && $solicitar('index.php?ruta=equipo-solicitud-enviada')[0] === 303, 'Un guardado fallido no conserva una confirmación anterior');
+    comprobar($solicitar('/equipo/registro', $camposFallo)[0] === 503, 'Informa un fallo de base sin mostrar éxito');
+    comprobar($buscar('fallo.guardado@example.test') === false && $solicitar('/equipo/solicitud-enviada')[0] === 303, 'Un guardado fallido no conserva una confirmación anterior');
     $db->exec('DROP TRIGGER fallo_guardado');
-    [, $htmlLogin] = $solicitar('index.php?ruta=cliente-login');
+    [, $htmlLogin] = $solicitar('/clientes/login');
     $csrfCliente = oculto($htmlLogin, 'csrf');
-    comprobar($solicitar('index.php?ruta=cliente-login', ['csrf' => $csrfCliente, 'email' => $email, 'password' => $password])[0] === 303, 'La cuenta de cliente conserva su inicio de sesión');
-    [, $html] = $solicitar('index.php?ruta=equipo-registro');
+    comprobar($solicitar('/clientes/login', ['csrf' => $csrfCliente, 'email' => $email, 'password' => $password])[0] === 303, 'La cuenta de cliente conserva su inicio de sesión');
+    [, $html] = $solicitar('/equipo/registro');
     $camposCliente = array_replace($campos, ['csrf' => oculto($html, 'csrf'), 'cedula' => '32109876', 'email' => 'cliente.solicita@example.test']);
-    comprobar($solicitar('index.php?ruta=equipo-registro', $camposCliente)[0] === 303
+    comprobar($solicitar('/equipo/registro', $camposCliente)[0] === 303
         && $entorno->sesion()['cliente_id'] === $cliente['id_cliente'], 'Pedir acceso al equipo no reemplaza la identidad de cliente');
     comprobar((int) $db->query('SELECT COUNT(*) FROM clientes')->fetchColumn() === 1, 'El registro del equipo no crea cuentas de cliente adicionales');
     comprobar(!str_contains($entorno->errores(), $password) && !preg_match('/Fatal error:|Warning:|Notice:|Deprecated:/', $entorno->errores()), 'No registra contraseñas ni errores PHP');

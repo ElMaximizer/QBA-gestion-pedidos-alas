@@ -1,0 +1,10 @@
+Options -MultiViews
+DirectoryIndex index.php
+RewriteEngine On
+
+# Los recursos existentes se sirven directamente; las páginas pasan por MVC.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [END]
+
+RewriteRule ^ index.php [END]

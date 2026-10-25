@@ -19,7 +19,7 @@
         <div class="pila">
             <?php foreach ($articulos as $articulo): ?>
             <article class="tarjeta carrito-fila">
-                <img class="carrito-fila__imagen" src="images/<?= $escapar($articulo['imagen']) ?>" width="100" height="85" alt="<?= $escapar($articulo['nombre']) ?>">
+                <img class="carrito-fila__imagen" src="<?= $escapar($recurso('images/' . $articulo['imagen'])) ?>" width="100" height="85" alt="<?= $escapar($articulo['nombre']) ?>">
                 <div>
                     <span class="etiqueta carrito-fila__categoria"><?= $escapar($articulo['categoria']) ?></span>
                     <h3 class="carrito-fila__nombre"><?= $escapar($articulo['nombre']) ?></h3>

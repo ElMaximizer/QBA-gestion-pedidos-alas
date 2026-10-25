@@ -1,5 +1,5 @@
 <main id="contenido" class="contenedor registro-pagina">
-    <a class="enlace-volver" href="index.php">← Volver al sitio</a>
+    <a class="enlace-volver" href="<?= $url('inicio') ?>">← Volver al sitio</a>
     <div class="registro">
         <?php require __DIR__ . '/partials/equipo-historia.php'; ?>
         <section class="tarjeta registro__tarjeta">

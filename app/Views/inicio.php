@@ -11,7 +11,7 @@
                 </div>
                 <p class="etiqueta portada__sello">PANES · BIZCOCHOS · TORTAS</p>
             </div>
-            <img class="portada__imagen" src="images/panes.png" alt="Panes, bizcochos y tortas artesanales" width="664" height="398" fetchpriority="high">
+            <img class="portada__imagen" src="<?= $escapar($recurso('images/panes.png')) ?>" alt="Panes, bizcochos y tortas artesanales" width="664" height="398" fetchpriority="high">
         </div>
     </section>
 

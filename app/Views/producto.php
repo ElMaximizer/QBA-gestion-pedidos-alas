@@ -8,7 +8,7 @@
     </section>
     <?php else: ?>
     <div class="detalle">
-        <img class="detalle__imagen" src="images/<?= $escapar($producto['imagen']) ?>" width="400" height="245" alt="<?= $escapar($producto['nombre']) ?>">
+        <img class="detalle__imagen" src="<?= $escapar($recurso('images/' . $producto['imagen'])) ?>" width="400" height="245" alt="<?= $escapar($producto['nombre']) ?>">
         <section>
             <span class="insignia insignia--neutra"><?= $escapar($producto['categoria']) ?></span>
             <h1 class="detalle__titulo"><?= $escapar($producto['nombre']) ?></h1>

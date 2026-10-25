@@ -83,7 +83,7 @@ final class EntornoPruebas
         fclose($socket);
         $this->servidor = proc_open([PHP_BINARY, '-d', 'session.save_path="' . $this->directorio . '"',
             '-d', 'session.serialize_handler=php',
-            '-S', $this->direccion, '-t', dirname(__DIR__) . '/public'], [0 => ['pipe', 'r'],
+            '-S', $this->direccion, '-t', dirname(__DIR__) . '/public', dirname(__DIR__) . '/public/router.php'], [0 => ['pipe', 'r'],
                 1 => ['file', $this->directorio . '/servidor.log', 'a'],
                 2 => ['file', $this->directorio . '/errores.log', 'a']], $tuberias, dirname(__DIR__),
             array_replace(getenv(), ['QBA_DB_NAME' => $this->base, 'QBA_MAIL_TRANSPORT' => 'local'], $this->correo), ['bypass_shell' => true]);
@@ -93,7 +93,7 @@ final class EntornoPruebas
         fclose($tuberias[0]);
         $inicio = microtime(true);
         do {
-            [$estado] = $this->solicitar('index.php');
+            [$estado] = $this->solicitar('/');
             if ($estado !== 0) {
                 return;
             }
@@ -104,7 +104,7 @@ final class EntornoPruebas
 
     public function solicitar(string $ruta, ?array $campos = null, ?string $sesion = null): array
     {
-        $curl = curl_init($this->url() . '/' . $ruta);
+        $curl = curl_init($this->url() . '/' . ltrim($ruta, '/'));
         curl_setopt_array($curl, [CURLOPT_RETURNTRANSFER => true, CURLOPT_HEADER => true,
             CURLOPT_CONNECTTIMEOUT => 1, CURLOPT_TIMEOUT => 5, CURLOPT_FOLLOWLOCATION => false]);
         if ($sesion === null) {

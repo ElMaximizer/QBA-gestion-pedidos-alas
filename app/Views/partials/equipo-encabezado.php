@@ -12,7 +12,7 @@
     </header>
     <nav class="navegacion-equipo" aria-label="Administración">
         <div class="contenedor navegacion-equipo__contenido">
-            <a class="boton boton--contorno navegacion-equipo__enlace" href="index.php">Inicio del sitio</a>
+            <a class="boton boton--contorno navegacion-equipo__enlace" href="<?= $url('inicio') ?>">Inicio del sitio</a>
             <a class="boton boton--azul navegacion-equipo__enlace" href="<?= $url('equipo-panel') ?>" aria-current="page">Panel administrativo</a>
             <a class="boton boton--contorno navegacion-equipo__enlace" role="link" aria-disabled="true" title="Próximamente">Productos</a>
             <a class="boton boton--contorno navegacion-equipo__enlace" role="link" aria-disabled="true" title="Próximamente">Pedidos</a>
