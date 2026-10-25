@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
     hora_retiro TIME NOT NULL,
     notas TEXT NOT NULL,
     estado VARCHAR(30) NOT NULL DEFAULT 'Pendiente',
+    sena_recibida TINYINT(1) NOT NULL DEFAULT 0,
     total DECIMAL(10,2) UNSIGNED NOT NULL,
     token_confirmacion CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
     creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
