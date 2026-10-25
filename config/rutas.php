@@ -5,6 +5,7 @@ use App\Controllers\AccesoController;
 use App\Controllers\AccesoEquipoController;
 use App\Controllers\CarritoController;
 use App\Controllers\InicioController;
+use App\Controllers\NosotrosController;
 use App\Controllers\GestionProductoController;
 use App\Controllers\PanelEquipoController;
 use App\Controllers\PedidosEquipoController;
@@ -20,6 +21,7 @@ use App\Controllers\EntregasMercaderiaController;
 // Nombre interno => [dirección pública, controlador, acción, métodos].
 return [
     'inicio' => ['', InicioController::class, 'index', ['GET', 'HEAD']],
+    'nosotros' => ['nosotros', NosotrosController::class, 'index', ['GET', 'HEAD']],
     'productos' => ['productos', ProductoController::class, 'index', ['GET', 'HEAD']],
     'producto' => ['producto', ProductoController::class, 'ver', ['GET', 'HEAD']],
     'carrito' => ['carrito', CarritoController::class, 'index', ['GET', 'HEAD', 'POST']],
