@@ -256,19 +256,29 @@ la tabla de HU17 conservando los datos existentes:
 
 ## Ejecutar en desarrollo
 
-    C:\xampp\php\php.exe -S 127.0.0.1:8000 -t public
+    C:\xampp\php\php.exe -S 127.0.0.1:8000 -t public public/router.php
 
 Abrir <http://127.0.0.1:8000/>. Para detener el servidor, pulsar Ctrl+C en esa
 terminal. El servidor integrado es para desarrollo local. La carpeta de sesiones
 configurada por PHP debe tener permisos de escritura.
 
 Con Apache de XAMPP también se puede abrir
-<http://localhost/QBA-gestion-pedidos-alas/public/index.php>.
+<http://localhost/QBA-gestion-pedidos-alas/public/>.
 La raíz pública de un virtual host debe apuntar a public/.
+Apache usa public/.htaccess para dirigir las páginas al punto de entrada MVC.
+Necesita mod_rewrite y AllowOverride habilitados; ya están activos en el XAMPP
+local utilizado para probar el proyecto. No hace falta modificar su configuración.
+El servidor integrado de PHP usa public/router.php para resolver las mismas
+direcciones y servir los recursos estáticos; ese archivo solo funciona en ese
+servidor de desarrollo. Referencias: [Apache](https://httpd.apache.org/docs/2.4/rewrite/flags.html)
+y [servidor de PHP](https://www.php.net/manual/en/features.commandline.webserver.php).
 
 ## Recorrido MVC
 
 - public/index.php: rutas permitidas, métodos HTTP y manejo de errores.
+- config/rutas.php: nombres internos, direcciones públicas, controladores y métodos en una lista única.
+- app/Core/Rutas.php: resolución de direcciones y generación de enlaces y recursos.
+- public/.htaccess y public/router.php: entrada MVC desde Apache y el servidor de desarrollo.
 - app/bootstrap.php: autocarga, zona horaria y sesión.
 - app/Controllers/: InicioController, ProductoController, CarritoController y
   PedidoController coordinan las peticiones.
@@ -317,26 +327,44 @@ producto y la misma fuente de datos.
 
 ## Rutas
 
-Todas se acceden a través de public/index.php:
+Todas las páginas siguen pasando internamente por public/index.php. La dirección
+visible usa rutas amigables; config/rutas.php es la lista única para resolverlas
+y generar enlaces, formularios y redirecciones.
 
-| Parámetro ruta | Métodos | Pantalla u operación |
+| Dirección desde public/ | Métodos | Pantalla u operación |
 | --- | --- | --- |
-| inicio o sin parámetro | GET, HEAD | Inicio |
-| productos | GET, HEAD | Catálogo, búsqueda q y filtro categoria |
-| producto | GET, HEAD | Detalle por id |
-| carrito | GET, HEAD, POST | Ver, agregar, actualizar, quitar o vaciar |
-| realizar-pedido | GET, HEAD, POST | Revisar datos y confirmar |
-| pedido-confirmado | GET, HEAD | Número guardado en la sesión |
-| registro | GET, HEAD, POST | Crear una cuenta |
-| verificar-cuenta | GET, HEAD, POST | Activar una cuenta o reenviar el código |
-| registro-completado | GET, HEAD | Confirmación del registro verificado |
-| cliente-login | GET, HEAD, POST | Iniciar sesión con una cuenta verificada |
-| cerrar-sesion | POST | Cerrar la sesión de cliente conservando el carrito |
-| equipo-registro | GET, HEAD, POST | Solicitar un usuario del equipo |
-| equipo-solicitud-enviada | GET, HEAD | Confirmación de la solicitud de esta sesión |
-| equipo-login | GET, HEAD, POST | Iniciar sesión con cédula y contraseña |
-| equipo-panel | GET, HEAD | Panel visual de la cuenta aprobada del equipo |
-| equipo-cerrar-sesion | POST | Cerrar la sesión del equipo conservando el carrito |
+| / | GET, HEAD | Inicio |
+| /productos | GET, HEAD | Catálogo, búsqueda q y filtro categoria |
+| /producto?id=1 | GET, HEAD | Detalle por id |
+| /carrito | GET, HEAD, POST | Ver, agregar, actualizar, quitar o vaciar |
+| /pedidos/realizar | GET, HEAD, POST | Revisar datos y confirmar |
+| /pedidos/confirmado | GET, HEAD | Número guardado en la sesión |
+| /clientes/registro | GET, HEAD, POST | Crear una cuenta |
+| /clientes/verificar | GET, HEAD, POST | Activar una cuenta o reenviar el código |
+| /clientes/registro-completado | GET, HEAD | Confirmación del registro verificado |
+| /clientes/login | GET, HEAD, POST | Iniciar sesión con una cuenta verificada |
+| /clientes/salir | POST | Cerrar la sesión de cliente conservando el carrito |
+| /equipo/registro | GET, HEAD, POST | Solicitar un usuario del equipo |
+| /equipo/solicitud-enviada | GET, HEAD | Confirmación de la solicitud de esta sesión |
+| /equipo/login | GET, HEAD, POST | Iniciar sesión con cédula y contraseña |
+| /equipo/panel | GET, HEAD | Panel visual de la cuenta aprobada del equipo |
+| /equipo/salir | POST | Cerrar la sesión del equipo conservando el carrito |
+
+En XAMPP, por ejemplo, el panel se abre en
+<http://localhost/QBA-gestion-pedidos-alas/public/equipo/panel>.
+Al configurar public/ como raíz de un sitio, la misma ruta queda en /equipo/panel.
+La carpeta de instalación se calcula desde el script ejecutado por el servidor;
+no se fija el nombre del repositorio ni se utiliza el encabezado Host para generar
+direcciones. Los recursos usan esa misma base y siguen cargando desde páginas
+anidadas como /equipo/registro. No se usa una etiqueta base HTML.
+
+Los filtros y los identificadores continúan como parámetros de consulta; por
+ejemplo, /productos?categoria=Panes o /producto?id=1. El selector ruta ya no se
+genera en las vistas. Los enlaces antiguos index.php?ruta=... siguen disponibles:
+GET y HEAD redirigen con 302 a la dirección nueva, conservando los demás parámetros.
+Los formularios POST antiguos se procesan una sola vez, mantienen CSRF y terminan
+con la redirección habitual a la dirección nueva. Un parámetro ruta sobre una
+dirección amigable se rechaza con 404 y no cambia su controlador.
 
 Las rutas desconocidas responden 404 y los métodos no permitidos, 405.
 Las modificaciones requieren POST y CSRF. Después de una operación correcta se
@@ -381,6 +409,7 @@ se comparte entre los formularios, la confirmación y la pantalla protegida.
     C:\xampp\php\php.exe tests\equipo.php
     C:\xampp\php\php.exe tests\acceso-equipo.php
     C:\xampp\php\php.exe tests\correo.php
+    C:\xampp\php\php.exe tests\rutas.php
 
 Las pruebas crean una base temporal qba_hu16_test_*, qba_hu17_test_*, qba_hu18_test_* o qba_equipo_test_*, un servidor local y sus
 sesiones, y los eliminan al terminar. Requieren permisos locales para crear y
@@ -404,6 +433,10 @@ El acceso del equipo comprueba los tres roles, solicitudes no aprobadas,
 bloqueo persistente, cambio y revocación de permisos, vencimiento, renovación
 de cookies y CSRF, protección del panel y sustitución de la identidad de cliente.
 Las cuentas aprobadas de prueba existen únicamente en la base temporal.
+Las pruebas de rutas comprueban la instalación en una carpeta o en la raíz,
+recursos desde páginas anidadas, filtros, enlaces antiguos, métodos HTTP,
+direcciones desconocidas y protección de los archivos internos. Los recorridos
+existentes de registro, acceso y pedidos también usan las direcciones nuevas.
 
 Para comprobar toda la sintaxis PHP en PowerShell:
 

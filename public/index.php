@@ -1,15 +1,7 @@
 <?php
 declare(strict_types=1);
 
-use App\Controllers\AccesoController;
-use App\Controllers\AccesoEquipoController;
-use App\Controllers\CarritoController;
-use App\Controllers\InicioController;
-use App\Controllers\PedidoController;
-use App\Controllers\PanelEquipoController;
-use App\Controllers\ProductoController;
-use App\Controllers\RegistroController;
-use App\Controllers\RegistroEquipoController;
+use App\Core\Rutas;
 use App\Core\Sesion;
 use App\Core\Vista;
 
@@ -17,38 +9,23 @@ require dirname(__DIR__) . '/app/bootstrap.php';
 
 header('Content-Type: text/html; charset=UTF-8');
 
-// Los nombres de ruta nunca se convierten en rutas de archivos del usuario.
-$rutas = [
-    'inicio' => [InicioController::class, 'index', ['GET', 'HEAD']],
-    'productos' => [ProductoController::class, 'index', ['GET', 'HEAD']],
-    'producto' => [ProductoController::class, 'ver', ['GET', 'HEAD']],
-    'carrito' => [CarritoController::class, 'index', ['GET', 'HEAD', 'POST']],
-    'realizar-pedido' => [PedidoController::class, 'crear', ['GET', 'HEAD', 'POST']],
-    'pedido-confirmado' => [PedidoController::class, 'confirmado', ['GET', 'HEAD']],
-    'registro' => [RegistroController::class, 'index', ['GET', 'HEAD', 'POST']],
-    'verificar-cuenta' => [RegistroController::class, 'verificar', ['GET', 'HEAD', 'POST']],
-    'registro-completado' => [RegistroController::class, 'completado', ['GET', 'HEAD']],
-    'cliente-login' => [AccesoController::class, 'index', ['GET', 'HEAD', 'POST']],
-    'cerrar-sesion' => [AccesoController::class, 'salir', ['POST']],
-    'equipo-registro' => [RegistroEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
-    'equipo-solicitud-enviada' => [RegistroEquipoController::class, 'enviado', ['GET', 'HEAD']],
-    'equipo-login' => [AccesoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
-    'equipo-panel' => [PanelEquipoController::class, 'index', ['GET', 'HEAD']],
-    'equipo-cerrar-sesion' => [AccesoEquipoController::class, 'salir', ['POST']],
-];
-$ruta = $_GET['ruta'] ?? 'inicio';
-$rutaAdicional = $_SERVER['PATH_INFO'] ?? '';
-if (!is_string($ruta) || !isset($rutas[$ruta])
-    || !in_array($rutaAdicional, ['', '/'], true)) {
+// Solo se ejecutan controladores y métodos de la lista cerrada de configuración.
+$ruta = Rutas::resolver();
+if ($ruta === null) {
     http_response_code(404);
     exit('Página no encontrada.');
 }
 
-[$controlador, $accion, $metodos] = $rutas[$ruta];
+[, $controlador, $accion, $metodos] = Rutas::todas()[$ruta];
 if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', $metodos, true)) {
     http_response_code(405);
     header('Allow: ' . implode(', ', $metodos));
     exit('Método no permitido.');
+}
+
+if (in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD'], true) && Rutas::necesitaRedireccion($ruta)) {
+    header('Location: ' . Rutas::url($ruta, $_GET), true, 302);
+    exit;
 }
 
 try {

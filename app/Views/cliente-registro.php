@@ -1,11 +1,11 @@
 <main id="contenido" class="contenedor registro-pagina">
-    <a class="enlace-volver" href="index.php">← Volver al sitio</a>
+    <a class="enlace-volver" href="<?= $url('inicio') ?>">← Volver al sitio</a>
     <div class="registro">
         <section class="registro__historia">
             <span class="etiqueta">PANADERÍA ALAS</span>
             <h1 class="registro__titulo-historia">Tu panadería,<br>más cerca.</h1>
             <p class="registro__descripcion">Creá tu cuenta y confirmá tu correo con el código de verificación.</p>
-            <img class="registro__imagen" src="images/panes.png" width="648" height="350" alt="Elaboraciones artesanales de Panadería Alas">
+            <img class="registro__imagen" src="<?= $escapar($recurso('images/panes.png')) ?>" width="648" height="350" alt="Elaboraciones artesanales de Panadería Alas">
         </section>
         <section class="tarjeta registro__tarjeta">
             <span class="etiqueta registro__etiqueta">CUENTA DE CLIENTE</span>

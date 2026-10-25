@@ -58,52 +58,52 @@ try {
         }
         return [$cabeceras, $cuerpo, $codigo[1]];
     };
-    [, $html] = $solicitar('index.php?ruta=registro');
+    [, $html] = $solicitar('/clientes/registro');
     $csrf = oculto($html, 'csrf');
     $campos = ['csrf' => $csrf, 'nombre' => 'Cliente Ñandú', 'email' => 'smtp@example.test',
         'password' => 'ClaveSegura16!', 'confirm_password' => 'ClaveSegura16!'];
-    comprobar($solicitar('index.php?ruta=registro', $campos)[0] === 303, 'Registra mediante el transporte SMTP');
+    comprobar($solicitar('/clientes/registro', $campos)[0] === 303, 'Registra mediante el transporte SMTP');
     [$cabeceras, $cuerpo, $codigoInicial] = $leer(1);
     comprobar(str_contains($cabeceras, 'smtp@example.test') && str_contains($cabeceras, 'panaderia@example.test'), 'Entrega al destinatario y con el remitente configurados');
     comprobar((bool) preg_match('/charset="?utf-8"?/i', $cabeceras) && str_contains($cuerpo, 'Hola Cliente Ñandú,'), 'Conserva acentos y codificación UTF-8');
     comprobar(password_verify($codigoInicial, $buscar('smtp@example.test')['codigo_verificacion_hash']), 'El código recibido coincide con el hash guardado');
     comprobar((int) $db->query('SELECT COUNT(*) FROM correos_locales')->fetchColumn() === 0, 'SMTP no guarda copias de los códigos en la bandeja local');
-    [, $html] = $solicitar('index.php?ruta=verificar-cuenta');
+    [, $html] = $solicitar('/clientes/verificar');
     comprobar(!str_contains($html, $codigoInicial), 'El código enviado no aparece en la pantalla');
-    comprobar($solicitar('index.php?ruta=registro', $campos)[0] === 422 && count(glob($directorio . '/mensaje-*.eml')) === 1, 'Un registro duplicado no envía otro correo');
+    comprobar($solicitar('/clientes/registro', $campos)[0] === 422 && count(glob($directorio . '/mensaje-*.eml')) === 1, 'Un registro duplicado no envía otro correo');
     $reenvio = ['csrf' => $csrf, 'email' => 'smtp@example.test', 'accion' => 'reenviar'];
-    comprobar($solicitar('index.php?ruta=verificar-cuenta', $reenvio)[0] === 422, 'SMTP respeta el tiempo entre reenvíos');
+    comprobar($solicitar('/clientes/verificar', $reenvio)[0] === 422, 'SMTP respeta el tiempo entre reenvíos');
     $db->exec('UPDATE clientes SET ultimo_codigo_en = DATE_SUB(UTC_TIMESTAMP(), INTERVAL 2 MINUTE)');
-    comprobar($solicitar('index.php?ruta=verificar-cuenta', $reenvio)[0] === 303, 'Envía el nuevo código mediante PHPMailer');
+    comprobar($solicitar('/clientes/verificar', $reenvio)[0] === 303, 'Envía el nuevo código mediante PHPMailer');
     [, , $codigoNuevo] = $leer(2);
     comprobar(password_verify($codigoNuevo, $buscar('smtp@example.test')['codigo_verificacion_hash']), 'Actualiza el código válido después de reenviar');
-    $solicitar('index.php?ruta=verificar-cuenta');
-    $solicitar('index.php?ruta=verificar-cuenta');
+    $solicitar('/clientes/verificar');
+    $solicitar('/clientes/verificar');
     comprobar(count(glob($directorio . '/mensaje-*.eml')) === 2, 'Recargar la página no repite el envío SMTP');
-    comprobar($solicitar('index.php?ruta=verificar-cuenta', $reenvio + ['codigo' => $codigoNuevo])[0] === 422, 'Mantiene la espera aunque se adjunte un código');
-    comprobar($solicitar('index.php?ruta=verificar-cuenta', array_replace($reenvio, ['accion' => 'verificar', 'codigo' => $codigoNuevo]))[0] === 303, 'Activa la cuenta con el código entregado por SMTP');
+    comprobar($solicitar('/clientes/verificar', $reenvio + ['codigo' => $codigoNuevo])[0] === 422, 'Mantiene la espera aunque se adjunte un código');
+    comprobar($solicitar('/clientes/verificar', array_replace($reenvio, ['accion' => 'verificar', 'codigo' => $codigoNuevo]))[0] === 303, 'Activa la cuenta con el código entregado por SMTP');
     comprobar((int) $buscar('smtp@example.test')['verificado'] === 1, 'Persiste la cuenta verificada');
 
     $campos['email'] = 'fallo@example.test';
-    comprobar($solicitar('index.php?ruta=registro', $campos)[0] === 303, 'Un rechazo SMTP redirige a la cuenta pendiente');
+    comprobar($solicitar('/clientes/registro', $campos)[0] === 303, 'Un rechazo SMTP redirige a la cuenta pendiente');
     comprobar((int) $buscar('fallo@example.test')['verificado'] === 0, 'Un fallo de envío no borra ni activa la cuenta');
-    [, $html] = $solicitar('index.php?ruta=verificar-cuenta');
+    [, $html] = $solicitar('/clientes/verificar');
     comprobar(str_contains($html, 'Creamos tu cuenta, pero no pudimos enviar el código'), 'Explica el fallo y cómo pedir otro código');
     comprobar(!str_contains($html, '550') && !str_contains($html, 'sin-datos-privados'), 'No expone el error interno SMTP');
     comprobar((int) $db->query('SELECT COUNT(*) FROM correos_locales')->fetchColumn() === 0, 'Un fallo SMTP no cambia silenciosamente a la bandeja local');
     $db->exec("UPDATE clientes SET ultimo_codigo_en = DATE_SUB(UTC_TIMESTAMP(), INTERVAL 2 MINUTE) WHERE email = 'fallo@example.test'");
     $reenvio['email'] = 'fallo@example.test';
-    comprobar($solicitar('index.php?ruta=verificar-cuenta', $reenvio)[0] === 303, 'Un reenvío fallido también usa redirección');
-    [, $html] = $solicitar('index.php?ruta=verificar-cuenta');
+    comprobar($solicitar('/clientes/verificar', $reenvio)[0] === 303, 'Un reenvío fallido también usa redirección');
+    [, $html] = $solicitar('/clientes/verificar');
     comprobar(str_contains($html, 'No pudimos enviar el código. Tu cuenta sigue pendiente'), 'Informa el reenvío fallido sin afirmar una entrega');
     file_put_contents($directorio . '/recuperado', '1');
     $db->exec("UPDATE clientes SET ultimo_codigo_en = DATE_SUB(UTC_TIMESTAMP(), INTERVAL 2 MINUTE) WHERE email = 'fallo@example.test'");
-    comprobar($solicitar('index.php?ruta=verificar-cuenta', $reenvio)[0] === 303, 'Recupera el envío cuando vuelve a funcionar SMTP');
+    comprobar($solicitar('/clientes/verificar', $reenvio)[0] === 303, 'Recupera el envío cuando vuelve a funcionar SMTP');
     [, , $codigoRecuperado] = $leer(3);
     (new Cliente($db))->verificar('fallo@example.test', $codigoRecuperado);
     comprobar((int) $buscar('fallo@example.test')['verificado'] === 1, 'La cuenta que tuvo un fallo puede completar el registro');
     $reenvio['email'] = 'inexistente@example.test';
-    comprobar($solicitar('index.php?ruta=verificar-cuenta', $reenvio)[0] === 303
+    comprobar($solicitar('/clientes/verificar', $reenvio)[0] === 303
         && count(glob($directorio . '/mensaje-*.eml')) === 3, 'No envía a cuentas inexistentes');
 
     $config = ['transport' => 'smtp', 'host' => 'smtp.gmail.com', 'port' => 587, 'encryption' => 'tls',
@@ -119,7 +119,7 @@ try {
     }
     $camposEquipo = ['csrf' => $csrf, 'nombre' => 'Equipo Ñandú', 'cedula' => '87654321', 'email' => 'equipo.smtp@example.test',
         'password' => 'ClaveEquipo17!', 'confirm_password' => 'ClaveEquipo17!', 'rol' => 'dueno', 'estado' => 'aprobado'];
-    comprobar($solicitar('index.php?ruta=equipo-registro', $camposEquipo)[0] === 303, 'El registro del equipo entrega el aviso mediante PHPMailer');
+    comprobar($solicitar('/equipo/registro', $camposEquipo)[0] === 303, 'El registro del equipo entrega el aviso mediante PHPMailer');
     [$cabecerasEquipo, $contenidoEquipo] = explode("\r\n\r\n", file_get_contents($directorio . '/mensaje-4.eml'), 2);
     $contenidoEquipo = base64_decode($contenidoEquipo, true);
     comprobar(str_contains($cabecerasEquipo, 'equipo.smtp@example.test') && str_contains($contenidoEquipo, 'Hola Equipo Ñandú,')
@@ -129,8 +129,8 @@ try {
     comprobar($usuarioEquipo['rol'] === 'empleado' && $usuarioEquipo['estado'] === 'pendiente', 'El envío SMTP no concede acceso ni acepta privilegios del navegador');
     unlink($directorio . '/recuperado');
     $camposEquipo = array_replace($camposEquipo, ['cedula' => '76543210', 'email' => 'fallo@example.test']);
-    comprobar($solicitar('index.php?ruta=equipo-registro', $camposEquipo)[0] === 303, 'Un rechazo SMTP del aviso no borra la solicitud del equipo');
-    [, $confirmacionEquipo] = $solicitar('index.php?ruta=equipo-solicitud-enviada');
+    comprobar($solicitar('/equipo/registro', $camposEquipo)[0] === 303, 'Un rechazo SMTP del aviso no borra la solicitud del equipo');
+    [, $confirmacionEquipo] = $solicitar('/equipo/solicitud-enviada');
     comprobar(str_contains($confirmacionEquipo, 'Tu solicitud quedó guardada, pero no pudimos enviar el correo')
         && count(glob($directorio . '/mensaje-*.eml')) === 4, 'La confirmación informa la entrega fallida');
     comprobar((int) $db->query('SELECT COUNT(*) FROM correos_locales')->fetchColumn() === 0, 'El aviso SMTP fallido no se copia a la bandeja local');

@@ -4,11 +4,10 @@
         <h1 class="titulo-pagina__titulo">Hecho con dedicación.</h1>
         <p class="titulo-pagina__descripcion">Panes, bizcochos y tortas para acompañar tus momentos.</p>
     </div>
-    <form class="busqueda" method="get" action="index.php">
+    <form class="busqueda" method="get" action="<?= $url('productos') ?>">
         <label class="campo busqueda__campo">Buscar productos
             <input class="campo__entrada" name="q" value="<?= $escapar($busqueda) ?>" placeholder="Nombre o ingrediente" maxlength="120">
         </label>
-        <input type="hidden" name="ruta" value="productos">
         <input type="hidden" name="categoria" value="<?= $escapar($categoria) ?>">
         <button class="boton boton--azul busqueda__boton">Buscar</button>
     </form>

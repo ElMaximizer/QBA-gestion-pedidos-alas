@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Panes, bizcochos y tortas elaborados con dedicación en Panadería Alas.">
     <title><?= $escapar($tituloPagina) ?></title>
-    <link rel="stylesheet" href="css/inicio.css">
+    <link rel="stylesheet" href="<?= $escapar($recurso('css/inicio.css')) ?>">
     <?php foreach ($estilos as $estilo): ?>
-    <link rel="stylesheet" href="<?= $escapar($estilo) ?>">
+    <link rel="stylesheet" href="<?= $escapar($recurso($estilo)) ?>">
     <?php endforeach; ?>
     <?php foreach ($scripts as $script): ?>
-    <script src="<?= $escapar($script) ?>" defer></script>
+    <script src="<?= $escapar($recurso($script)) ?>" defer></script>
     <?php endforeach; ?>
 </head>
 <body class="pagina<?= $esPanel ? ' pagina--equipo' : '' ?>">
@@ -18,17 +18,17 @@
     <?php if ($esPanel): require __DIR__ . '/equipo-encabezado.php'; else: ?>
     <header class="encabezado">
         <div class="contenedor encabezado__contenido">
-            <a class="marca" href="index.php">
+            <a class="marca" href="<?= $url('inicio') ?>">
                 <strong class="marca__nombre">PANADERÍA ALAS</strong>
                 <span class="marca__descripcion">PANADERÍA ARTESANAL</span>
             </a>
             <nav class="navegacion" aria-label="Navegación principal">
-                <a class="navegacion__enlace" href="index.php" <?= $seccionActiva === 'inicio' ? 'aria-current="page"' : '' ?>>Inicio</a>
+                <a class="navegacion__enlace" href="<?= $url('inicio') ?>" <?= $seccionActiva === 'inicio' ? 'aria-current="page"' : '' ?>>Inicio</a>
                 <a class="navegacion__enlace" href="<?= $url('productos') ?>" <?= $seccionActiva === 'productos' ? 'aria-current="page"' : '' ?>>Productos</a>
                 <a class="navegacion__enlace" role="link" aria-disabled="true">Nosotros</a>
                 <a class="navegacion__enlace" role="link" aria-disabled="true">Contacto</a>
                 <a class="carrito" href="<?= $url('carrito') ?>">
-                    <img class="carrito__icono" src="images/carrito.svg" width="20" height="20" alt="">
+                    <img class="carrito__icono" src="<?= $escapar($recurso('images/carrito.svg')) ?>" width="20" height="20" alt="">
                     Carrito <span class="carrito__cantidad"><?= $cantidadCarrito ?></span>
                 </a>
             </nav>

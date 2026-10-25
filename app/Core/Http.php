@@ -24,7 +24,7 @@ final class Http
 
     public static function redirigir(string $ruta): never
     {
-        header('Location: index.php?' . http_build_query(['ruta' => $ruta]), true, 303);
+        header('Location: ' . Rutas::url($ruta), true, 303);
         exit;
     }
 }
