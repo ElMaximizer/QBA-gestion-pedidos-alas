@@ -1,0 +1,38 @@
+/* HU07. Inventario de materias primas con adaptación a pantallas pequeñas. */
+.equipo-stock__mensaje { padding: 14px 18px; border-radius: var(--radius); margin: 20px 0; }
+.equipo-stock__mensaje--exito { color: #24533a; background: #e9f5ed; }
+.equipo-stock__mensaje--error { color: #7d2929; background: #fbeaea; }
+.equipo-stock .insignia--alerta { color: #76501d; background: #fbf0da; }
+.equipo-stock__alta { padding: 24px; margin: 28px 0; }
+.equipo-stock__alta h2 { margin: 0 0 20px; font-size: 22px; }
+.equipo-stock__alta-form, .equipo-stock__filtros, .equipo-stock__actualizar { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; gap: 18px; }
+.equipo-stock__alta-boton { min-height: 54px; }
+.equipo-stock__filtros { grid-template-columns: minmax(220px, 1fr) minmax(200px, .7fr) auto; margin: 28px 0 12px; }
+.equipo-stock__buscar { min-height: 54px; }
+.equipo-stock__cantidad { margin: 20px 0; color: var(--muted, #665f55); }
+.equipo-stock__lista { display: grid; gap: 16px; }
+.equipo-stock__item { padding: 22px; border-inline-start: 5px solid #477b57; }
+.equipo-stock__item--bajo { border-inline-start-color: #bc7a27; }
+.equipo-stock__item-titulo { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.equipo-stock__item-titulo h2 { margin: 0 0 6px; font-size: 21px; overflow-wrap: anywhere; }
+.equipo-stock__item-titulo p { margin: 0; font-size: 13px; color: var(--muted, #665f55); }
+.equipo-stock__actualizar { grid-template-columns: minmax(140px, .7fr) minmax(140px, .7fr) auto; }
+.equipo-stock__actualizar .boton { min-height: 54px; }
+.equipo-stock__vacio { padding: 36px 24px; }
+
+@media (max-width: 760px) {
+    .equipo-stock__alta-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .equipo-stock__filtros { grid-template-columns: 1fr 1fr; }
+    .equipo-stock__busqueda { grid-column: 1 / -1; }
+    .equipo-stock__actualizar { grid-template-columns: 1fr 1fr; }
+    .equipo-stock__actualizar .boton { grid-column: 1 / -1; width: 100%; }
+}
+
+@media (max-width: 480px) {
+    .equipo-stock__alta { padding: 18px; }
+    .equipo-stock__alta-form, .equipo-stock__filtros, .equipo-stock__actualizar { grid-template-columns: 1fr; }
+    .equipo-stock__busqueda, .equipo-stock__actualizar .boton { grid-column: auto; }
+    .equipo-stock__item { padding: 18px; }
+    .equipo-stock__item-titulo { flex-direction: column; }
+    .equipo-stock__filtros .boton { width: 100%; }
+}

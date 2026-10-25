@@ -26,6 +26,7 @@
         <a class="boton boton--dorado" role="link" aria-disabled="true" title="Próximamente">+ Nuevo pedido</a>
         <?php if ($administraProductos): ?>
         <a class="boton boton--contorno" href="<?= $url('producto-agregar') ?>">+ Agregar producto</a>
+        <a class="boton boton--contorno" href="<?= $url('equipo-stock') ?>">Controlar stock</a>
         <?php endif; ?>
     </div>
     <section class="panel-retiros" aria-labelledby="titulo-retiros">
