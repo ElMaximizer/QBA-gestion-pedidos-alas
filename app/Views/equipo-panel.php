@@ -45,8 +45,9 @@
         <h2 class="panel-atencion__titulo" id="titulo-atencion">Atención del equipo</h2>
         <div class="acciones panel-atencion__acciones">
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Consultas recibidas (— nuevas)</a>
-            <?php // Visibilidad del diseño anterior; los módulos aún no tienen rutas ni operaciones. ?>
+            <?php // Las altas y bajas corresponden a HU21; los permisos se administran en HU22. ?>
             <?php if ($usuario['rol'] === 'dueno'): ?>
+            <a class="boton boton--contorno" href="<?= $url('equipo-permisos') ?>">Administrar roles y permisos</a>
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Gestionar personal</a>
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Solicitudes de acceso (—)</a>
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Actividad del personal</a>
