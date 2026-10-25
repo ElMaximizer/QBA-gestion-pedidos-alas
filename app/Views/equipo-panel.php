@@ -34,11 +34,11 @@
             <span>Pedido / cliente</span><span>Retiro</span><span>Productos</span><span>Total</span><span>Estado</span><span></span>
         </div>
         <div class="tarjeta vacio panel-retiros__vacio">
-            <h3 class="panel-retiros__aviso">Próximamente</h3>
-            <p class="vacio__descripcion">Este espacio mostrará los próximos retiros.</p>
+            <h3 class="panel-retiros__aviso">Consultar pedidos</h3>
+            <p class="vacio__descripcion">Buscá pedidos por número, cliente, teléfono, producto, fecha o estado.</p>
             <a class="boton boton--dorado" role="link" aria-disabled="true" title="Próximamente">+ Nuevo pedido</a>
         </div>
-        <a class="enlace-texto panel-retiros__enlace" role="link" aria-disabled="true" title="Próximamente">Ver todos los pedidos →</a>
+        <a class="enlace-texto panel-retiros__enlace" href="<?= $url('equipo-pedidos') ?>">Ver todos los pedidos →</a>
     </section>
     <section class="panel-atencion" aria-labelledby="titulo-atencion">
         <h2 class="panel-atencion__titulo" id="titulo-atencion">Atención del equipo</h2>

@@ -419,6 +419,7 @@ y generar enlaces, formularios y redirecciones.
 | /equipo/solicitud-enviada | GET, HEAD | Confirmación de la solicitud de esta sesión |
 | /equipo/login | GET, HEAD, POST | Iniciar sesión con cédula y contraseña |
 | /equipo/panel | GET, HEAD | Panel visual de la cuenta aprobada del equipo |
+| /equipo/pedidos | GET, HEAD | Consultar pedidos del equipo con búsqueda, filtros y páginas |
 | /equipo/salir | POST | Cerrar la sesión del equipo conservando el carrito |
 | /equipo/productos | GET, HEAD | Listado y filtros de productos para administrador y dueño |
 | /equipo/productos/agregar | GET, HEAD, POST | Agregar un producto |
