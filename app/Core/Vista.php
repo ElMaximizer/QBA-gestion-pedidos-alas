@@ -22,7 +22,9 @@ final class Vista
         $esGestionProducto = in_array($vista, ['equipo-productos', 'equipo-producto-form', 'equipo-producto-eliminar'], true);
         $esGestionStock = $vista === 'equipo-stock';
         $esPermisosEquipo = $vista === 'equipo-permisos';
-        $esPanel = ($variables['layoutEquipo'] ?? false) || $vista === 'equipo-panel' || $esGestionProducto || $esGestionStock || $esPermisosEquipo;
+        $esPersonalEquipo = $vista === 'equipo-personal';
+        $esPanel = ($variables['layoutEquipo'] ?? false) || $vista === 'equipo-panel'
+            || $esGestionProducto || $esGestionStock || $esPermisosEquipo || $esPersonalEquipo;
         $esRegistro = in_array($vista, ['cliente-login', 'cliente-registro', 'cliente-verificar', 'registro-completado',
             'equipo-registro', 'equipo-solicitud-enviada', 'equipo-login'], true);
         $estilos = $vista === 'inicio' ? [] : ['css/componentes.css',
@@ -43,6 +45,10 @@ final class Vista
 
         if ($esPermisosEquipo) {
             $estilos[] = 'css/equipo-permisos.css';
+        }
+
+        if ($esPersonalEquipo) {
+            $estilos[] = 'css/equipo-personal.css';
         }
 
         if ($vista === 'equipo-producto-form') {

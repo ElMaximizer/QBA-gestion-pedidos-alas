@@ -1,0 +1,131 @@
+.equipo-personal {
+    padding-block: 48px;
+}
+
+.equipo-personal__filtros {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) minmax(180px, .55fr) auto auto;
+    align-items: end;
+    gap: 16px;
+    margin-block: 28px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--white);
+}
+
+.equipo-personal__campo {
+    display: grid;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.equipo-personal__campo input,
+.equipo-personal__campo select {
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--white);
+    color: #242424;
+    font: inherit;
+}
+
+.equipo-personal__resultados {
+    margin-top: 36px;
+}
+
+.equipo-personal__resumen {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.equipo-personal__resumen h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.equipo-personal__resumen p,
+.equipo-personal__nota {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.equipo-personal__tabla-contenedor {
+    overflow-x: auto;
+    padding: 0;
+}
+
+.equipo-personal__tabla {
+    width: 100%;
+    min-width: 720px;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.equipo-personal__tabla th,
+.equipo-personal__tabla td {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+}
+
+.equipo-personal__tabla th {
+    background: var(--sand);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.equipo-personal__tabla td {
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.equipo-personal__tabla tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.equipo-personal__rol {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: var(--sand);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.equipo-personal__nota {
+    margin-block: 20px;
+}
+
+@media (max-width: 760px) {
+    .equipo-personal {
+        padding-block: 32px;
+    }
+
+    .equipo-personal__filtros {
+        grid-template-columns: 1fr;
+        padding: 18px;
+    }
+
+    .equipo-personal__filtros .boton {
+        width: 100%;
+    }
+
+    .equipo-personal__resumen {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .equipo-personal__tabla {
+        min-width: 640px;
+    }
+}

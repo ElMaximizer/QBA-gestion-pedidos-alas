@@ -45,7 +45,10 @@
         <h2 class="panel-atencion__titulo" id="titulo-atencion">Atención del equipo</h2>
         <div class="acciones panel-atencion__acciones">
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Consultas recibidas (— nuevas)</a>
-            <?php // Las altas y bajas corresponden a HU21; los permisos se administran en HU22. ?>
+            <?php // La consulta del personal corresponde a HU10; altas y bajas quedan para HU21. ?>
+            <?php if (in_array($usuario['rol'], ['administrador', 'dueno'], true)): ?>
+            <a class="boton boton--contorno" href="<?= $url('equipo-personal') ?>">Consultar personal</a>
+            <?php endif; ?>
             <?php if ($usuario['rol'] === 'dueno'): ?>
             <a class="boton boton--contorno" href="<?= $url('equipo-permisos') ?>">Administrar roles y permisos</a>
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Gestionar personal</a>
