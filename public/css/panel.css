@@ -34,6 +34,10 @@
     line-height: 1.16;
 }
 
+.panel-error {
+    overflow-wrap: anywhere;
+}
+
 .panel__cuenta {
     margin: 12px 0 0;
     font-size: 13px;
@@ -162,6 +166,10 @@
 
     .panel h1 {
         font-size: 32px;
+    }
+
+    .panel-error {
+        padding: 28px 24px;
     }
 
     .panel__estadisticas {

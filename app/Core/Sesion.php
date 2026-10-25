@@ -43,6 +43,11 @@ final class Sesion
         return self::equipo() ?? Http::redirigir('equipo-login');
     }
 
+    public static function administraProductos(): bool
+    {
+        return in_array(self::equipo()['rol'] ?? null, ['administrador', 'dueno'], true);
+    }
+
     public static function iniciarEquipo(int $idUsuario): void
     {
         self::renovarIdentidad();

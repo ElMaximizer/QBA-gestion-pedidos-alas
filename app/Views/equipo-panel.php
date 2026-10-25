@@ -13,8 +13,8 @@
         </article>
         <article class="tarjeta panel-estadistica">
             <p class="panel-estadistica__descripcion">Productos activos</p>
-            <strong class="panel-estadistica__valor" aria-label="Sin información">—</strong>
-            <p class="panel-estadistica__detalle">— categorías disponibles</p>
+            <strong class="panel-estadistica__valor"><?= $resumenProductos['productos'] ?></strong>
+            <p class="panel-estadistica__detalle"><?= $resumenProductos['categorias'] ?> <?= $resumenProductos['categorias'] === 1 ? 'categoría disponible' : 'categorías disponibles' ?></p>
         </article>
         <article class="tarjeta panel-estadistica">
             <p class="panel-estadistica__descripcion">Por entregar</p>
@@ -24,7 +24,9 @@
     </div>
     <div class="acciones">
         <a class="boton boton--dorado" role="link" aria-disabled="true" title="Próximamente">+ Nuevo pedido</a>
-        <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">+ Agregar producto</a>
+        <?php if ($administraProductos): ?>
+        <a class="boton boton--contorno" href="<?= $url('producto-agregar') ?>">+ Agregar producto</a>
+        <?php endif; ?>
     </div>
     <section class="panel-retiros" aria-labelledby="titulo-retiros">
         <h2 class="panel-retiros__titulo" id="titulo-retiros">Próximos retiros</h2>

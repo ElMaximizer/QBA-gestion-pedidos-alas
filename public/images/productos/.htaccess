@@ -1,0 +1,7 @@
+Options -Indexes
+<FilesMatch "^(?![a-f0-9]{32}\.(?:jpg|png)$).+">
+    Require all denied
+</FilesMatch>
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
