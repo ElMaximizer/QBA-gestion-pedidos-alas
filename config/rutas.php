@@ -9,6 +9,7 @@ use App\Controllers\GestionProductoController;
 use App\Controllers\PanelEquipoController;
 use App\Controllers\PedidosEquipoController;
 use App\Controllers\PedidoController;
+use App\Controllers\PermisosEquipoController;
 use App\Controllers\ProductoController;
 use App\Controllers\RegistroController;
 use App\Controllers\RegistroEquipoController;
@@ -32,6 +33,7 @@ return [
     'equipo-login' => ['equipo/login', AccesoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-panel' => ['equipo/panel', PanelEquipoController::class, 'index', ['GET', 'HEAD']],
     'equipo-pedidos' => ['equipo/pedidos', PedidosEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-permisos' => ['equipo/permisos', PermisosEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-cerrar-sesion' => ['equipo/salir', AccesoEquipoController::class, 'salir', ['POST']],
     'equipo-productos' => ['equipo/productos', GestionProductoController::class, 'index', ['GET', 'HEAD']],
     'equipo-stock' => ['equipo/stock', StockEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
