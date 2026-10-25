@@ -13,8 +13,12 @@
     <nav class="navegacion-equipo" aria-label="Administración">
         <div class="contenedor navegacion-equipo__contenido">
             <a class="boton boton--contorno navegacion-equipo__enlace" href="<?= $url('inicio') ?>">Inicio del sitio</a>
-            <a class="boton boton--azul navegacion-equipo__enlace" href="<?= $url('equipo-panel') ?>" aria-current="page">Panel administrativo</a>
+            <a class="boton <?= $seccionActiva === 'resumen' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace" href="<?= $url('equipo-panel') ?>" <?= $seccionActiva === 'resumen' ? 'aria-current="page"' : '' ?>>Panel administrativo</a>
+            <?php if ($administraProductos): ?>
+            <a class="boton <?= $seccionActiva === 'productos' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace" href="<?= $url('equipo-productos') ?>" <?= $seccionActiva === 'productos' ? 'aria-current="page"' : '' ?>>Productos</a>
+            <?php else: ?>
             <a class="boton boton--contorno navegacion-equipo__enlace" role="link" aria-disabled="true" title="Próximamente">Productos</a>
+            <?php endif; ?>
             <a class="boton boton--contorno navegacion-equipo__enlace" role="link" aria-disabled="true" title="Próximamente">Pedidos</a>
         </div>
     </nav>

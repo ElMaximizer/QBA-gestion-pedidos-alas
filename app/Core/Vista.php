@@ -15,15 +15,23 @@ final class Vista
         $recurso = static fn (string $archivo): string => Rutas::recurso($archivo);
         $clienteActual = Sesion::cliente();
         $equipoActual = Sesion::equipo();
+        $administraProductos = Sesion::administraProductos();
         $csrf = Sesion::csrf();
         $cantidadCarrito = Carrito::unidades();
         $seccionActiva = $variables['seccionActiva'] ?? '';
-        $esPanel = $vista === 'equipo-panel';
+        $esGestionProducto = in_array($vista, ['equipo-productos', 'equipo-producto-form', 'equipo-producto-eliminar'], true);
+        $esPanel = ($variables['layoutEquipo'] ?? false) || $vista === 'equipo-panel' || $esGestionProducto;
         $esRegistro = in_array($vista, ['cliente-login', 'cliente-registro', 'cliente-verificar', 'registro-completado',
             'equipo-registro', 'equipo-solicitud-enviada', 'equipo-login'], true);
         $estilos = $vista === 'inicio' ? [] : ['css/componentes.css',
             $esPanel ? 'css/panel.css' : ($esRegistro ? 'css/registro.css' : 'css/pedidos.css')];
         $scripts = in_array($vista, ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login'], true) ? ['js/registro.js'] : [];
+        if ($esGestionProducto) {
+            $estilos[] = 'css/gestion-productos.css';
+        }
+        if ($vista === 'equipo-producto-form') {
+            $scripts[] = 'js/productos.js';
+        }
         extract($variables, EXTR_SKIP);
         require dirname(__DIR__) . '/Views/partials/encabezado.php';
         require dirname(__DIR__) . '/Views/' . $vista . '.php';

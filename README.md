@@ -91,20 +91,87 @@ Atención del equipo conservan la visibilidad del proyecto anterior: consultas
 para todos; alta de personal y bandeja local para administrador; gestión de
 personal, solicitudes, actividad y bandeja local para dueño. Esa visibilidad
 es únicamente presentación; los permisos de cada futura operación deberán
-validarse en su implementación correspondiente.
+validarse en su implementación correspondiente. HU06 ya incorpora esa validación
+para la gestión de productos.
 
-Los contadores muestran — y el área de retiros muestra Próximamente. No se
-consultan pedidos, productos, ventas, mensajes ni solicitudes para llenar el
-panel. Los accesos a módulos futuros están deshabilitados y no tienen URL ni
-formularios de operación. Solo funcionan el regreso al sitio, el regreso al
-panel y el cierre de sesión ya existente. Esta etapa no implementa ninguna
-de las historias de gestión ni requiere cambios en la base de datos.
+HU06 muestra en **Productos activos** la cantidad real de productos activos y
+de sus categorías, excluyendo los eliminados. Se actualiza al volver al panel
+después de agregar, editar, activar, desactivar o eliminar productos. Los otros
+contadores muestran — y el área de retiros muestra Próximamente. Los accesos
+a módulos futuros están deshabilitados y no tienen URL ni
+formularios de operación. HU06 habilita **Productos** y **+ Agregar producto**
+para administrador y dueño. También funcionan el regreso al sitio, el regreso
+al panel y el cierre de sesión.
 
 PanelEquipoController obtiene la identidad aprobada de la sesión y prepara la
 vista equipo-panel. Los parciales equipo-encabezado y equipo-pie comparten la
 estructura HTML general del sitio; panel.css agrega los estilos internos sin
 cargar los estilos de registro o pedidos. La autenticación continúa a cargo
 de AccesoEquipoController y Sesion.
+
+## HU06 — Administrar productos
+
+Desde **Panel → Productos**, administrador y dueño pueden agregar, editar,
+desactivar y eliminar productos. El acceso se comprueba en el servidor en cada
+petición; un empleado recibe 403 aunque escriba la URL directamente o modifique
+el rol enviado por un formulario. Un visitante o cliente debe iniciar sesión
+como integrante del equipo. No se crea ni se aprueba ninguna cuenta al instalar
+esta historia.
+
+Se conservan el [listado](https://github.com/ElMaximizer/software-pedidos-alas/blob/produccion/app/Views/admin/productos.php)
+y el [formulario anterior](https://github.com/ElMaximizer/software-pedidos-alas/blob/produccion/app/Views/admin/producto-form.php),
+con su cabecera, colores, medidas, confirmación y adaptación a celular. Se
+reutilizan las tarjetas, campos y avisos, con clases BEM. Alta y edición comparten
+el mismo formulario. JavaScript solo agrega la vista previa de imagen; todo el
+guardado funciona sin JavaScript.
+
+El listado muestra inicialmente los productos activos. Busca por nombre o código
+PRD-001 y permite seleccionar inactivos o todos los estados. Muestra 25 productos
+por página y mantiene los filtros al cambiar de página. El
+formulario incluye nombre, categoría, descripción, precio, presentación,
+ingredientes, alérgenos, estado e imagen opcional. Las categorías del proyecto
+anterior son Panes, Bizcochos, Tortas y Especiales.
+
+El servidor valida longitudes, categoría y estado. El precio admite coma o punto,
+debe estar entre 0,01 y 99.999.999,99 y tener como máximo dos decimales. Se procesa
+como centavos enteros y se guarda en DECIMAL, sin cálculos con flotantes. Los
+campos no editables, como id, destacado, imagen y eliminado_en enviados como
+texto, no cambian los valores que decide el servidor. El id a editar o eliminar
+sale de la URL; la imagen se obtiene exclusivamente de la subida del archivo.
+
+**Inactivo** oculta temporalmente el producto y permite editarlo o reactivarlo.
+**Eliminar** primero muestra una confirmación y después requiere POST y CSRF.
+Hace una baja lógica: marca activo=0 y eliminado_en en UTC, conservando la fila
+y la referencia de los pedidos. Los detalles del pedido mantienen sus nombres y
+precios originales. El catálogo, el carrito y el cierre del pedido respetan la
+disponibilidad y los precios actualizados.
+
+Editar y eliminar comprueban dentro de una transacción la versión leída por el
+formulario. Si otra pestaña cambió el producto, se solicita volver al listado y
+abrirlo nuevamente. Los cambios se confirman con una redirección 303 y un aviso;
+recargar el listado no repite el guardado. Los errores de MySQL se informan con
+un mensaje general, sin mostrar consultas ni detalles internos.
+
+Las fotografías admiten JPG o PNG de hasta 4 MB y 8000 píxeles por lado. Se
+comprueban el archivo recibido por PHP, su tamaño real, tipo y dimensiones; el
+nombre original no se utiliza. Se guardan con un nombre aleatorio bajo
+public/images/productos/ y se muestran en el catálogo, detalle y carrito. Sin
+fotografía se usa la ilustración de la categoría. Si falla el guardado, se retira
+la imagen recién subida y se conserva la anterior. Al reemplazar o eliminar, se
+retira la fotografía que deja de utilizarse después de confirmar la base.
+Referencia: [subidas de archivos en PHP](https://www.php.net/manual/en/features.file-upload.php).
+
+La carpeta de imágenes necesita permisos de escritura para PHP. Se versiona su
+.htaccess de protección; las fotos son datos de la aplicación y están excluidas
+de Git. Para trasladar o respaldar un catálogo real, se conserva esa carpeta
+junto con la base de datos.
+
+HU06 utiliza la tabla productos que ya existe en qba_pedidos_alas. No requiere
+migraciones, nuevas tablas ni volver a cargar los productos de demostración.
+GestionProductoController coordina los formularios; Producto valida y consulta
+los datos; GestionProducto coordina el guardado con ImagenProducto. Las vistas
+reutilizan la estructura interna del panel y gestion-productos.css contiene sus
+estilos específicos.
 
 ## HU16 — Registrarse
 
@@ -215,7 +282,7 @@ Los enlaces de nosotros y contacto siguen inactivos.
 
 ## Requisitos
 
-- PHP 8.2 o superior con PDO MySQL, mbstring, OpenSSL y sesiones habilitados.
+- PHP 8.2 o superior con PDO MySQL, mbstring, OpenSSL, fileinfo y sesiones habilitados.
 - MySQL o MariaDB con tablas InnoDB; probado con MariaDB 10.4 de XAMPP.
 - MySQL iniciado desde el panel de XAMPP.
 - Para las pruebas: extensiones cURL y DOM, y proc_open habilitado.
@@ -282,7 +349,7 @@ y [servidor de PHP](https://www.php.net/manual/en/features.commandline.webserver
 - app/bootstrap.php: autocarga, zona horaria y sesión.
 - app/Controllers/: InicioController, ProductoController, CarritoController y
   PedidoController coordinan las peticiones.
-- app/Models/Producto.php: consultas del catálogo.
+- app/Models/Producto.php: catálogo, validación y gestión de productos, versiones y baja lógica.
 - app/Models/Carrito.php: cantidades y resumen del carrito.
 - app/Models/Pedido.php: validaciones y guardado transaccional.
 - app/Models/Cliente.php: registro, códigos y activación de cuentas.
@@ -294,6 +361,8 @@ y [servidor de PHP](https://www.php.net/manual/en/features.commandline.webserver
 - app/Controllers/AccesoController.php: inicio y cierre de sesión de HU17.
 - app/Controllers/AccesoEquipoController.php: inicio y cierre de sesión del equipo.
 - app/Controllers/PanelEquipoController.php: presentación del panel para la identidad aprobada.
+- app/Controllers/GestionProductoController.php: listado, alta, edición y eliminación de HU06.
+- app/Services/GestionProducto.php e ImagenProducto.php: guardado e imágenes del catálogo.
 - app/Controllers/RegistroController.php: formularios y resultados de HU16.
 - app/Controllers/RegistroEquipoController.php: registro y confirmación de solicitudes del equipo.
 - app/Services/RegistroCliente.php: coordina registro y entrega del código.
@@ -311,9 +380,11 @@ y [servidor de PHP](https://www.php.net/manual/en/features.commandline.webserver
 - public/css/componentes.css: formularios, tarjetas, avisos y botones compartidos.
 - public/css/pedidos.css: componentes de HU18.
 - public/css/panel.css: estructura visual del panel y navegación interna del equipo.
+- public/css/gestion-productos.css y public/js/productos.js: presentación de HU06 y vista previa de imágenes.
 - public/css/registro.css y public/js/registro.js: presentación y control de contraseña de HU16/HU17.
 - public/images/: cinco imágenes originales.
 - tests/pedidos.php: pruebas del dominio y del flujo HTTP.
+- tests/productos.php: validaciones, permisos, imágenes, concurrencia y conservación de pedidos de HU06.
 - tests/registro.php: pruebas del registro y de la activación.
 - tests/acceso.php: pruebas de autenticación, sesiones y asociación de pedidos.
 - tests/equipo.php: validaciones, duplicados, solicitud pendiente y aislamiento de identidades.
@@ -349,6 +420,10 @@ y generar enlaces, formularios y redirecciones.
 | /equipo/login | GET, HEAD, POST | Iniciar sesión con cédula y contraseña |
 | /equipo/panel | GET, HEAD | Panel visual de la cuenta aprobada del equipo |
 | /equipo/salir | POST | Cerrar la sesión del equipo conservando el carrito |
+| /equipo/productos | GET, HEAD | Listado y filtros de productos para administrador y dueño |
+| /equipo/productos/agregar | GET, HEAD, POST | Agregar un producto |
+| /equipo/productos/editar?id=1 | GET, HEAD, POST | Editar un producto existente |
+| /equipo/productos/eliminar?id=1 | GET, HEAD, POST | Revisar y confirmar la baja lógica |
 
 En XAMPP, por ejemplo, el panel se abre en
 <http://localhost/QBA-gestion-pedidos-alas/public/equipo/panel>.
@@ -404,6 +479,7 @@ se comparte entre los formularios, la confirmación y la pantalla protegida.
 ## Verificación
 
     C:\xampp\php\php.exe tests\pedidos.php
+    C:\xampp\php\php.exe tests\productos.php
     C:\xampp\php\php.exe tests\registro.php
     C:\xampp\php\php.exe tests\acceso.php
     C:\xampp\php\php.exe tests\equipo.php
@@ -411,7 +487,7 @@ se comparte entre los formularios, la confirmación y la pantalla protegida.
     C:\xampp\php\php.exe tests\correo.php
     C:\xampp\php\php.exe tests\rutas.php
 
-Las pruebas crean una base temporal qba_hu16_test_*, qba_hu17_test_*, qba_hu18_test_* o qba_equipo_test_*, un servidor local y sus
+Las pruebas crean una base temporal qba_hu06_test_*, qba_hu16_test_*, qba_hu17_test_*, qba_hu18_test_* o qba_equipo_test_*, un servidor local y sus
 sesiones, y los eliminan al terminar. Requieren permisos locales para crear y
 eliminar esa base y crear un trigger de prueba. Cubren validaciones, precios
 manipulados o modificados, productos retirados, CSRF, formularios malformados,
@@ -433,6 +509,11 @@ El acceso del equipo comprueba los tres roles, solicitudes no aprobadas,
 bloqueo persistente, cambio y revocación de permisos, vencimiento, renovación
 de cookies y CSRF, protección del panel y sustitución de la identidad de cliente.
 Las cuentas aprobadas de prueba existen únicamente en la base temporal.
+HU06 comprueba precios y campos inválidos, permisos por rol, CSRF, búsqueda y
+paginación, imágenes falsas o excesivas, reemplazo y limpieza tras un fallo de
+MySQL, versiones de formularios y conservación de pedidos históricos. El servidor
+temporal utiliza su propia carpeta de subidas temporales y retira las fotos de
+prueba al terminar; no utiliza los productos ni las cuentas de la base real.
 Las pruebas de rutas comprueban la instalación en una carpeta o en la raíz,
 recursos desde páginas anidadas, filtros, enlaces antiguos, métodos HTTP,
 direcciones desconocidas y protección de los archivos internos. Los recorridos

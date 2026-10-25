@@ -82,6 +82,7 @@ final class EntornoPruebas
         $this->direccion = stream_socket_get_name($socket, false);
         fclose($socket);
         $this->servidor = proc_open([PHP_BINARY, '-d', 'session.save_path="' . $this->directorio . '"',
+            '-d', 'upload_tmp_dir="' . $this->directorio . '"',
             '-d', 'session.serialize_handler=php',
             '-S', $this->direccion, '-t', dirname(__DIR__) . '/public', dirname(__DIR__) . '/public/router.php'], [0 => ['pipe', 'r'],
                 1 => ['file', $this->directorio . '/servidor.log', 'a'],
@@ -114,7 +115,8 @@ final class EntornoPruebas
             curl_setopt($curl, CURLOPT_COOKIE, 'QBA_SESSION=' . $sesion);
         }
         if ($campos !== null) {
-            curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($campos));
+            $multipart = (bool) array_filter($campos, static fn (mixed $valor): bool => $valor instanceof CURLFile);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $multipart ? $campos : http_build_query($campos));
         }
         $respuesta = curl_exec($curl);
         $estado = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
