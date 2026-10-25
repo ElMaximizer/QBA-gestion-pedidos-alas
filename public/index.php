@@ -6,6 +6,7 @@ use App\Controllers\AccesoEquipoController;
 use App\Controllers\CarritoController;
 use App\Controllers\InicioController;
 use App\Controllers\PedidoController;
+use App\Controllers\PanelEquipoController;
 use App\Controllers\ProductoController;
 use App\Controllers\RegistroController;
 use App\Controllers\RegistroEquipoController;
@@ -32,7 +33,7 @@ $rutas = [
     'equipo-registro' => [RegistroEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-solicitud-enviada' => [RegistroEquipoController::class, 'enviado', ['GET', 'HEAD']],
     'equipo-login' => [AccesoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
-    'equipo-panel' => [AccesoEquipoController::class, 'panel', ['GET', 'HEAD']],
+    'equipo-panel' => [PanelEquipoController::class, 'index', ['GET', 'HEAD']],
     'equipo-cerrar-sesion' => [AccesoEquipoController::class, 'salir', ['POST']],
 ];
 $ruta = $_GET['ruta'] ?? 'inicio';

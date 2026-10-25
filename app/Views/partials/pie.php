@@ -1,3 +1,4 @@
+    <?php if ($esPanel): require __DIR__ . '/equipo-pie.php'; else: ?>
     <footer class="pie-pagina">
         <div class="contenedor">
             <div class="pie-pagina__columnas">
@@ -28,5 +29,6 @@
             </div>
         </div>
     </footer>
+    <?php endif; ?>
 </body>
 </html>

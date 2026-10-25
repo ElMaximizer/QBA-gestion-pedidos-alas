@@ -17,9 +17,11 @@ final class Vista
         $csrf = Sesion::csrf();
         $cantidadCarrito = Carrito::unidades();
         $seccionActiva = $variables['seccionActiva'] ?? '';
+        $esPanel = $vista === 'equipo-panel';
         $esRegistro = in_array($vista, ['cliente-login', 'cliente-registro', 'cliente-verificar', 'registro-completado',
-            'equipo-registro', 'equipo-solicitud-enviada', 'equipo-login', 'equipo-panel'], true);
-        $estilos = $vista === 'inicio' ? [] : ['css/componentes.css', $esRegistro ? 'css/registro.css' : 'css/pedidos.css'];
+            'equipo-registro', 'equipo-solicitud-enviada', 'equipo-login'], true);
+        $estilos = $vista === 'inicio' ? [] : ['css/componentes.css',
+            $esPanel ? 'css/panel.css' : ($esRegistro ? 'css/registro.css' : 'css/pedidos.css')];
         $scripts = in_array($vista, ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login'], true) ? ['js/registro.js'] : [];
         extract($variables, EXTR_SKIP);
         require dirname(__DIR__) . '/Views/partials/encabezado.php';

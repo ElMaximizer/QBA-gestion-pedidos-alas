@@ -1,0 +1,206 @@
+/* Estructura visual del panel anterior. Los componentes comunes están en componentes.css. */
+.pagina--equipo {
+    min-width: 0;
+}
+
+.encabezado-equipo__salida {
+    margin: 0 0 0 auto;
+}
+
+.encabezado-equipo__boton {
+    min-width: 160px;
+}
+
+.navegacion-equipo {
+    padding-block: 32px;
+    background: var(--white);
+}
+
+.navegacion-equipo__contenido {
+    display: flex;
+    justify-content: flex-end;
+    gap: 32px;
+}
+
+.navegacion-equipo__enlace {
+    min-width: 180px;
+}
+
+.panel {
+    padding-block: 48px;
+}
+
+.panel h1 {
+    line-height: 1.16;
+}
+
+.panel__cuenta {
+    margin: 12px 0 0;
+    font-size: 13px;
+    overflow-wrap: anywhere;
+}
+
+.panel__estadisticas {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin-block: 24px;
+}
+
+.panel-estadistica__descripcion,
+.panel-estadistica__detalle {
+    font-size: 14px;
+}
+
+.panel-estadistica__valor {
+    font-size: 44px;
+    line-height: 1.1;
+}
+
+.panel-estadistica__detalle {
+    margin: 20px 0 0;
+}
+
+.panel-retiros__titulo {
+    margin-block: 28px;
+    font-size: 30px;
+}
+
+.panel-retiros__cabecera {
+    display: grid;
+    grid-template-columns: 1.25fr .5fr 1.45fr .5fr .9fr .6fr;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    padding: 18px 16px;
+    background: var(--sand);
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.panel-retiros__aviso {
+    margin-top: 20px;
+    font-size: 36px;
+}
+
+.panel-retiros__enlace {
+    margin-top: 4px;
+}
+
+.panel-atencion {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+}
+
+.panel-atencion__titulo {
+    font-size: 24px;
+}
+
+.pie-equipo {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    margin-top: auto;
+    padding-block: 48px;
+}
+
+.pie-equipo__leyenda {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.pie-equipo__enlace {
+    font-size: 12px;
+}
+
+@media (max-width: 850px) {
+    .navegacion-equipo__contenido {
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .navegacion-equipo__enlace {
+        min-width: 150px;
+    }
+
+    .panel-retiros__cabecera {
+        display: none;
+    }
+
+    .panel h1 {
+        font-size: 38px;
+    }
+}
+
+@media (max-width: 600px) {
+    .encabezado-equipo__boton {
+        min-width: 90px;
+        min-height: 44px;
+    }
+
+    .navegacion-equipo {
+        padding-block: 20px;
+    }
+
+    .navegacion-equipo__contenido {
+        justify-content: stretch;
+        gap: 8px;
+    }
+
+    .navegacion-equipo__enlace {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 0;
+        padding: 12px 8px;
+        font-size: 13px;
+    }
+
+    .panel {
+        padding-block: 32px 28px;
+    }
+
+    .panel h1 {
+        font-size: 32px;
+    }
+
+    .panel__estadisticas {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .panel-estadistica__descripcion {
+        margin-bottom: 16px;
+    }
+
+    .panel-estadistica__detalle {
+        margin-top: 16px;
+    }
+
+    .panel-estadistica__valor {
+        font-size: 38px;
+    }
+
+    .panel-retiros__titulo {
+        font-size: 26px;
+    }
+
+    .panel-retiros__vacio {
+        padding: 28px 24px;
+    }
+
+    .panel-retiros__aviso {
+        font-size: 28px;
+    }
+
+    .panel-atencion__acciones {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pie-equipo {
+        flex-direction: column;
+        gap: 20px;
+        padding-block: 40px;
+    }
+}

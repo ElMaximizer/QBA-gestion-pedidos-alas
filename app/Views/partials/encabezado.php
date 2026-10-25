@@ -13,8 +13,9 @@
     <script src="<?= $escapar($script) ?>" defer></script>
     <?php endforeach; ?>
 </head>
-<body class="pagina">
+<body class="pagina<?= $esPanel ? ' pagina--equipo' : '' ?>">
     <a class="salto-contenido" href="#contenido">Ir al contenido</a>
+    <?php if ($esPanel): require __DIR__ . '/equipo-encabezado.php'; else: ?>
     <header class="encabezado">
         <div class="contenedor encabezado__contenido">
             <a class="marca" href="index.php">
@@ -51,3 +52,4 @@
             <?php endif; ?>
         </div>
     </header>
+    <?php endif; ?>

@@ -8,7 +8,6 @@ use App\Core\Http;
 use App\Core\Sesion;
 use App\Core\Vista;
 use App\Models\AccesoEquipo;
-use App\Models\UsuarioEquipo;
 use DomainException;
 use Throwable;
 
@@ -43,14 +42,6 @@ final class AccesoEquipoController
         }
         Vista::mostrar('equipo-login', ['tituloPagina' => 'Acceso del equipo | Panadería Alas',
             'cedula' => $cedula, 'error' => $error]);
-    }
-
-    public function panel(): void
-    {
-        header('Cache-Control: no-store');
-        $usuario = Sesion::requerirEquipo();
-        Vista::mostrar('equipo-panel', ['tituloPagina' => 'Equipo | Panadería Alas',
-            'usuario' => $usuario, 'nombreRol' => UsuarioEquipo::ROLES[$usuario['rol']]]);
     }
 
     public function salir(): void
