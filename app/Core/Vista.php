@@ -29,6 +29,9 @@ final class Vista
         if ($esGestionProducto) {
             $estilos[] = 'css/gestion-productos.css';
         }
+        if ($vista === 'equipo-pedidos') {
+            $estilos[] = 'css/equipo-pedidos.css';
+        }
         if ($vista === 'equipo-producto-form') {
             $scripts[] = 'js/productos.js';
         }

@@ -19,6 +19,6 @@
             <?php else: ?>
             <a class="boton boton--contorno navegacion-equipo__enlace" role="link" aria-disabled="true" title="Próximamente">Productos</a>
             <?php endif; ?>
-            <a class="boton boton--contorno navegacion-equipo__enlace" role="link" aria-disabled="true" title="Próximamente">Pedidos</a>
+            <a class="boton <?= $seccionActiva === 'pedidos' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace" href="<?= $url('equipo-pedidos') ?>" <?= $seccionActiva === 'pedidos' ? 'aria-current="page"' : '' ?>>Pedidos</a>
         </div>
     </nav>
