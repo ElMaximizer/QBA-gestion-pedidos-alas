@@ -13,14 +13,14 @@
                         <a class="pie-pagina__enlace" href="<?= $url('inicio') ?>">Inicio</a>
                         <a class="pie-pagina__enlace" href="<?= $url('productos') ?>">Productos</a>
                         <a class="pie-pagina__enlace" href="<?= $url('nosotros') ?>">Nosotros</a>
-                        <a class="pie-pagina__enlace" role="link" aria-disabled="true">Contacto</a>
+                        <a class="pie-pagina__enlace" href="<?= $url('contacto') ?>">Contacto</a>
                     </div>
                 </nav>
                 <div class="pie-pagina__consulta">
                     <span class="etiqueta pie-pagina__etiqueta">CONVERSEMOS</span>
                     <h3 class="pie-pagina__subtitulo">¿Tienes un pedido en mente?</h3>
                     <p class="pie-pagina__descripcion">Consulta por disponibilidad, productos y preparaciones especiales.</p>
-                    <a class="boton boton--dorado pie-pagina__boton" role="link" aria-disabled="true">Hacer una consulta →</a>
+                    <a class="boton boton--dorado pie-pagina__boton" href="<?= $url('contacto') ?>">Hacer una consulta →</a>
                 </div>
             </div>
             <div class="pie-pagina__base">

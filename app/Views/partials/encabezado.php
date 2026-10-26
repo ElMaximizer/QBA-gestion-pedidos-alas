@@ -26,7 +26,7 @@
                 <a class="navegacion__enlace" href="<?= $url('inicio') ?>" <?= $seccionActiva === 'inicio' ? 'aria-current="page"' : '' ?>>Inicio</a>
                 <a class="navegacion__enlace" href="<?= $url('productos') ?>" <?= $seccionActiva === 'productos' ? 'aria-current="page"' : '' ?>>Productos</a>
                 <a class="navegacion__enlace" href="<?= $url('nosotros') ?>" <?= $seccionActiva === 'nosotros' ? 'aria-current="page"' : '' ?>>Nosotros</a>
-                <a class="navegacion__enlace" role="link" aria-disabled="true">Contacto</a>
+                <a class="navegacion__enlace" href="<?= $url('contacto') ?>">Contacto</a>
                 <a class="carrito" href="<?= $url('carrito') ?>">
                     <img class="carrito__icono" src="<?= $escapar($recurso('images/carrito.svg')) ?>" width="20" height="20" alt="">
                     Carrito <span class="carrito__cantidad"><?= $cantidadCarrito ?></span>
