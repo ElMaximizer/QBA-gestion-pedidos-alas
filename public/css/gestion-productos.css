@@ -1,0 +1,231 @@
+/* HU06. Medidas del diseño anterior; tarjetas, formularios y avisos compartidos. */
+.gestion-busqueda {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+    max-width: 1120px;
+    margin: 28px 0 24px;
+}
+
+.gestion-busqueda__nombre {
+    flex: 1;
+    min-width: 0;
+}
+
+.gestion-busqueda__estado {
+    min-width: 220px;
+}
+
+.gestion-busqueda__boton {
+    height: 54px;
+}
+
+.gestion-productos__cantidad {
+    margin-block: 24px;
+    font-size: 14px;
+}
+
+.gestion-productos__vacio {
+    width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.gestion-producto {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) .6fr .9fr .8fr .8fr;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    padding: 20px;
+}
+
+.gestion-producto__nombre {
+    margin-bottom: 8px;
+    font-size: 20px;
+    overflow-wrap: anywhere;
+}
+
+.gestion-producto__precio {
+    overflow-wrap: anywhere;
+}
+
+.gestion-producto__boton {
+    min-width: 0;
+}
+
+.producto-formulario {
+    display: grid;
+    grid-template-columns: minmax(0, 1.95fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+}
+
+.producto-imagen__vista {
+    width: 100%;
+    aspect-ratio: 400 / 245;
+    border-radius: var(--radius);
+    background: #eee6d8;
+    object-fit: cover;
+}
+
+.producto-imagen__selector {
+    position: relative;
+    overflow: hidden;
+    margin-top: 16px;
+}
+
+.producto-imagen__archivo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.producto-imagen__selector:focus-within {
+    outline: 3px solid var(--gold);
+    outline-offset: 3px;
+}
+
+.producto-imagen__ayuda {
+    margin: 20px 0 0;
+}
+
+.producto-eliminar {
+    width: 100%;
+    padding: 48px;
+}
+
+.producto-eliminar__titulo {
+    margin-top: 20px;
+    font-size: 40px;
+    overflow-wrap: anywhere;
+}
+
+.producto-eliminar__descripcion {
+    font-size: 20px;
+    line-height: 1.5;
+}
+
+.producto-eliminar .recuadro {
+    margin: 0 0 20px;
+}
+
+.paginacion {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 28px;
+    font-size: 14px;
+}
+
+@media (max-width: 1150px) {
+    .gestion-producto {
+        gap: 16px;
+    }
+
+    .gestion-producto__boton {
+        padding-inline: 16px;
+    }
+}
+
+@media (max-width: 850px) {
+    .producto-formulario {
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    }
+
+    .gestion-producto {
+        grid-template-columns: minmax(0, 1.6fr) .6fr .8fr;
+    }
+
+    .gestion-producto__boton {
+        grid-row: 2;
+    }
+
+    .gestion-producto__boton:last-child {
+        grid-column: 2 / 4;
+    }
+
+    .gestion-busqueda {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 600px) {
+    .gestion-productos__vacio {
+        padding: 28px 24px;
+    }
+
+    .gestion-productos__vacio .vacio__titulo {
+        font-size: 28px;
+    }
+
+    .gestion-producto {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 18px;
+    }
+
+    .gestion-producto__identidad {
+        grid-column: 1 / -1;
+    }
+
+    .gestion-producto__estado {
+        justify-self: end;
+    }
+
+    .gestion-producto__boton {
+        grid-row: auto;
+    }
+
+    .gestion-producto__boton:last-child {
+        grid-column: auto;
+    }
+
+    .gestion-busqueda {
+        gap: 14px;
+        margin-top: 24px;
+    }
+
+    .gestion-busqueda__nombre {
+        flex-basis: 100%;
+    }
+
+    .gestion-busqueda__estado {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .gestion-busqueda__boton {
+        min-width: 110px;
+    }
+
+    .producto-formulario {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .producto-formulario .tarjeta__titulo {
+        font-size: 24px;
+    }
+
+    .producto-formulario__acciones,
+    .producto-eliminar__acciones {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .producto-eliminar {
+        padding: 28px 24px;
+    }
+
+    .producto-eliminar__titulo {
+        font-size: 30px;
+        line-height: 1.2;
+    }
+
+    .producto-eliminar__descripcion {
+        font-size: 17px;
+    }
+}

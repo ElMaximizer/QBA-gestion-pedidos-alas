@@ -1,0 +1,3 @@
+/config/correo.local.php
+/public/images/productos/*
+!/public/images/productos/.htaccess
