@@ -35,6 +35,10 @@ final class Vista
             $estilos[] = 'css/nosotros.css';
         }
 
+        if (in_array($vista, ['contacto', 'contacto-enviado'], true)) {
+            $estilos[] = 'css/contacto.css';
+        }
+
         if ($esGestionProducto) {
             $estilos[] = 'css/gestion-productos.css';
         }
