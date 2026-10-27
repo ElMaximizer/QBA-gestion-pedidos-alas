@@ -331,6 +331,40 @@ cambia la identidad asociada. Un id_cliente enviado desde el navegador se ignora
 Los pedidos anteriores conservan su asociación original, incluidos los de
 invitados con NULL. La consulta del historial se implementará en HU20.
 
+## HU01 — Registrar un pedido desde el equipo
+
+Administrador y dueño acceden desde **Nuevo pedido**, en el panel o en el
+listado de pedidos. La dirección es `/equipo/pedidos/registrar`. Se conserva
+la distribución del formulario anterior: cliente y retiro, líneas de productos
+y un resumen lateral con el total.
+
+El cliente atendido en el mostrador o por teléfono no necesita una cuenta web.
+Se registran nombre, teléfono, fecha y hora de retiro, productos, cantidades y
+notas opcionales. Solo se ofrecen productos activos; se permiten hasta 50
+productos distintos y entre 1 y 99 unidades por producto. El resumen se actualiza
+con JavaScript y también al agregar o quitar líneas mediante el servidor.
+
+Se reutiliza `Pedido` para validar, calcular en centavos y guardar cabecera y
+detalles en una transacción. El pedido comienza en **Pendiente** y aparece en
+el listado de HU04. Los precios se comprueban nuevamente al guardar: si cambiaron,
+se muestran los nuevos importes para revisarlos antes de volver a confirmar.
+El token del formulario evita duplicados por doble envío. Un error conserva
+los datos ingresados. El carrito público no se utiliza ni se vacía.
+
+`id_usuario_registro` identifica a la cuenta del equipo que tomó el pedido;
+`id_cliente` conserva NULL para estos pedidos. Ambos identificadores, el total
+y el estado se deciden en el servidor. Los pedidos web conservan su asociación
+al cliente. La creación para empleados queda pendiente de HU11.
+
+Para actualizar una instalación existente, ejecutar el instalador habitual:
+
+    C:\xampp\php\php.exe database\instalar.php
+
+También se puede ejecutar `database/pedidos-equipo.sql` desde MySQL sobre la base
+del proyecto, después de `estructura.sql` y `equipo.sql`. Agrega la columna del
+responsable y su clave foránea sin modificar los pedidos existentes y admite
+ejecuciones repetidas. No se necesita cargar nuevamente los datos de demostración.
+
 ## HU18 — Realizar un pedido
 
 El cliente puede explorar y filtrar productos, ver su detalle, agregar cantidades
@@ -491,7 +525,8 @@ y generar enlaces, formularios y redirecciones.
 | /equipo/solicitud-enviada | GET, HEAD | Confirmación de la solicitud de esta sesión |
 | /equipo/login | GET, HEAD, POST | Iniciar sesión con cédula y contraseña |
 | /equipo/panel | GET, HEAD | Panel visual de la cuenta aprobada del equipo |
-| /equipo/pedidos | GET, HEAD | Consultar pedidos del equipo con búsqueda, filtros y páginas |
+| /equipo/pedidos | GET, HEAD, POST | Consultar pedidos del equipo y registrar la seña según permisos |
+| /equipo/pedidos/registrar | GET, HEAD, POST | Registrar un pedido como administrador o dueño |
 | /equipo/salir | POST | Cerrar la sesión del equipo conservando el carrito |
 | /equipo/productos | GET, HEAD | Listado y filtros de productos para administrador y dueño |
 | /equipo/productos/agregar | GET, HEAD, POST | Agregar un producto |
@@ -551,6 +586,7 @@ se comparte entre los formularios, la confirmación y la pantalla protegida.
 
 ## Verificación
 
+    C:\xampp\php\php.exe tests\pedidos-equipo.php
     C:\xampp\php\php.exe tests\pedidos.php
     C:\xampp\php\php.exe tests\productos.php
     C:\xampp\php\php.exe tests\registro.php
@@ -560,11 +596,14 @@ se comparte entre los formularios, la confirmación y la pantalla protegida.
     C:\xampp\php\php.exe tests\correo.php
     C:\xampp\php\php.exe tests\rutas.php
 
-Las pruebas crean una base temporal qba_hu06_test_*, qba_hu16_test_*, qba_hu17_test_*, qba_hu18_test_* o qba_equipo_test_*, un servidor local y sus
+Las pruebas crean una base temporal qba_hu01_test_*, qba_hu06_test_*, qba_hu16_test_*, qba_hu17_test_*, qba_hu18_test_* o qba_equipo_test_*, un servidor local y sus
 sesiones, y los eliminan al terminar. Requieren permisos locales para crear y
 eliminar esa base y crear un trigger de prueba. Cubren validaciones, precios
 manipulados o modificados, productos retirados, CSRF, formularios malformados,
 rollback de cabecera y detalles, doble envío y el recorrido HTTP completo.
+HU01 comprueba los permisos del equipo, el responsable del registro, la separación
+del carrito público, líneas sin JavaScript, cambios del catálogo, recuperación de
+errores y actualización de una base existente sin perder pedidos.
 El registro también comprueba contraseñas protegidas, correos duplicados,
 códigos vencidos o bloqueados, reenvíos y conservación del carrito.
 Las pruebas fuerzan la bandeja local o un receptor SMTP temporal en 127.0.0.1;

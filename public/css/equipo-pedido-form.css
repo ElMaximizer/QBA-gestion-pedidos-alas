@@ -1,0 +1,35 @@
+/* HU01. Conserva el formulario y el resumen lateral del proyecto anterior. */
+.pedido-equipo { min-width: 0; }
+.pedido-equipo__formulario { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.pedido-equipo__datos, .pedido-equipo__resumen { min-width: 0; }
+.pedido-equipo__titulo { margin: 0; font-size: 26px; letter-spacing: -.02em; }
+.pedido-equipo__ayuda { margin: 0; color: var(--muted); font-size: 13px; font-weight: 400; line-height: 1.6; }
+.pedido-equipo__retiro { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.pedido-equipo__separador { margin: 4px 0; }
+.pedido-equipo__lineas { display: grid; gap: 20px; }
+.pedido-equipo__linea { display: grid; grid-template-columns: minmax(0, 1fr) 100px; gap: 16px; min-width: 0; margin: 0; padding: 16px; border: 1px solid var(--border); border-radius: 8px; }
+.pedido-equipo__leyenda { padding-inline: 6px; font-size: 13px; font-weight: 600; }
+.pedido-equipo__quitar { grid-column: 1 / -1; justify-self: start; min-height: 44px; text-align: left; }
+.pedido-equipo__quitar:disabled { opacity: .45; cursor: default; }
+.pedido-equipo__detalle { display: grid; gap: 16px; margin: 24px 0; padding: 0; list-style: none; }
+.pedido-equipo__articulo { display: flex; justify-content: space-between; align-items: start; gap: 16px; font-size: 14px; line-height: 1.5; }
+.pedido-equipo__articulo span { min-width: 0; overflow-wrap: anywhere; }
+.pedido-equipo__articulo strong { flex-shrink: 0; }
+.pedido-equipo__total { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin: 24px 0; padding-top: 24px; border-top: 1px solid var(--border); font-size: 24px; font-weight: 600; }
+.pedido-equipo__resumen > .insignia { margin-top: 20px; }
+.pedido-equipo__acciones { display: grid; gap: 12px; margin-block: 24px; }
+.pedido-equipo__resumen { position: sticky; top: 24px; }
+.pedido-equipo input, .pedido-equipo select, .pedido-equipo textarea { min-width: 0; max-width: 100%; }
+.pedido-equipo select { text-overflow: ellipsis; }
+.pedido-equipo__vacio { overflow-wrap: anywhere; }
+
+@media (max-width: 850px) {
+    .pedido-equipo__formulario { grid-template-columns: minmax(0, 1fr); }
+    .pedido-equipo__resumen { position: static; }
+}
+
+@media (max-width: 600px) {
+    .pedido-equipo__datos, .pedido-equipo__resumen, .pedido-equipo__vacio { padding: 20px; }
+    .pedido-equipo__retiro, .pedido-equipo__linea { grid-template-columns: minmax(0, 1fr); }
+    .pedido-equipo__titulo, .pedido-equipo__vacio .vacio__titulo { font-size: 24px; }
+}

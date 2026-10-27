@@ -23,7 +23,9 @@
         </article>
     </div>
     <div class="acciones">
-        <a class="boton boton--dorado" role="link" aria-disabled="true" title="Próximamente">+ Nuevo pedido</a>
+        <?php if (in_array($usuario['rol'], ['administrador', 'dueno'], true)): ?>
+        <a class="boton boton--dorado" href="<?= $url('equipo-pedido-registrar') ?>">+ Nuevo pedido</a>
+        <?php endif; ?>
         <?php if ($administraProductos): ?>
         <a class="boton boton--contorno" href="<?= $url('producto-agregar') ?>">+ Agregar producto</a>
         <a class="boton boton--contorno" href="<?= $url('equipo-stock') ?>">Controlar stock</a>
@@ -38,7 +40,9 @@
         <div class="tarjeta vacio panel-retiros__vacio">
             <h3 class="panel-retiros__aviso">Consultar pedidos</h3>
             <p class="vacio__descripcion">Buscá pedidos por número, cliente, teléfono, producto, fecha o estado.</p>
-            <a class="boton boton--dorado" role="link" aria-disabled="true" title="Próximamente">+ Nuevo pedido</a>
+            <?php if (in_array($usuario['rol'], ['administrador', 'dueno'], true)): ?>
+            <a class="boton boton--dorado" href="<?= $url('equipo-pedido-registrar') ?>">+ Nuevo pedido</a>
+            <?php endif; ?>
         </div>
         <a class="enlace-texto panel-retiros__enlace" href="<?= $url('equipo-pedidos') ?>">Ver todos los pedidos →</a>
     </section>

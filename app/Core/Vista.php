@@ -56,6 +56,11 @@ final class Vista
             $estilos[] = 'css/equipo-pedidos.css';
         }
 
+        if ($vista === 'equipo-pedido-form') {
+            $estilos[] = 'css/equipo-pedido-form.css';
+            $scripts[] = 'js/pedido-equipo.js';
+        }
+
         if ($esPermisosEquipo) {
             $estilos[] = 'css/equipo-permisos.css';
         }
