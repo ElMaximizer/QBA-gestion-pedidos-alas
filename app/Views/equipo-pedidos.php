@@ -4,6 +4,11 @@
         <h1 class="titulo-pagina__titulo">Consultar pedidos</h1>
         <p class="titulo-pagina__descripcion">Buscá pedidos y revisá sus productos, fecha de retiro y estado.</p>
     </div>
+    <?php if ($puedeRegistrarPedido): ?>
+    <div class="acciones">
+        <a class="boton boton--dorado" href="<?= $url('equipo-pedido-registrar') ?>">+ Nuevo pedido</a>
+    </div>
+    <?php endif; ?>
 
     <?php if ($aviso !== ''): ?>
     <p class="equipo-pedidos__mensaje equipo-pedidos__mensaje--exito" role="status"><?= $escapar($aviso) ?></p>

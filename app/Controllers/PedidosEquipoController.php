@@ -75,6 +75,7 @@ final class PedidosEquipoController
             'estado' => $estado,
             'fecha' => $fecha,
             'puedeRegistrarSena' => $puedeRegistrarSena,
+            'puedeRegistrarPedido' => in_array($usuario['rol'], ['administrador', 'dueno'], true),
             'aviso' => $aviso,
             'error' => $error,
         ]);

@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS materias_primas (
 
 CREATE TABLE IF NOT EXISTS pedidos (
     id_pedido INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    -- Los pedidos de invitados conservan NULL; HU17 asocia las cuentas autenticadas.
+    -- Los pedidos tomados por el equipo conservan NULL; la web asocia la cuenta del cliente.
     id_cliente INT UNSIGNED NULL,
     cliente_nombre VARCHAR(120) NOT NULL,
     telefono VARCHAR(30) NOT NULL,

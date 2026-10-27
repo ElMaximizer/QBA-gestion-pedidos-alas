@@ -25,6 +25,7 @@ try {
     $db->exec(file_get_contents(__DIR__ . '/clientes.sql'));
     $db->exec(file_get_contents(__DIR__ . '/acceso-clientes.sql'));
     $db->exec(file_get_contents(__DIR__ . '/equipo.sql'));
+    $db->exec(file_get_contents(__DIR__ . '/pedidos-equipo.sql'));
     $db->exec(file_get_contents(__DIR__ . '/entregas-mercaderia.sql'));
     $db->exec(file_get_contents(__DIR__ . '/acceso-equipo.sql'));
     if (in_array('--demo', $argv, true)) {
