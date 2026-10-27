@@ -7,7 +7,7 @@
                 <p class="portada__descripcion">Panes, bizcochos y tortas elaborados con dedicación. Encuentra tu próximo favorito en Panadería Alas.</p>
                 <div class="portada__acciones">
                     <a class="boton boton--dorado" href="<?= $url('productos') ?>">Ver productos</a>
-                    <a class="boton boton--contorno" role="link" aria-disabled="true">Conocer la panadería</a>
+                    <a class="boton boton--contorno" href="<?= $url('nosotros') ?>">Conocer la panadería</a>
                 </div>
                 <p class="etiqueta portada__sello">PANES · BIZCOCHOS · TORTAS</p>
             </div>

@@ -6,6 +6,7 @@ use App\Controllers\AccesoEquipoController;
 use App\Controllers\CarritoController;
 use App\Controllers\ContactoController;
 use App\Controllers\InicioController;
+use App\Controllers\InformacionController;
 use App\Controllers\NosotrosController;
 use App\Controllers\GestionProductoController;
 use App\Controllers\PanelEquipoController;
@@ -24,6 +25,8 @@ use App\Controllers\EntregasMercaderiaController;
 return [
     'inicio' => ['', InicioController::class, 'index', ['GET', 'HEAD']],
     'nosotros' => ['nosotros', NosotrosController::class, 'index', ['GET', 'HEAD']],
+    'aviso-legal' => ['aviso-legal', InformacionController::class, 'legal', ['GET', 'HEAD']],
+    'como-comprar' => ['como-comprar', InformacionController::class, 'comprar', ['GET', 'HEAD']],
     'contacto' => ['contacto', ContactoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'contacto-enviado' => ['contacto/enviado', ContactoController::class, 'enviado', ['GET', 'HEAD']],
     'productos' => ['productos', ProductoController::class, 'index', ['GET', 'HEAD']],
