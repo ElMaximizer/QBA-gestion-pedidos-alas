@@ -22,7 +22,7 @@
                 <h4 class="recuadro__titulo">Información de alérgenos</h4>
                 <p class="recuadro__descripcion"><?= $escapar($producto['alergenos'] ?: 'Consultá por alérgenos antes de realizar tu pedido.') ?></p>
             </aside>
-            <form method="post" action="<?= $url('carrito') ?>" class="agregar-carrito">
+            <form method="post" action="<?= $url('carrito') ?>" class="agregar-carrito" data-carrito-form>
                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
                 <input type="hidden" name="accion" value="agregar">
                 <input type="hidden" name="id_producto" value="<?= $producto['id_producto'] ?>">
