@@ -24,8 +24,7 @@
         </label>
         <label class="campo">Estado
             <select class="campo__entrada" name="estado">
-                <?php foreach (['' => 'Todos', 'Pendiente' => 'Pendiente', 'En preparación' => 'En preparación',
-                    'Listo para retirar' => 'Listo para retirar', 'Entregado' => 'Entregado', 'Cancelado' => 'Cancelado'] as $valor => $etiqueta): ?>
+                <?php foreach (['' => 'Todos'] + array_combine($estados, $estados) as $valor => $etiqueta): ?>
                 <option value="<?= $escapar($valor) ?>" <?= $estado === $valor ? 'selected' : '' ?>><?= $escapar($etiqueta) ?></option>
                 <?php endforeach; ?>
             </select>
@@ -76,6 +75,9 @@
                 </dd></div>
                 <div class="equipo-pedido__productos"><dt>Productos</dt><dd><?= $escapar($pedido['productos']) ?></dd></div>
             </dl>
+            <?php if ($puedeModificarPedido): ?>
+            <a class="boton boton--contorno" href="<?= $escapar($url('equipo-pedido-editar', ['id' => $pedido['id_pedido']])) ?>">Ver / modificar pedido</a>
+            <?php endif; ?>
         </article>
         <?php endforeach; ?>
         <?php if (!$pedidos): ?>
