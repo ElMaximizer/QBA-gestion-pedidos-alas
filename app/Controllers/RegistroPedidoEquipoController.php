@@ -17,20 +17,54 @@ final class RegistroPedidoEquipoController
 {
     public function index(): void
     {
+        $this->formulario(false);
+    }
+
+    public function editar(): void
+    {
+        $this->formulario(true);
+    }
+
+    private function formulario(bool $esEdicion): void
+    {
         header('Cache-Control: no-store');
         $usuario = Sesion::requerirEquipo();
-        if (!in_array($usuario['rol'], ['administrador', 'dueno'], true)) {
+        if ($esEdicion ? $usuario['rol'] !== 'dueno' : !in_array($usuario['rol'], ['administrador', 'dueno'], true)) {
             http_response_code(403);
             Vista::mostrar('error', ['tituloPagina' => 'Acceso no permitido', 'layoutEquipo' => true,
-                'mensaje' => 'El registro de pedidos está disponible para administrador y dueño.',
+                'mensaje' => $esEdicion ? 'Solo el dueño puede modificar pedidos.'
+                    : 'El registro de pedidos está disponible para administrador y dueño.',
                 'rutaVolver' => 'equipo-pedidos', 'textoVolver' => 'Volver a pedidos']);
             return;
         }
 
-        $productos = Producto::catalogo()->listar();
+        $modelo = new Pedido(Conexion::obtener());
+        $idEdicion = null;
+        $pedido = null;
+        if ($esEdicion) {
+            $idEdicion = filter_var(Http::texto($_GET, 'id'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            if (!$idEdicion) throw new DomainException('Seleccioná un pedido válido del listado.');
+            $pedido = $modelo->buscarGestion($idEdicion);
+            if ($pedido === null) {
+                http_response_code(404);
+                Vista::mostrar('error', ['tituloPagina' => 'Pedido no encontrado', 'layoutEquipo' => true,
+                    'mensaje' => 'No encontramos ese pedido.', 'rutaVolver' => 'equipo-pedidos', 'textoVolver' => 'Volver a pedidos']);
+                return;
+            }
+        }
+        $productos = Pedido::opcionesGestion(Producto::catalogo()->listar(), $pedido);
         $precios = array_column($productos, 'precio', 'id_producto');
         $valores = ['cliente_nombre' => '', 'telefono' => '', 'fecha_retiro' => date('Y-m-d', strtotime('+1 day')),
-            'hora_retiro' => '10:00', 'notas' => '', 'lineas' => [['id_producto' => '', 'cantidad' => '1']]];
+            'hora_retiro' => '10:00', 'notas' => '', 'estado' => 'Pendiente', 'motivo' => '',
+            'lineas' => [['id_producto' => '', 'cantidad' => '1']]];
+        if ($pedido !== null) {
+            foreach (['cliente_nombre', 'telefono', 'fecha_retiro', 'hora_retiro', 'notas', 'estado'] as $campo) {
+                $valores[$campo] = $pedido[$campo];
+            }
+            $valores['lineas'] = array_map(static fn (array $linea): array => [
+                'id_producto' => $linea['clave_producto'], 'cantidad' => (string) $linea['cantidad'],
+            ], $pedido['lineas']);
+        }
         $formularios = array_filter($_SESSION['qba']['formularios_pedido_equipo'] ?? [],
             static fn (array $formulario): bool => $formulario['creado'] >= time() - 1800);
         $token = '';
@@ -42,17 +76,25 @@ final class RegistroPedidoEquipoController
                 Sesion::validarCsrf($_POST['csrf'] ?? null);
                 $token = Http::texto($_POST, 'pedido_token');
                 $formulario = $formularios[$token] ?? null;
-                if ($formulario === null) {
+                if ($formulario === null || ($formulario['id_edicion'] ?? null) !== $idEdicion) {
                     throw new DomainException('El formulario venció. Volvé a abrir un nuevo pedido.');
                 }
                 if ($formulario['pedido'] !== null) {
-                    $this->confirmar((int) $formulario['pedido']);
+                    $this->confirmar((int) $formulario['pedido'], $esEdicion);
                 }
                 $puedeConfirmar = true;
                 foreach (['cliente_nombre', 'telefono', 'fecha_retiro', 'hora_retiro', 'notas'] as $campo) {
                     $valores[$campo] = Http::texto($_POST, $campo);
                 }
                 $valores['lineas'] = $this->leerLineas($_POST['lineas'] ?? null);
+                if ($esEdicion) {
+                    $valores['estado'] = Http::texto($_POST, 'estado');
+                    $valores['motivo'] = Http::texto($_POST, 'motivo');
+                    if (!hash_equals($formulario['version'], Pedido::version($pedido))) {
+                        $puedeConfirmar = false;
+                        throw new DomainException('El pedido fue modificado desde otra pantalla. Volvé a abrirlo para revisar los cambios antes de guardar.');
+                    }
+                }
                 if (isset($_POST['quitar_linea'])) {
                     $indice = filter_var(Http::texto($_POST, 'quitar_linea'), FILTER_VALIDATE_INT,
                         ['options' => ['min_range' => 0]]);
@@ -69,7 +111,7 @@ final class RegistroPedidoEquipoController
                     }
                     $valores['lineas'][] = ['id_producto' => '', 'cantidad' => '1'];
                 } elseif (Http::texto($_POST, 'accion', 'registrar') === 'registrar') {
-                    $cantidades = Pedido::cantidadesDesdeLineas($valores['lineas']);
+                    $cantidades = Pedido::cantidadesDesdeLineas($valores['lineas'], $esEdicion);
                     $esperadas = [];
                     foreach ($cantidades as $id => $cantidad) {
                         if (!isset($formulario['precios'][$id])) {
@@ -77,11 +119,17 @@ final class RegistroPedidoEquipoController
                         }
                         $esperadas[] = ['id_producto' => $id, 'cantidad' => $cantidad, 'precio' => $formulario['precios'][$id]];
                     }
-                    $id = (new Pedido(Conexion::obtener()))->crear($valores, $cantidades, Carrito::firma($esperadas),
-                        $token, null, (int) $usuario['id_usuario']);
+                    if ($esEdicion) {
+                        $modelo->modificar($idEdicion, $valores, $cantidades, Carrito::firma($esperadas),
+                            $formulario['version'], $token, (int) $usuario['id_usuario'], $valores['motivo']);
+                        $id = $idEdicion;
+                    } else {
+                        $id = $modelo->crear($valores, $cantidades, Carrito::firma($esperadas),
+                            $token, null, (int) $usuario['id_usuario']);
+                    }
                     $formularios[$token]['pedido'] = $id;
                     $_SESSION['qba']['formularios_pedido_equipo'] = $formularios;
-                    $this->confirmar($id);
+                    $this->confirmar($id, $esEdicion);
                 } else {
                     throw new DomainException('Seleccioná una acción válida.');
                 }
@@ -89,17 +137,25 @@ final class RegistroPedidoEquipoController
                 http_response_code(422);
                 $error = $excepcion->getMessage();
             } catch (Throwable $excepcion) {
-                error_log('HU01: falló el registro del pedido (' . $excepcion::class . ').');
+                error_log(($esEdicion ? 'HU23' : 'HU01') . ': falló el guardado del pedido (' . $excepcion::class . ').');
                 http_response_code(503);
                 $error = 'No pudimos guardar el pedido. Conservamos los datos del formulario; intentá nuevamente.';
             }
         } else {
             $token = bin2hex(random_bytes(32));
             $formularios = array_slice($formularios, -9, null, true);
-            $formularios[$token] = ['creado' => time(), 'precios' => $precios, 'pedido' => null];
+            $formularios[$token] = ['creado' => time(), 'precios' => $precios, 'pedido' => null,
+                'id_edicion' => $idEdicion, 'version' => $pedido === null ? null : Pedido::version($pedido)];
             $puedeConfirmar = true;
         }
 
+        if ($esEdicion && $puedeConfirmar && $_SERVER['REQUEST_METHOD'] === 'POST') {
+            $actual = $modelo->buscarGestion($idEdicion);
+            if ($actual === null || !hash_equals($formularios[$token]['version'], Pedido::version($actual))) {
+                $puedeConfirmar = false;
+                $error = 'El pedido fue modificado desde otra pantalla. Volvé a abrirlo para revisar los cambios antes de guardar.';
+            }
+        }
         // Los precios que se muestran quedan como referencia para el siguiente envío.
         if ($puedeConfirmar) $formularios[$token]['precios'] = $precios;
         $_SESSION['qba']['formularios_pedido_equipo'] = $formularios;
@@ -119,11 +175,19 @@ final class RegistroPedidoEquipoController
             $resumen[] = ['nombre' => $producto['nombre'], 'cantidad' => $cantidad, 'subtotal' => $subtotal];
             $total += $subtotal;
         }
-        Vista::mostrar('equipo-pedido-form', ['tituloPagina' => 'Registrar pedido | Panadería Alas', 'layoutEquipo' => true,
+        $historial = null;
+        if ($esEdicion) {
+            $pagina = filter_var(Http::texto($_GET, 'historial_pagina', '1'), FILTER_VALIDATE_INT,
+                ['options' => ['min_range' => 1]]);
+            if (!$pagina) throw new DomainException('Seleccioná una página válida del historial.');
+            $historial = $modelo->historial($idEdicion, $pagina);
+        }
+        Vista::mostrar('equipo-pedido-form', ['tituloPagina' => ($esEdicion ? 'Modificar pedido #' . $idEdicion : 'Registrar pedido') . ' | Panadería Alas', 'layoutEquipo' => true,
             'seccionActiva' => 'pedidos', 'valores' => $valores, 'productos' => $productos, 'precios' => $precios,
             'error' => $error, 'token' => $token, 'puedeConfirmar' => $puedeConfirmar, 'resumen' => $resumen,
             'total' => $total, 'resumenCompleto' => $resumenCompleto, 'maximoProductos' => Pedido::MAXIMO_PRODUCTOS,
-            'maximaCantidad' => Pedido::MAXIMA_CANTIDAD, 'hoy' => date('Y-m-d')]);
+            'maximaCantidad' => Pedido::MAXIMA_CANTIDAD, 'hoy' => date('Y-m-d'), 'esEdicion' => $esEdicion,
+            'pedido' => $pedido, 'estados' => Pedido::ESTADOS, 'historial' => $historial]);
     }
 
     private function leerLineas(mixed $lineas): array
@@ -139,9 +203,10 @@ final class RegistroPedidoEquipoController
         return $valores;
     }
 
-    private function confirmar(int $id): never
+    private function confirmar(int $id, bool $esEdicion): never
     {
-        $_SESSION['qba']['aviso_pedidos'] = 'Pedido #' . $id . ' registrado correctamente. Quedó pendiente de preparación.';
+        $_SESSION['qba']['aviso_pedidos'] = $esEdicion ? 'Pedido #' . $id . ' actualizado correctamente. Los cambios quedaron guardados.'
+            : 'Pedido #' . $id . ' registrado correctamente. Quedó pendiente de preparación.';
         Http::redirigir('equipo-pedidos');
     }
 }

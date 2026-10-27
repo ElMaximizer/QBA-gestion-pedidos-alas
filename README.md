@@ -365,6 +365,36 @@ del proyecto, después de `estructura.sql` y `equipo.sql`. Agrega la columna del
 responsable y su clave foránea sin modificar los pedidos existentes y admite
 ejecuciones repetidas. No se necesita cargar nuevamente los datos de demostración.
 
+## HU23 — Administrar pedidos como dueño
+
+El dueño consulta el listado de HU04 y accede a **Ver / modificar pedido**.
+La dirección es `/equipo/pedidos/editar?id=1`. La edición reutiliza el controlador,
+formulario MVC, estilos BEM y resumen de HU01; administrador y empleado no tienen
+acceso a esta acción.
+
+Permite corregir cliente, teléfono, retiro, notas, productos, cantidades y estado.
+Por decisión del equipo, también se pueden corregir pedidos **Entregados** y
+**Cancelados**, conservando los datos anteriores. Al editar se aceptan fechas de
+retiro pasadas válidas, para mantener o corregir registros históricos.
+
+Los productos existentes conservan nombre y precio originales, incluso si fueron
+desactivados o retirados del catálogo. Los productos eliminados de la base se
+mantienen mediante su detalle histórico. Solo se pueden agregar productos activos
+nuevos y se comprueba su precio al guardar. El servidor calcula el total; conserva
+la cuenta del cliente, la seña y el responsable de creación del pedido.
+
+Cada modificación guarda responsable, fecha, motivo opcional y las versiones
+anterior y nueva en `pedido_cambios`. El historial se consulta desde el mismo
+formulario, paginado de a diez cambios. El pedido, sus líneas y el historial se
+guardan en una transacción: si falla una parte, se revierte todo. Un formulario
+anterior no sobrescribe modificaciones recientes y reenviar el mismo formulario
+no repite el cambio. Guardar sin modificar datos no genera una entrada adicional.
+
+La instalación incorpora `database/pedido-cambios.sql`, que crea el historial sin
+modificar los pedidos existentes. Se puede aplicar con el instalador habitual o
+ejecutando ese archivo en la base del proyecto, después de `estructura.sql` y
+`equipo.sql`. No permite reconstruir modificaciones anteriores a HU23.
+
 ## HU18 — Realizar un pedido
 
 El cliente puede explorar y filtrar productos, ver su detalle, agregar cantidades
@@ -527,6 +557,7 @@ y generar enlaces, formularios y redirecciones.
 | /equipo/panel | GET, HEAD | Panel visual de la cuenta aprobada del equipo |
 | /equipo/pedidos | GET, HEAD, POST | Consultar pedidos del equipo y registrar la seña según permisos |
 | /equipo/pedidos/registrar | GET, HEAD, POST | Registrar un pedido como administrador o dueño |
+| /equipo/pedidos/editar?id=1 | GET, HEAD, POST | Consultar y modificar cualquier pedido como dueño, con historial |
 | /equipo/salir | POST | Cerrar la sesión del equipo conservando el carrito |
 | /equipo/productos | GET, HEAD | Listado y filtros de productos para administrador y dueño |
 | /equipo/productos/agregar | GET, HEAD, POST | Agregar un producto |
@@ -587,6 +618,7 @@ se comparte entre los formularios, la confirmación y la pantalla protegida.
 ## Verificación
 
     C:\xampp\php\php.exe tests\pedidos-equipo.php
+    C:\xampp\php\php.exe tests\gestion-pedidos.php
     C:\xampp\php\php.exe tests\pedidos.php
     C:\xampp\php\php.exe tests\productos.php
     C:\xampp\php\php.exe tests\registro.php
@@ -596,7 +628,7 @@ se comparte entre los formularios, la confirmación y la pantalla protegida.
     C:\xampp\php\php.exe tests\correo.php
     C:\xampp\php\php.exe tests\rutas.php
 
-Las pruebas crean una base temporal qba_hu01_test_*, qba_hu06_test_*, qba_hu16_test_*, qba_hu17_test_*, qba_hu18_test_* o qba_equipo_test_*, un servidor local y sus
+Las pruebas crean una base temporal qba_hu01_test_*, qba_hu06_test_*, qba_hu16_test_*, qba_hu17_test_*, qba_hu18_test_*, qba_hu23_test_* o qba_equipo_test_*, un servidor local y sus
 sesiones, y los eliminan al terminar. Requieren permisos locales para crear y
 eliminar esa base y crear un trigger de prueba. Cubren validaciones, precios
 manipulados o modificados, productos retirados, CSRF, formularios malformados,
@@ -604,6 +636,9 @@ rollback de cabecera y detalles, doble envío y el recorrido HTTP completo.
 HU01 comprueba los permisos del equipo, el responsable del registro, la separación
 del carrito público, líneas sin JavaScript, cambios del catálogo, recuperación de
 errores y actualización de una base existente sin perder pedidos.
+HU23 comprueba permisos exclusivos del dueño, correcciones de pedidos cerrados,
+precios y productos históricos, versiones anteriores, conservación de identidad y
+seña, historial, doble envío, paginación y rollback ante un fallo del historial.
 El registro también comprueba contraseñas protegidas, correos duplicados,
 códigos vencidos o bloqueados, reenvíos y conservación del carrito.
 Las pruebas fuerzan la bandeja local o un receptor SMTP temporal en 127.0.0.1;

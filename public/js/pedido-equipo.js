@@ -55,6 +55,8 @@
         total.textContent = completo ? dinero(importe) : '—';
         const fecha = formulario.elements.fecha_retiro.value;
         retiro.textContent = `Retiro · ${fecha ? fecha.split('-').reverse().join('/') : 'Elegí una fecha'} · ${formulario.elements.hora_retiro.value || 'Elegí una hora'}`;
+        const estado = formulario.querySelector('[data-pedido-estado]');
+        if (estado) formulario.querySelector('[data-pedido-estado-resumen]').textContent = `Estado: ${estado.value}`;
     };
 
     agregar.addEventListener('click', (evento) => {

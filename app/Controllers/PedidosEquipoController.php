@@ -8,6 +8,7 @@ use App\Core\Conexion;
 use App\Core\Sesion;
 use App\Core\Vista;
 use App\Models\ConsultaPedidos;
+use App\Models\Pedido;
 use DomainException;
 use Throwable;
 
@@ -76,6 +77,8 @@ final class PedidosEquipoController
             'fecha' => $fecha,
             'puedeRegistrarSena' => $puedeRegistrarSena,
             'puedeRegistrarPedido' => in_array($usuario['rol'], ['administrador', 'dueno'], true),
+            'puedeModificarPedido' => $usuario['rol'] === 'dueno',
+            'estados' => Pedido::ESTADOS,
             'aviso' => $aviso,
             'error' => $error,
         ]);
