@@ -61,7 +61,7 @@
             <?php else: ?>
             <button class="boton boton--dorado boton--completo" disabled>Realizar pedido →</button>
             <?php endif; ?>
-            <p class="texto-pequeno resumen__texto">Completa tus datos y coordinaremos disponibilidad y retiro.</p>
+            <p class="texto-pequeno resumen__texto"><?= $clienteActual ? 'Completa tus datos y coordinaremos disponibilidad y retiro.' : 'Para confirmar el pedido, iniciá sesión o creá una cuenta de cliente.' ?></p>
         </aside>
     </div>
     <?php endif; ?>
