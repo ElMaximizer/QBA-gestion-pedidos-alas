@@ -10,6 +10,9 @@
         <section class="tarjeta registro__tarjeta">
             <span class="etiqueta registro__etiqueta">CUENTA DE CLIENTE</span>
             <h1 class="registro__titulo">Acceso para clientes</h1>
+            <?php if ($continuarPedido): ?>
+            <p class="registro__descripcion">Iniciá sesión para confirmar tu pedido. Tus productos siguen en el carrito.</p>
+            <?php endif; ?>
             <?php if ($error): ?>
             <div class="aviso aviso--error" role="alert">
                 <strong class="aviso__titulo">No pudimos procesar tus datos</strong>

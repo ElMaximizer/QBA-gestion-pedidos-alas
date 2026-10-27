@@ -304,8 +304,10 @@ del proyecto anterior. El cliente debe haber verificado el correo mediante HU16.
 Si la contraseña es correcta pero falta la verificación, se ofrece completar ese
 paso sin otorgar una sesión autenticada ni enviar otro código automáticamente.
 
-Al ingresar se vuelve al inicio y aparece el menú **Hola, nombre** con **Cerrar
-sesión**. El registro y el acceso reutilizan el campo de contraseña, sus estilos
+Al ingresar se vuelve al inicio, o al formulario de pedido si el acceso se pidió
+desde el carrito. Aparece el menú **Hola, nombre** con **Cerrar sesión**. El
+destino se fija en la sesión del servidor; no se aceptan URLs de retorno enviadas
+por el navegador. El registro y el acceso reutilizan el campo de contraseña, sus estilos
 BEM y el control para mostrarla. Los formularios funcionan sin JavaScript.
 La recuperación de contraseña y el historial de **HU20**
 no forman parte de esta implementación.
@@ -332,12 +334,20 @@ invitados con NULL. La consulta del historial se implementará en HU20.
 ## HU18 — Realizar un pedido
 
 El cliente puede explorar y filtrar productos, ver su detalle, agregar cantidades
-al carrito, actualizarlo y completar sus datos para coordinar el retiro. Al
+al carrito y actualizarlo sin iniciar sesión. Para completar sus datos y confirmar
+debe ingresar con una cuenta de cliente verificada. Al
 confirmar, el pedido y sus líneas se guardan en MySQL como **Pendiente**, se vacía
 el carrito y se muestra el número del pedido.
 
-Se conserva el comportamiento anterior de admitir pedidos sin iniciar sesión:
-en esos casos id_cliente queda en NULL. Con HU17 se toma la identidad de la sesión.
+El servidor protege tanto la apertura del formulario como su envío por POST.
+Sin sesión de cliente, o si esta venció, se solicita iniciar sesión antes de
+continuar, conservando el carrito. Al ingresar se renuevan la cookie, CSRF y los
+formularios, y se vuelve al pedido sin enviarlo automáticamente. Registrarse y
+verificar el correo antes de ingresar también conserva esa continuación.
+La sesión del equipo no reemplaza la cuenta de cliente para realizar un pedido
+desde la web. Los pedidos nuevos se asocian al id_cliente de la sesión, ignorando
+los identificadores enviados por el navegador. Los pedidos históricos con
+id_cliente NULL se conservan. No hay cambios en la estructura de la base.
 No hay cobros en línea, registro de señas, envío de
 correos, panel administrativo ni historial de pedidos en esta historia.
 Los enlaces de nosotros y contacto siguen inactivos.

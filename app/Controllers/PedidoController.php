@@ -17,8 +17,16 @@ final class PedidoController
 {
     public function crear(): void
     {
+        header('Cache-Control: no-store');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !Carrito::cantidades()) {
+            Http::redirigir('carrito');
+        }
         $cliente = Sesion::cliente();
-        $datos = ['cliente_nombre' => $cliente['nombre'] ?? '', 'telefono' => '', 'fecha_retiro' => date('Y-m-d', strtotime('+1 day')),
+        if ($cliente === null) {
+            $_SESSION['qba']['continuar_pedido'] = true;
+            Http::redirigir('cliente-login');
+        }
+        $datos = ['cliente_nombre' => $cliente['nombre'], 'telefono' => '', 'fecha_retiro' => date('Y-m-d', strtotime('+1 day')),
             'hora_retiro' => '10:00', 'notas' => ''];
         $error = '';
         $token = '';
@@ -42,7 +50,7 @@ final class PedidoController
                     $datos[$campo] = Http::texto($_POST, $campo);
                 }
                 $id = (new Pedido(Conexion::obtener()))->crear($datos, Carrito::cantidades(), $formulario['firma'], $token,
-                    $cliente ? (int) $cliente['id_cliente'] : null);
+                    (int) $cliente['id_cliente']);
                 Sesion::confirmar($token, $id);
                 Carrito::vaciar();
                 Http::redirigir('pedido-confirmado');
@@ -57,9 +65,6 @@ final class PedidoController
         }
         // Conservamos el carrito para que un producto retirado se pueda quitar desde su pantalla.
         $articulos = $carrito->articulos(false);
-        if (!$articulos && $_SERVER['REQUEST_METHOD'] !== 'POST') {
-            Http::redirigir('carrito');
-        }
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $puedeConfirmar = !in_array(false, array_column($articulos, 'disponible'), true);
             $token = Sesion::nuevoFormulario(Carrito::firma($articulos));
@@ -74,6 +79,7 @@ final class PedidoController
 
     public function confirmado(): void
     {
+        header('Cache-Control: no-store');
         $idPedido = $_SESSION['qba']['pedido_confirmado'] ?? null;
         if (!$idPedido) {
             Http::redirigir('productos');
