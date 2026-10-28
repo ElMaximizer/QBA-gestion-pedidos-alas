@@ -26,6 +26,25 @@ disponibles mientras se aplica la migración. No cambia el registro ni los acces
 Las pruebas de este cambio están en `tests/contenido-inicio.php`; usan una base
 temporal independiente de los datos de la aplicación.
 
+## Atención del equipo: consultas y solicitudes
+
+Los accesos están en la sección **Atención del equipo**, al final del panel, con
+sus contadores reales. No se agregan enlaces a la navegación superior.
+
+- **Consultas recibidas**: disponible para cualquier integrante aprobado del equipo.
+  Muestra remitente, correo, motivo, fecha y texto completo; filtra nuevas/leídas
+  y permite marcar como leída mediante POST y CSRF. El estado es compartido.
+- **Solicitudes de acceso**: exclusiva del dueño. Muestra las solicitudes pendientes
+  del registro del equipo y permite aprobarlas como empleado o rechazarlas.
+  La decisión conserva la cuenta y su contraseña; no se puede sobrescribir una
+  solicitud ya resuelta con un formulario anterior. Los roles de administrador
+  se asignan desde **Roles y permisos**, después de aprobar el acceso.
+
+Las bandejas muestran 10 registros por página y comparten estilos BEM y paginación.
+Usan las tablas existentes `mensajes_contacto` y `usuarios_equipo`, sin otra
+migración. La primera se crea con `database/contacto.sql` o el instalador sin
+`--demo`. Las pruebas de `tests/panel-atencion.php` usan una base temporal separada.
+
 ## Registro del equipo
 
 Desde **Acceso al equipo → Solicitar usuario**, en el pie del sitio, se puede solicitar un usuario
@@ -50,10 +69,9 @@ y de clientes permanecen independientes y pueden compartir correo. Se conserva
 el carrito y, si existe, la sesión de cliente. Las contraseñas no se recuperan
 en el formulario ni se guardan en la sesión.
 
-Esta etapa incorpora el registro y la confirmación de la solicitud. La aprobación,
-el rechazo y la asignación de otros roles se implementarán en sus pasos
-correspondientes. Todavía no hay un panel de revisión
-ni una cuenta de dueño creada automáticamente.
+El dueño revisa las solicitudes desde **Panel → Atención del equipo → Solicitudes
+de acceso**. Puede aprobar el acceso como empleado o rechazarlo; otros permisos se
+asignan desde **Roles y permisos**. No se crea una cuenta de dueño automáticamente.
 
 Para incorporar la tabla sobre una instalación existente:
 
@@ -75,7 +93,7 @@ Al ingresar aparece el panel del equipo con el nombre, el rol y el cierre
 de sesión. Es el punto de entrada para las funciones que se implementen después;
 su estructura se describe en la sección siguiente.
 El menú **Hola, nombre → Panel del equipo** permite regresar desde el sitio.
-La recuperación de contraseña y el panel de aprobación siguen pendientes.
+La recuperación de contraseña sigue pendiente. El dueño ya puede revisar las solicitudes desde el panel.
 No se crean dueños ni se aprueban solicitudes automáticamente.
 
 La sesión guarda el identificador del usuario y consulta su aprobación y rol
@@ -119,8 +137,9 @@ para la gestión de productos.
 
 HU06 muestra en **Productos activos** la cantidad real de productos activos y
 de sus categorías, excluyendo los eliminados. Se actualiza al volver al panel
-después de agregar, editar, activar, desactivar o eliminar productos. Los otros
-contadores muestran — y el área de retiros muestra Próximamente. Los accesos
+después de agregar, editar, activar, desactivar o eliminar productos. Las consultas
+y solicitudes también muestran cantidades reales. Los contadores de pedidos
+muestran — y el área de retiros enlaza al listado de pedidos. Los accesos
 a módulos futuros están deshabilitados y no tienen URL ni
 formularios de operación. HU06 habilita **Productos** y **+ Agregar producto**
 para administrador y dueño. También funcionan el regreso al sitio, el regreso
@@ -578,6 +597,8 @@ y generar enlaces, formularios y redirecciones.
 | /equipo/solicitud-enviada | GET, HEAD | Confirmación de la solicitud de esta sesión |
 | /equipo/login | GET, HEAD, POST | Iniciar sesión con cédula y contraseña |
 | /equipo/panel | GET, HEAD | Panel visual de la cuenta aprobada del equipo |
+| /equipo/consultas | GET, HEAD, POST | Consultas de contacto y estado de lectura para el equipo aprobado |
+| /equipo/solicitudes | GET, HEAD, POST | Solicitudes pendientes y aprobación o rechazo exclusivos del dueño |
 | /equipo/pedidos | GET, HEAD, POST | Consultar pedidos del equipo y registrar la seña según permisos |
 | /equipo/pedidos/registrar | GET, HEAD, POST | Registrar un pedido como administrador o dueño |
 | /equipo/pedidos/editar?id=1 | GET, HEAD, POST | Consultar y modificar cualquier pedido como dueño, con historial |

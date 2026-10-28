@@ -39,6 +39,10 @@ final class Vista
             $estilos[] = 'css/equipo-contenido-inicio.css';
         }
 
+        if (in_array($vista, ['equipo-consultas', 'equipo-solicitudes'], true)) {
+            $estilos[] = 'css/bandeja-equipo.css';
+        }
+
         if ($vista === 'nosotros') {
             $estilos[] = 'css/nosotros.css';
         }
