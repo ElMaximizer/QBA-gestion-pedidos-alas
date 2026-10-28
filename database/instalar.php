@@ -17,7 +17,6 @@ try {
     $db->exec("CREATE DATABASE IF NOT EXISTS `{$config['database']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     $db->exec("USE `{$config['database']}`");
     $db->exec(file_get_contents(__DIR__ . '/estructura.sql'));
-    $db->exec(file_get_contents(__DIR__ . '/contenido-inicio.sql'));
     $db->exec(file_get_contents(__DIR__ . '/contacto.sql'));
     $columnaSena = $db->query("SHOW COLUMNS FROM pedidos LIKE 'sena_recibida'")->fetch();
     if ($columnaSena === false) {
@@ -26,8 +25,6 @@ try {
     $db->exec(file_get_contents(__DIR__ . '/clientes.sql'));
     $db->exec(file_get_contents(__DIR__ . '/acceso-clientes.sql'));
     $db->exec(file_get_contents(__DIR__ . '/equipo.sql'));
-    $db->exec(file_get_contents(__DIR__ . '/pedidos-equipo.sql'));
-    $db->exec(file_get_contents(__DIR__ . '/pedido-cambios.sql'));
     $db->exec(file_get_contents(__DIR__ . '/entregas-mercaderia.sql'));
     $db->exec(file_get_contents(__DIR__ . '/acceso-equipo.sql'));
     if (in_array('--demo', $argv, true)) {

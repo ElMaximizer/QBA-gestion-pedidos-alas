@@ -178,19 +178,6 @@ final class Producto
         };
     }
 
-    public function listarPortada(): array
-    {
-        try {
-            $filas = $this->db->query('SELECT * FROM productos WHERE activo = 1 AND eliminado_en IS NULL
-                AND portada_orden IS NOT NULL ORDER BY portada_orden, id_producto LIMIT 5')->fetchAll();
-        } catch (\PDOException $error) {
-            // La portada sigue disponible mientras se aplica la migración del editor.
-            if ((int) ($error->errorInfo[1] ?? 0) !== 1054) throw $error;
-            $filas = [];
-        }
-        return $filas ? array_map(self::normalizar(...), $filas) : $this->listar(destacados: true);
-    }
-
     public function listar(string $busqueda = '', string $categoria = '', bool $destacados = false): array
     {
         $sql = 'SELECT * FROM productos WHERE activo = 1 AND eliminado_en IS NULL';

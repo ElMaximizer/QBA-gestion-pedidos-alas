@@ -11,7 +11,6 @@ CREATE TABLE IF NOT EXISTS productos (
     alergenos VARCHAR(500) NOT NULL DEFAULT '',
     imagen VARCHAR(255) NOT NULL DEFAULT '',
     destacado TINYINT(1) NOT NULL DEFAULT 0,
-    portada_orden TINYINT UNSIGNED NULL,
     activo TINYINT(1) NOT NULL DEFAULT 1,
     eliminado_en DATETIME NULL,
     creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -33,7 +32,7 @@ CREATE TABLE IF NOT EXISTS materias_primas (
 
 CREATE TABLE IF NOT EXISTS pedidos (
     id_pedido INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    -- Los pedidos tomados por el equipo conservan NULL; la web asocia la cuenta del cliente.
+    -- Los pedidos de invitados conservan NULL; HU17 asocia las cuentas autenticadas.
     id_cliente INT UNSIGNED NULL,
     cliente_nombre VARCHAR(120) NOT NULL,
     telefono VARCHAR(30) NOT NULL,

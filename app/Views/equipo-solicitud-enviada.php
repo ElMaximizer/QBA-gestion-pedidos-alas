@@ -6,7 +6,7 @@
             <span class="insignia insignia--exito registro__insignia">Solicitud recibida</span>
             <span class="etiqueta registro__etiqueta">ACCESO DEL EQUIPO</span>
             <h1 class="registro__titulo">Solicitud registrada</h1>
-            <p>Recibimos tus datos. El dueño de Panadería Rustic debe aprobar tu solicitud antes de que puedas acceder al sistema del equipo.</p>
+            <p>Recibimos tus datos. El dueño de Panadería Alas debe aprobar tu solicitud antes de que puedas acceder al sistema del equipo.</p>
             <?php if (!$correoEnviado): ?>
             <div class="aviso aviso--error" role="alert">Tu solicitud quedó guardada, pero no pudimos enviar el correo de confirmación. Consultá con el dueño; no hace falta registrarte nuevamente.</div>
             <?php endif; ?>

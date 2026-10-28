@@ -9,7 +9,6 @@ if (PHP_SAPI !== 'cli') {
 require dirname(__DIR__) . '/app/bootstrap.php';
 
 use App\Models\Carrito;
-use App\Models\Cliente;
 use App\Models\Pedido;
 use App\Models\Producto;
 
@@ -90,29 +89,7 @@ try {
     comprobar($estado === 303, 'Agrega productos y redirige (HTTP ' . $estado . ')');
     comprobar($solicitar('/carrito', array_replace($accion, ['id_producto' => '2', 'cantidad' => '1']))[0] === 303, 'Agrega un segundo producto');
     comprobar($solicitar('/carrito', array_replace($accion, ['cantidad' => '100']))[0] === 422, 'Valida cantidades en HTTP');
-    $antesDelAcceso = (int) $db->query('SELECT COUNT(*) FROM pedidos')->fetchColumn();
-    [$estado, $respuesta] = $solicitar('/pedidos/realizar');
-    comprobar($estado === 303 && str_contains($respuesta, 'Location: /clientes/login')
-        && !str_contains($respuesta, 'name="cliente_nombre"'), 'Un visitante no puede abrir el formulario de datos del pedido');
-    [$estado, $respuesta] = $solicitar('/pedidos/realizar', $datos + ['csrf' => $csrf, 'id_cliente' => '1', 'pedido_token' => str_repeat('a', 64)]);
-    comprobar($estado === 303 && str_contains($respuesta, 'Location: /clientes/login')
-        && (int) $db->query('SELECT COUNT(*) FROM pedidos')->fetchColumn() === $antesDelAcceso, 'Un POST directo sin sesión no guarda un pedido aunque envíe una identidad');
-    comprobar(!isset($entorno->sesion()['formularios']) && $entorno->sesion()['carrito'] === [1 => 2, 2 => 1], 'El acceso anónimo no emite tokens de confirmación ni modifica el carrito');
-    [, $login] = $solicitar('/clientes/login');
-    comprobar(str_contains($login, 'Iniciá sesión para confirmar tu pedido'), 'El acceso explica por qué se necesita una cuenta');
-    $clientes = new Cliente($db);
-    $password = 'PedidoCliente18!';
-    $cliente = $clientes->registrar('Cliente de prueba', 'pedido.cliente@example.test', $password, $password);
-    $clientes->verificar($cliente['email'], $cliente['codigo']);
-    $credenciales = ['csrf' => oculto($login, 'csrf'), 'email' => $cliente['email'], 'password' => $password];
-    comprobar($solicitar('/clientes/login', array_replace($credenciales, ['password' => 'Incorrecta18!']))[0] === 422
-        && !isset($entorno->sesion()['cliente_id']), 'Un acceso fallido no habilita el pedido ni pierde la continuación');
-    [$estado, $respuesta] = $solicitar('/clientes/login', $credenciales);
-    comprobar($estado === 303 && str_contains($respuesta, 'Location: /pedidos/realizar'), 'Después de ingresar vuelve al pedido');
-    $csrf = $entorno->sesion()['csrf'];
-    $accion['csrf'] = $csrf;
     [, $html] = $solicitar('/pedidos/realizar');
-    comprobar(str_contains($html, 'Cache-Control: no-store') && oculto($html, 'cliente_nombre') === $cliente['nombre'], 'El formulario autenticado precarga la cuenta y no se guarda en caché');
     $campos = $datos + ['csrf' => $csrf, 'pedido_token' => oculto($html, 'pedido_token')];
     comprobar($solicitar('/pedidos/realizar', array_replace($campos, ['csrf' => 'incorrecto']))[0] === 422, 'Exige CSRF al confirmar');
     comprobar($solicitar('/pedidos/realizar', array_replace($campos, ['pedido_token' => 'inexistente']))[0] === 422, 'Exige un formulario de la sesión');
@@ -139,8 +116,7 @@ try {
     $campos += ['total' => '0.01', 'precio' => '1', 'estado' => 'Entregado', 'id_cliente' => '123'];
     comprobar($solicitar('/pedidos/realizar', $campos)[0] === 303, 'Confirma el pedido válido');
     $ultimo = $db->query('SELECT * FROM pedidos ORDER BY id_pedido DESC LIMIT 1')->fetch();
-    comprobar($ultimo['total'] === '255.00' && $ultimo['estado'] === 'Pendiente'
-        && (int) $ultimo['id_cliente'] === $cliente['id_cliente'], 'Ignora precios, estado e identidad manipulados y asocia la cuenta autenticada');
+    comprobar($ultimo['total'] === '255.00' && $ultimo['estado'] === 'Pendiente' && $ultimo['id_cliente'] === null, 'Ignora precios, estado e identidad manipulados');
     [$estado, $html] = $solicitar('/pedidos/confirmado');
     comprobar($estado === 200 && str_contains($html, '#' . $ultimo['id_pedido']), 'Muestra el número del pedido guardado');
     comprobar($solicitar('/pedidos/realizar', $campos)[0] === 303, 'Tolera un doble envío del formulario');
@@ -148,14 +124,6 @@ try {
     comprobar((int) $db->query('SELECT COUNT(*) FROM pedidos')->fetchColumn() === $antes + 1, 'No duplica al reenviar o recargar');
     [, $html] = $solicitar('/carrito');
     comprobar(str_contains($html, 'Tu carrito está vacío'), 'Vacía el carrito después de guardar');
-    $solicitar('/carrito', $accion);
-    [, $html] = $solicitar('/pedidos/realizar');
-    $campos['pedido_token'] = oculto($html, 'pedido_token');
-    $entorno->sesion(static fn (array $sesion): array => array_replace($sesion, ['cliente_ultimo_acceso' => time() - 1801]));
-    [$estado, $respuesta] = $solicitar('/pedidos/realizar', $campos);
-    comprobar($estado === 303 && str_contains($respuesta, 'Location: /clientes/login')
-        && (int) $db->query('SELECT COUNT(*) FROM pedidos')->fetchColumn() === $antes + 1, 'Una sesión vencida antes de enviar no crea pedidos como invitado');
-    comprobar($entorno->sesion()['carrito'] === [1 => 2] && !isset($entorno->sesion()['cliente_id']), 'Al vencer la sesión conserva los productos para continuar después del acceso');
     comprobar(!preg_match('/Fatal error:|Warning:|Notice:/', $entorno->errores()), 'No emite errores PHP durante el recorrido');
     echo "Correcto: $comprobaciones comprobaciones de HU18.\n";
 } catch (Throwable $error) {

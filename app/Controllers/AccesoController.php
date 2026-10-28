@@ -16,12 +16,8 @@ final class AccesoController
     public function index(): void
     {
         header('Cache-Control: no-store');
-        // El destino lo fija el servidor al proteger el pedido; no se lee una URL del navegador.
-        $continuarPedido = ($_SESSION['qba']['continuar_pedido'] ?? false) === true;
-        $destino = $continuarPedido ? 'realizar-pedido' : 'inicio';
         if (Sesion::cliente()) {
-            unset($_SESSION['qba']['continuar_pedido']);
-            Http::redirigir($destino);
+            Http::redirigir('inicio');
         }
         $email = '';
         $error = '';
@@ -35,7 +31,7 @@ final class AccesoController
                     throw new DomainException('Tu correo todavía no está verificado. Ingresá el código para activar la cuenta.');
                 }
                 Sesion::iniciarCliente((int) $cliente['id_cliente']);
-                Http::redirigir($destino);
+                Http::redirigir('inicio');
             } catch (DomainException $excepcion) {
                 http_response_code(422);
                 $error = $excepcion->getMessage();
@@ -45,8 +41,8 @@ final class AccesoController
                 $error = 'No pudimos iniciar sesión en este momento. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('cliente-login', ['tituloPagina' => 'Acceso para clientes | Panadería Rustic',
-            'email' => $email, 'error' => $error, 'continuarPedido' => $continuarPedido]);
+        Vista::mostrar('cliente-login', ['tituloPagina' => 'Acceso para clientes | Panadería Alas',
+            'email' => $email, 'error' => $error]);
     }
 
     public function salir(): void

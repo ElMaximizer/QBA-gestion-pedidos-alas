@@ -10,7 +10,7 @@ $config = array_replace([
     'username' => '',
     'password' => '',
     'from_email' => '',
-    'from_name' => 'Panadería Rustic',
+    'from_name' => 'Panadería Alas',
     'timeout' => 10,
 ], getenv('QBA_MAIL_TRANSPORT') === false && is_file($archivoLocal) ? require $archivoLocal : []);
 

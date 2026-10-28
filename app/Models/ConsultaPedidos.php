@@ -9,7 +9,7 @@ use PDO;
 /** Lectura y filtros del listado interno de pedidos (HU04). */
 final class ConsultaPedidos
 {
-    private const ESTADOS = ['', ...Pedido::ESTADOS];
+    private const ESTADOS = ['', 'Pendiente', 'En preparación', 'Listo para retirar', 'Entregado', 'Cancelado'];
     private const FECHAS = ['', 'hoy', 'proximos', 'anteriores'];
     private const POR_PAGINA = 20;
 
