@@ -39,13 +39,12 @@
                     <div class="pie-pagina__datos">
                         <address class="pie-pagina__descripcion">Uruguay 1486 | MAR a DOM 15:30 a 19:30<br>Salto, Uruguay</address>
                         <div class="pie-pagina__canales">
-                            <a class="pie-pagina__enlace" href="tel:+59898788807" aria-label="Llamar al 098 788 807">098 788 807</a>
+                            <a class="pie-pagina__enlace" href="tel:+59898734738" aria-label="Llamar al 098734738">098 734 738</a>
                             <a class="pie-pagina__enlace pie-pagina__red" href="https://www.instagram.com/rustic.pan.salto/" target="_blank" rel="noopener noreferrer" aria-label="Panadería Rustic en Instagram (se abre en otra pestaña)" title="Instagram">
-                                <svg class="pie-pagina__icono-red" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true" focusable="false">
-                                    <rect x="3" y="3" width="18" height="18" rx="5" />
-                                    <circle cx="12" cy="12" r="4" />
-                                    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-                                </svg>
+                                <span class="pie-pagina__icono-red pie-pagina__icono-red--instagram" aria-hidden="true"></span>
+                            </a>
+                            <a class="pie-pagina__enlace pie-pagina__red" href="https://wa.me/59893555459" target="_blank" rel="noopener noreferrer" aria-label="Panadería Rustic en WhatsApp (se abre en otra pestaña)" title="WhatsApp">
+                                <span class="pie-pagina__icono-red pie-pagina__icono-red--whatsapp" aria-hidden="true"></span>
                             </a>
                         </div>
                     </div>

@@ -642,6 +642,18 @@ a:focus-visible {
 .pie-pagina__icono-red {
     display: block;
     flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    background-color: currentColor;
+    mask: var(--icono-red) center / contain no-repeat;
+}
+
+.pie-pagina__icono-red--instagram {
+    --icono-red: url("../images/instagram.svg");
+}
+
+.pie-pagina__icono-red--whatsapp {
+    --icono-red: url("../images/whatsapp.svg");
 }
 
 .pie-pagina__base {
