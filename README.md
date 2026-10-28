@@ -1,7 +1,30 @@
-# QBA — Gestión de pedidos de Panadería Alas
+# QBA — Gestión de pedidos de Panadería Rustic
 
-Proyecto PHP con MVC y CSS según BEM. Conserva el diseño público del
-[repositorio anterior](https://github.com/ElMaximizer/software-pedidos-alas/tree/6e4a0b26bc2ba412db66dd1541acb209d3e4f6ae).
+Proyecto PHP con MVC y CSS según BEM. El diseño público incorpora el tema Rustic,
+conservando los flujos de pedidos y cuentas de la base del proyecto.
+
+## Rediseño Rustic y contenido del inicio
+
+Desde **Panel → Contenido del inicio**, administrador y dueño pueden elegir hasta
+3 favoritos y ordenar hasta 5 productos activos para el carrusel. Sin una selección
+de portada se usan los favoritos; sin productos disponibles se muestra la imagen
+general de panadería. Las selecciones se guardan juntas y un formulario anterior
+no sobrescribe cambios de otra pestaña. Los empleados no tienen acceso al editor.
+
+El carrusel cambia cada 6 segundos, permite avanzar, retroceder y pausar. Se detiene
+al usar el teclado, al pasar el puntero y cuando la pestaña no está visible. Respeta
+la preferencia de movimiento reducido. Sin JavaScript muestra el primer producto.
+El carrito sigue abriendo sobre la página y el pedido continúa exigiendo una cuenta.
+
+Para bases existentes, aplicar `database/contenido-inicio.sql` o ejecutar el
+instalador **sin `--demo`**. La migración agrega `productos.portada_orden`, se puede
+repetir y conserva productos y pedidos. El inicio mantiene la imagen/favoritos
+disponibles mientras se aplica la migración. No cambia el registro ni los accesos.
+
+    C:\xampp\php\php.exe database\instalar.php
+
+Las pruebas de este cambio están en `tests/contenido-inicio.php`; usan una base
+temporal independiente de los datos de la aplicación.
 
 ## Registro del equipo
 

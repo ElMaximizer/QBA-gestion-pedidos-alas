@@ -17,6 +17,7 @@ try {
     $db->exec("CREATE DATABASE IF NOT EXISTS `{$config['database']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     $db->exec("USE `{$config['database']}`");
     $db->exec(file_get_contents(__DIR__ . '/estructura.sql'));
+    $db->exec(file_get_contents(__DIR__ . '/contenido-inicio.sql'));
     $db->exec(file_get_contents(__DIR__ . '/contacto.sql'));
     $columnaSena = $db->query("SHOW COLUMNS FROM pedidos LIKE 'sena_recibida'")->fetch();
     if ($columnaSena === false) {

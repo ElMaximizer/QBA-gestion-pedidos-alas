@@ -28,6 +28,7 @@
         <?php endif; ?>
         <?php if ($administraProductos): ?>
         <a class="boton boton--contorno" href="<?= $url('producto-agregar') ?>">+ Agregar producto</a>
+        <a class="boton boton--contorno" href="<?= $url('equipo-contenido-inicio') ?>">Editar contenido del inicio</a>
         <a class="boton boton--contorno" href="<?= $url('equipo-stock') ?>">Controlar stock</a>
         <a class="boton boton--contorno" href="<?= $url('mercaderia-registrar') ?>">+ Registrar mercadería</a>
         <?php endif; ?>

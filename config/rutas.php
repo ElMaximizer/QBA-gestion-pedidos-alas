@@ -5,6 +5,7 @@ use App\Controllers\AccesoController;
 use App\Controllers\AccesoEquipoController;
 use App\Controllers\CarritoController;
 use App\Controllers\ContactoController;
+use App\Controllers\ContenidoInicioController;
 use App\Controllers\InicioController;
 use App\Controllers\InformacionController;
 use App\Controllers\NosotrosController;
@@ -43,6 +44,7 @@ return [
     'equipo-solicitud-enviada' => ['equipo/solicitud-enviada', RegistroEquipoController::class, 'enviado', ['GET', 'HEAD']],
     'equipo-login' => ['equipo/login', AccesoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-panel' => ['equipo/panel', PanelEquipoController::class, 'index', ['GET', 'HEAD']],
+    'equipo-contenido-inicio' => ['equipo/contenido-inicio', ContenidoInicioController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-pedidos' => ['equipo/pedidos', PedidosEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-pedido-registrar' => ['equipo/pedidos/registrar', RegistroPedidoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-pedido-editar' => ['equipo/pedidos/editar', RegistroPedidoEquipoController::class, 'editar', ['GET', 'HEAD', 'POST']],

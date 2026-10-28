@@ -45,7 +45,7 @@ final class AccesoController
                 $error = 'No pudimos iniciar sesión en este momento. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('cliente-login', ['tituloPagina' => 'Acceso para clientes | Panadería Alas',
+        Vista::mostrar('cliente-login', ['tituloPagina' => 'Acceso para clientes | Panadería Rustic',
             'email' => $email, 'error' => $error, 'continuarPedido' => $continuarPedido]);
     }
 

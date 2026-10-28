@@ -16,7 +16,7 @@ final class Vista
         $esGestionStock = $vista === 'equipo-stock';
         $esPermisosEquipo = $vista === 'equipo-permisos';
         $esPersonalEquipo = $vista === 'equipo-personal';
-        $esPanel = ($variables['layoutEquipo'] ?? false) || $vista === 'equipo-panel'
+        $esPanel = ($variables['layoutEquipo'] ?? false) || in_array($vista, ['equipo-panel', 'equipo-contenido-inicio'], true)
             || $esGestionProducto || $esGestionStock || $esPermisosEquipo || $esPersonalEquipo;
         $esRegistro = in_array($vista, ['cliente-login', 'cliente-registro', 'cliente-verificar', 'registro-completado',
             'equipo-registro', 'equipo-solicitud-enviada', 'equipo-login'], true);
@@ -25,8 +25,18 @@ final class Vista
         $scripts = in_array($vista, ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login'], true) ? ['js/registro.js'] : [];
 
         if (!$esPanel) {
+            $estilos[] = 'css/navegacion.css';
             $estilos[] = 'css/carrito.css';
+            $scripts[] = 'js/navegacion.js';
             $scripts[] = 'js/carrito.js';
+        }
+
+        if ($vista === 'inicio') {
+            $scripts[] = 'js/carrusel-inicio.js';
+        }
+
+        if ($vista === 'equipo-contenido-inicio') {
+            $estilos[] = 'css/equipo-contenido-inicio.css';
         }
 
         if ($vista === 'nosotros') {
@@ -75,6 +85,7 @@ final class Vista
             $scripts[] = 'js/productos.js';
         }
 
+        $estilos[] = 'css/tema-rustic.css';
         extract($variables, EXTR_SKIP);
 
         require dirname(__DIR__) . '/Views/partials/encabezado.php';
