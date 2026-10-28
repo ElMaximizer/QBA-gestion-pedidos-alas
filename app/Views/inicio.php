@@ -7,45 +7,11 @@
                 <p class="portada__descripcion">Panes, bizcochos y tortas elaborados con dedicación. Encuentra tu próximo favorito en Panadería Alas.</p>
                 <div class="portada__acciones">
                     <a class="boton boton--dorado" href="<?= $url('productos') ?>">Ver productos</a>
-                    <a class="boton boton--contorno" role="link" aria-disabled="true">Conocer la panadería</a>
+                    <a class="boton boton--contorno" href="<?= $url('nosotros') ?>">Conocer la panadería</a>
                 </div>
                 <p class="etiqueta portada__sello">PANES · BIZCOCHOS · TORTAS</p>
             </div>
-            <div class="portada__carrusel" data-carrusel role="region" aria-label="Productos destacados">
-                <?php if ($productosCarrusel): ?>
-                    <?php foreach ($productosCarrusel as $indice => $producto): ?>
-                    <a class="portada__diapositiva<?= $indice === 0 ? ' portada__diapositiva--activa' : '' ?>"
-                       data-diapositiva href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>"
-                       aria-label="Ver <?= $escapar($producto['nombre']) ?>" aria-hidden="<?= $indice === 0 ? 'false' : 'true' ?>"
-                       tabindex="<?= $indice === 0 ? '0' : '-1' ?>">
-                        <img src="<?= $escapar($recurso('images/' . $producto['imagen'])) ?>"
-                             alt="<?= $escapar($producto['nombre']) ?>" width="664" height="398"
-                             <?= $indice === 0 ? 'fetchpriority="high"' : 'loading="lazy"' ?>>
-                        <span class="portada__leyenda">
-                            <span class="portada__leyenda-etiqueta">DESTACADO DE ALAS</span>
-                            <strong><?= $escapar($producto['nombre']) ?></strong>
-                            <span><?= $dinero($producto['precio']) ?> / <?= $escapar($producto['presentacion']) ?></span>
-                        </span>
-                    </a>
-                    <?php endforeach; ?>
-                    <?php if (count($productosCarrusel) > 1): ?>
-                    <div class="portada__controles" aria-label="Controles del carrusel">
-                        <button class="portada__flecha" type="button" data-anterior aria-label="Producto anterior">‹</button>
-                        <div class="portada__indicadores">
-                            <?php foreach ($productosCarrusel as $indice => $producto): ?>
-                            <button class="portada__indicador<?= $indice === 0 ? ' portada__indicador--activo' : '' ?>"
-                                    type="button" data-ir-a="<?= $indice ?>"
-                                    aria-label="Mostrar producto <?= $indice + 1 ?>"
-                                    aria-current="<?= $indice === 0 ? 'true' : 'false' ?>"></button>
-                            <?php endforeach; ?>
-                        </div>
-                        <button class="portada__flecha" type="button" data-siguiente aria-label="Producto siguiente">›</button>
-                    </div>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <img class="portada__imagen" src="<?= $escapar($recurso('images/panes.png')) ?>" alt="Panes, bizcochos y tortas artesanales" width="664" height="398" fetchpriority="high">
-                <?php endif; ?>
-            </div>
+            <img class="portada__imagen" src="<?= $escapar($recurso('images/panes.png')) ?>" alt="Panes, bizcochos y tortas artesanales" width="664" height="398" fetchpriority="high">
         </div>
     </section>
 

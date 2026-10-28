@@ -17,10 +17,6 @@ try {
     $db->exec("CREATE DATABASE IF NOT EXISTS `{$config['database']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
     $db->exec("USE `{$config['database']}`");
     $db->exec(file_get_contents(__DIR__ . '/estructura.sql'));
-    $columnaPortada = $db->query("SHOW COLUMNS FROM productos LIKE 'portada_orden'")->fetch();
-    if ($columnaPortada === false) {
-        $db->exec('ALTER TABLE productos ADD COLUMN portada_orden TINYINT UNSIGNED NULL DEFAULT NULL AFTER destacado');
-    }
     $db->exec(file_get_contents(__DIR__ . '/contacto.sql'));
     $columnaSena = $db->query("SHOW COLUMNS FROM pedidos LIKE 'sena_recibida'")->fetch();
     if ($columnaSena === false) {

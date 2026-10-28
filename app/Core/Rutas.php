@@ -28,13 +28,7 @@ final class Rutas
             || in_array('..', explode('/', $archivo), true)) {
             throw new InvalidArgumentException('Recurso inválido.');
         }
-        $url = self::base() . '/' . $archivo;
-        if (str_starts_with($archivo, 'css/') || str_starts_with($archivo, 'js/')) {
-            $rutaFisica = dirname(__DIR__, 2) . '/public/' . str_replace('/', DIRECTORY_SEPARATOR, $archivo);
-            $version = is_file($rutaFisica) ? (string) filemtime($rutaFisica) : '1';
-            $url .= '?v=' . rawurlencode($version);
-        }
-        return $url;
+        return self::base() . '/' . $archivo;
     }
 
     public static function resolver(): ?string

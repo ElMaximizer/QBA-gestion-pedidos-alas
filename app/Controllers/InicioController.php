@@ -16,12 +16,7 @@ final class InicioController
             ['nombre' => 'Tortas', 'etiqueta' => '03 / CELEBRACIONES', 'descripcion' => 'El detalle especial para compartir.'],
         ];
 
-        $catalogo = Producto::catalogo();
-        $productosDestacados = $catalogo->listar(destacados: true);
-        $productosCarrusel = $catalogo->listarPortada();
-
         Vista::mostrar('inicio', ['tituloPagina' => 'Inicio | Panadería Alas', 'seccionActiva' => 'inicio',
-            'categorias' => $categorias, 'productosDestacados' => $productosDestacados,
-            'productosCarrusel' => $productosCarrusel]);
+            'categorias' => $categorias, 'productosDestacados' => Producto::catalogo()->listar(destacados: true)]);
     }
 }

@@ -49,21 +49,10 @@ final class AccesoController
             'email' => $email, 'error' => $error, 'continuarPedido' => $continuarPedido]);
     }
 
-    public function cerrada(): void
-    {
-        $mensaje = $_SESSION['qba']['sesion_cerrada'] ?? null;
-        unset($_SESSION['qba']['sesion_cerrada']);
-        if (!is_string($mensaje)) {
-            Http::redirigir('inicio');
-        }
-        Vista::mostrar('sesion-cerrada', ['tituloPagina' => 'Sesión cerrada | Panadería Alas', 'mensaje' => $mensaje]);
-    }
-
     public function salir(): void
     {
         Sesion::validarCsrf($_POST['csrf'] ?? null);
         Sesion::cerrarCliente();
-        $_SESSION['qba']['sesion_cerrada'] = 'Cerraste la sesión de cliente correctamente.';
-        Http::redirigir('sesion-cerrada');
+        Http::redirigir('inicio');
     }
 }
