@@ -23,9 +23,12 @@
         </article>
     </div>
     <div class="acciones">
-        <a class="boton boton--dorado" role="link" aria-disabled="true" title="Próximamente">+ Nuevo pedido</a>
+        <?php if (in_array($usuario['rol'], ['administrador', 'dueno'], true)): ?>
+        <a class="boton boton--dorado" href="<?= $url('equipo-pedido-registrar') ?>">+ Nuevo pedido</a>
+        <?php endif; ?>
         <?php if ($administraProductos): ?>
         <a class="boton boton--contorno" href="<?= $url('producto-agregar') ?>">+ Agregar producto</a>
+        <a class="boton boton--contorno" href="<?= $url('equipo-contenido-inicio') ?>">Editar contenido del inicio</a>
         <a class="boton boton--contorno" href="<?= $url('equipo-stock') ?>">Controlar stock</a>
         <a class="boton boton--contorno" href="<?= $url('mercaderia-registrar') ?>">+ Registrar mercadería</a>
         <?php endif; ?>
@@ -38,14 +41,16 @@
         <div class="tarjeta vacio panel-retiros__vacio">
             <h3 class="panel-retiros__aviso">Consultar pedidos</h3>
             <p class="vacio__descripcion">Buscá pedidos por número, cliente, teléfono, producto, fecha o estado.</p>
-            <a class="boton boton--dorado" role="link" aria-disabled="true" title="Próximamente">+ Nuevo pedido</a>
+            <?php if (in_array($usuario['rol'], ['administrador', 'dueno'], true)): ?>
+            <a class="boton boton--dorado" href="<?= $url('equipo-pedido-registrar') ?>">+ Nuevo pedido</a>
+            <?php endif; ?>
         </div>
         <a class="enlace-texto panel-retiros__enlace" href="<?= $url('equipo-pedidos') ?>">Ver todos los pedidos →</a>
     </section>
     <section class="panel-atencion" aria-labelledby="titulo-atencion">
         <h2 class="panel-atencion__titulo" id="titulo-atencion">Atención del equipo</h2>
         <div class="acciones panel-atencion__acciones">
-            <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Consultas recibidas (— nuevas)</a>
+            <a class="boton boton--contorno" href="<?= $url('equipo-consultas') ?>">Consultas recibidas (<?= $consultasNuevas ?> <?= $consultasNuevas === 1 ? 'nueva' : 'nuevas' ?>)</a>
             <?php // La consulta del personal corresponde a HU10; altas y bajas quedan para HU21. ?>
             <?php if (in_array($usuario['rol'], ['administrador', 'dueno'], true)): ?>
             <a class="boton boton--contorno" href="<?= $url('equipo-personal') ?>">Consultar personal</a>
@@ -53,7 +58,7 @@
             <?php if ($usuario['rol'] === 'dueno'): ?>
             <a class="boton boton--contorno" href="<?= $url('equipo-permisos') ?>">Administrar roles y permisos</a>
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Gestionar personal</a>
-            <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Solicitudes de acceso (—)</a>
+            <a class="boton boton--contorno" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso (<?= $solicitudesPendientes ?>)</a>
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Actividad del personal</a>
             <?php elseif ($usuario['rol'] === 'administrador'): ?>
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Solicitar alta de personal</a>
