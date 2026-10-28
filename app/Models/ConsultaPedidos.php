@@ -17,6 +17,19 @@ final class ConsultaPedidos
     {
     }
 
+    public function resumenPanel(): array
+    {
+        // Se usa el día de Uruguay configurado por la aplicación, no el reloj de MySQL.
+        $hoy = date('Y-m-d');
+        $consulta = $this->db->prepare("SELECT
+            COALESCE(SUM(fecha_retiro = ? AND estado <> 'Cancelado'), 0) AS hoy,
+            COALESCE(SUM(fecha_retiro = ? AND estado = 'Pendiente'), 0) AS pendientes_hoy,
+            COALESCE(SUM(estado NOT IN ('Entregado', 'Cancelado')), 0) AS por_entregar
+            FROM pedidos");
+        $consulta->execute([$hoy, $hoy]);
+        return array_map('intval', $consulta->fetch(PDO::FETCH_ASSOC));
+    }
+
     public function listar(string $busqueda = '', string $estado = '', string $fecha = '', int $pagina = 1): array
     {
         if (!mb_check_encoding($busqueda, 'UTF-8') || mb_strlen($busqueda) > 100

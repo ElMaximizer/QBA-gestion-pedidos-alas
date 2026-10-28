@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Http;
+use App\Core\Rutas;
 use App\Core\Sesion;
 use App\Core\Vista;
 use App\Models\PersonalEquipo;
@@ -24,6 +25,12 @@ final class PersonalEquipoController
                 'rutaVolver' => 'equipo-panel',
                 'textoVolver' => 'Volver al panel',
             ]);
+            return;
+        }
+
+        if ($usuario['rol'] === 'dueno') {
+            $parametros = array_intersect_key($_GET, ['q' => true, 'rol' => true]);
+            header('Location: ' . Rutas::url('equipo-permisos', $parametros), true, 303);
             return;
         }
 
@@ -48,7 +55,11 @@ final class PersonalEquipoController
             'seccionActiva' => 'personal',
             'busqueda' => $busqueda,
             'rol' => $rol,
-            'personas' => $personas,
+            'usuarios' => $personas,
+            'puedeEditarRoles' => false,
+            'rutaPersonal' => 'equipo-personal',
+            'aviso' => '',
+            'error' => '',
         ]);
     }
 }

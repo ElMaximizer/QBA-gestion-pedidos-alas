@@ -76,12 +76,14 @@ final class PermisosEquipoController
             unset($_SESSION['qba']['aviso_permisos']);
         }
 
-        Vista::mostrar('equipo-permisos', [
-            'tituloPagina' => 'Roles y permisos | Panadería Rustic',
+        Vista::mostrar('equipo-personal', [
+            'tituloPagina' => 'Administrar personal | Panadería Rustic',
             'seccionActiva' => 'permisos',
             'busqueda' => $busqueda,
             'rol' => $rol,
             'usuarios' => $usuarios,
+            'puedeEditarRoles' => true,
+            'rutaPersonal' => 'equipo-permisos',
             'aviso' => $aviso,
             'error' => $error,
         ]);
