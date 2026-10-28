@@ -421,14 +421,17 @@ ejecuciones repetidas. No se necesita cargar nuevamente los datos de demostraci�
 
 ## HU23 — Administrar pedidos como dueño
 
-El dueño consulta el listado de HU04 y accede a **Ver / modificar pedido**.
+Administrador y dueño consultan el listado de HU04 y acceden a **Ver / modificar pedido**.
 La dirección es `/equipo/pedidos/editar?id=1`. La edición reutiliza el controlador,
-formulario MVC, estilos BEM y resumen de HU01; administrador y empleado no tienen
-acceso a esta acción.
+formulario MVC, estilos BEM y resumen de HU01. El administrador edita pedidos
+Pendientes, En preparación o Listos para retirar, incluidos sus datos, productos,
+cantidades y estado. El empleado no tiene acceso a esta acción. Los permisos se
+comprueban en el listado, el formulario y el guardado con el rol real de la cuenta.
 
 Permite corregir cliente, teléfono, retiro, notas, productos, cantidades y estado.
-Por decisión del equipo, también se pueden corregir pedidos **Entregados** y
-**Cancelados**, conservando los datos anteriores. Al editar se aceptan fechas de
+El dueño también puede corregir pedidos **Entregados** y **Cancelados**,
+conservando los datos anteriores. El administrador puede cerrar un pedido activo,
+pero una corrección posterior al cierre queda a cargo del dueño. Al editar se aceptan fechas de
 retiro pasadas válidas, para mantener o corregir registros históricos.
 
 Los productos existentes conservan nombre y precio originales, incluso si fueron
@@ -613,7 +616,7 @@ y generar enlaces, formularios y redirecciones.
 | /equipo/solicitudes | GET, HEAD, POST | Solicitudes pendientes y aprobación o rechazo exclusivos del dueño |
 | /equipo/pedidos | GET, HEAD, POST | Consultar pedidos del equipo y registrar la seña según permisos |
 | /equipo/pedidos/registrar | GET, HEAD, POST | Registrar un pedido como administrador o dueño |
-| /equipo/pedidos/editar?id=1 | GET, HEAD, POST | Consultar y modificar cualquier pedido como dueño, con historial |
+| /equipo/pedidos/editar?id=1 | GET, HEAD, POST | Editar pedidos abiertos como administrador o cualquier pedido como dueño, con historial |
 | /equipo/salir | POST | Cerrar la sesión del equipo conservando el carrito |
 | /equipo/productos | GET, HEAD | Listado y filtros de productos para administrador y dueño |
 | /equipo/productos/agregar | GET, HEAD, POST | Agregar un producto |
@@ -692,7 +695,8 @@ rollback de cabecera y detalles, doble envío y el recorrido HTTP completo.
 HU01 comprueba los permisos del equipo, el responsable del registro, la separación
 del carrito público, líneas sin JavaScript, cambios del catálogo, recuperación de
 errores y actualización de una base existente sin perder pedidos.
-HU23 comprueba permisos exclusivos del dueño, correcciones de pedidos cerrados,
+HU23 comprueba la edición del administrador en pedidos abiertos, las correcciones
+exclusivas del dueño en pedidos cerrados, la revocación de permisos,
 precios y productos históricos, versiones anteriores, conservación de identidad y
 seña, historial, doble envío, paginación y rollback ante un fallo del historial.
 El registro también comprueba contraseñas protegidas, correos duplicados,

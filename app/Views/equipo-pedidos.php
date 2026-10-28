@@ -75,7 +75,7 @@
                 </dd></div>
                 <div class="equipo-pedido__productos"><dt>Productos</dt><dd><?= $escapar($pedido['productos']) ?></dd></div>
             </dl>
-            <?php if ($puedeModificarPedido): ?>
+            <?php if ($pedido['puede_modificar']): ?>
             <a class="boton boton--contorno" href="<?= $escapar($url('equipo-pedido-editar', ['id' => $pedido['id_pedido']])) ?>">Ver / modificar pedido</a>
             <?php endif; ?>
         </article>

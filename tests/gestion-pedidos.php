@@ -41,6 +41,7 @@ try {
     $clientes->verificar($cliente['email'], $cliente['codigo']);
     $id = $modelo->crear($datos, [1 => 2, 2 => 1], $firma([1 => 2, 2 => 1], [1 => 9500, 2 => 6500]), bin2hex(random_bytes(32)), null, $admin);
     $idWeb = $modelo->crear($datos, [3 => 1], $firma([3 => 1], [3 => 120000]), bin2hex(random_bytes(32)), $cliente['id_cliente']);
+    $idAdmin = $modelo->crear($datos, [1 => 1], $firma([1 => 1], [1 => 9500]), bin2hex(random_bytes(32)), null, $admin);
     $db->exec("UPDATE pedidos SET estado = 'Entregado', fecha_retiro = '2025-01-05', sena_recibida = 1 WHERE id_pedido = " . $id);
     $original = $modelo->buscarGestion($id);
     $opciones = array_column(Pedido::opcionesGestion($productos->listar(), $original), null, 'id_producto');
@@ -52,7 +53,7 @@ try {
     $firmaNueva = $firma($cantidades, [1 => 9500, 2 => 6500, 3 => 120000]);
     foreach (['administrador', 'empleado'] as $rol) {
         rechaza(fn () => $modelo->modificar($id, $nuevosDatos, $cantidades, $firmaNueva, $version, bin2hex(random_bytes(32)), $cuentas[$rol]['id_usuario']),
-            'El modelo impide editar a ' . $rol);
+            'El modelo impide corregir pedidos cerrados a ' . $rol);
     }
     $db->exec("UPDATE productos SET nombre = 'Nombre nuevo', precio = 999.99, activo = 0 WHERE id_producto = 1");
     $db->exec('UPDATE productos SET eliminado_en = NOW() WHERE id_producto = 2');
@@ -112,6 +113,21 @@ try {
     rechaza(fn () => $modelo->modificar($idWeb, $web, [$claveAjena => 1], $firma([$claveAjena => 1], [$claveAjena => 120000]),
         Pedido::version($web), bin2hex(random_bytes(32)), $dueno), 'No admite un detalle histórico de otro pedido');
 
+    $pedidoAdmin = $modelo->buscarGestion($idAdmin);
+    $modelo->modificar($idAdmin, array_replace($pedidoAdmin, ['estado' => 'En preparación', 'notas' => 'Edición del administrador']),
+        [1 => 2], $firma([1 => 2], [1 => 9500]), Pedido::version($pedidoAdmin), bin2hex(random_bytes(32)), $admin, 'Cambio de cantidad');
+    $pedidoAdmin = $modelo->buscarGestion($idAdmin);
+    $historialAdmin = $modelo->historial($idAdmin);
+    comprobar($pedidoAdmin['estado'] === 'En preparación' && $pedidoAdmin['total'] === '190.00'
+        && $historialAdmin['total'] === 1 && $historialAdmin['cambios'][0]['nombre_responsable'] === 'Cuenta administrador'
+        && $historialAdmin['cambios'][0]['antes']['lineas'][0]['cantidad'] === 1
+        && $historialAdmin['cambios'][0]['despues']['lineas'][0]['cantidad'] === 2,
+        'El administrador modifica pedidos abiertos con precios originales e historial propio');
+    $db->exec("UPDATE usuarios_equipo SET rol = 'empleado' WHERE id_usuario = " . $admin);
+    rechaza(fn () => $modelo->modificar($idAdmin, $pedidoAdmin, [1 => 2], $firma([1 => 2], [1 => 9500]),
+        Pedido::version($pedidoAdmin), bin2hex(random_bytes(32)), $admin), 'El guardado vuelve a consultar el rol real del administrador');
+    $db->exec("UPDATE usuarios_equipo SET rol = 'administrador' WHERE id_usuario = " . $admin);
+
     $entorno->iniciarServidor();
     $solicitar = $entorno->solicitar(...);
     $ruta = '/equipo/pedidos/editar?id=' . $id;
@@ -123,25 +139,63 @@ try {
         comprobar($solicitar('/equipo/login', ['csrf' => $csrf, 'cedula' => $cedula, 'password' => $password])[0] === 303, 'Ingresa la cuenta de prueba');
     };
     $salir = static fn () => $solicitar('/equipo/salir', ['csrf' => $entorno->sesion()['csrf']]);
-    foreach (['7400001', '7400003'] as $cedula) {
-        $entrar($cedula);
-        comprobar($solicitar($ruta)[0] === 403 && $solicitar($ruta, ['rol' => 'dueno'])[0] === 403,
-            'Administrador y empleado no abren ni envían correcciones aunque falsifiquen el rol');
-        comprobar(!str_contains($solicitar('/equipo/pedidos')[1], '/equipo/pedidos/editar'), 'La edición solo aparece para el dueño');
-        $salir();
-    }
-    $entrar('7400002');
-    comprobar($solicitar('/equipo/pedidos/editar?id=999999')[0] === 404 && $solicitar('/equipo/pedidos/editar?id[]=1')[0] === 422, 'Controla pedidos inexistentes e identificadores malformados');
-    [$estado, $html] = $solicitar($ruta);
-    comprobar($estado === 200 && str_contains($html, 'Cache-Control: no-store') && str_contains($html, 'Historial de modificaciones')
-        && str_contains($html, 'Cancelar') === false && str_contains($html, 'Cancelado') && str_contains($html, 'min="1000-01-01"'),
-        'El dueño ve el detalle, los estados y el historial del pedido cerrado con su fecha original');
     $camposActuales = static function (int $idPedido, string $html) use ($modelo): array {
         $actual = $modelo->buscarGestion($idPedido);
         return array_intersect_key($actual, array_flip(['cliente_nombre', 'telefono', 'fecha_retiro', 'hora_retiro', 'notas', 'estado']))
             + ['lineas' => array_map(static fn (array $linea): array => ['id_producto' => $linea['clave_producto'], 'cantidad' => (string) $linea['cantidad']], $actual['lineas']),
                 'motivo' => 'Corrección HTTP', 'csrf' => oculto($html, 'csrf'), 'pedido_token' => oculto($html, 'pedido_token'), 'accion' => 'registrar'];
     };
+    foreach (['7400001', '7400003'] as $cedula) {
+        $entrar($cedula);
+        comprobar($solicitar($ruta)[0] === 403 && $solicitar($ruta, ['rol' => 'dueno'])[0] === 403,
+            'Administrador y empleado no corrigen pedidos cerrados aunque falsifiquen el rol');
+        $listado = $solicitar('/equipo/pedidos')[1];
+        comprobar($cedula === '7400001'
+            ? str_contains($listado, '/equipo/pedidos/editar?id=' . $idAdmin) && !str_contains($listado, '/equipo/pedidos/editar?id=' . $id . '"')
+            : !str_contains($listado, '/equipo/pedidos/editar'), 'El listado ofrece la edición según el rol y el estado del pedido');
+        $salir();
+    }
+    $entrar('7400003');
+    comprobar($solicitar('/equipo/pedidos/editar?id=' . $idAdmin)[0] === 403
+        && $solicitar('/equipo/pedidos/editar?id=' . $idAdmin, ['rol' => 'administrador'])[0] === 403,
+        'El empleado tampoco puede abrir ni editar pedidos activos');
+    $salir();
+    $entrar('7400001');
+    $rutaAdmin = '/equipo/pedidos/editar?id=' . $idAdmin;
+    [$estado, $htmlAdmin] = $solicitar($rutaAdmin);
+    comprobar($estado === 200 && str_contains($htmlAdmin, 'Guardar cambios') && str_contains($htmlAdmin, 'Historial de modificaciones'),
+        'El administrador abre el formulario de edición con el historial');
+    $camposAdmin = array_replace($camposActuales($idAdmin, $htmlAdmin), ['cliente_nombre' => 'Cliente actualizado por administración',
+        'lineas' => [['id_producto' => '1', 'cantidad' => '3']], 'rol' => 'dueno', 'id_usuario_registro' => (string) $dueno]);
+    comprobar($solicitar($rutaAdmin, array_replace($camposAdmin, ['csrf' => 'incorrecto']))[0] === 422,
+        'La edición del administrador exige CSRF');
+    comprobar($solicitar($rutaAdmin, $camposAdmin)[0] === 303, 'El administrador guarda la modificación desde el formulario');
+    $pedidoAdmin = $modelo->buscarGestion($idAdmin);
+    comprobar($pedidoAdmin['cliente_nombre'] === 'Cliente actualizado por administración' && $pedidoAdmin['total'] === '285.00'
+        && (int) $pedidoAdmin['id_usuario_registro'] === $admin && $modelo->historial($idAdmin)['total'] === 2
+        && $modelo->historial($idAdmin)['cambios'][0]['nombre_responsable'] === 'Cuenta administrador',
+        'El guardado calcula el total y registra al administrador real, ignorando identidades enviadas');
+    [, $htmlAdmin] = $solicitar($rutaAdmin);
+    $camposAdmin = $camposActuales($idAdmin, $htmlAdmin);
+    $db->exec("UPDATE pedidos SET estado = 'Entregado' WHERE id_pedido = " . $idAdmin);
+    comprobar($solicitar($rutaAdmin, array_replace($camposAdmin, ['notas' => 'No sobrescribir un pedido cerrado']))[0] === 403
+        && $modelo->historial($idAdmin)['total'] === 2, 'Un formulario anterior del administrador no corrige un pedido que ya fue cerrado');
+    rechaza(fn () => $modelo->modificar($idAdmin, $pedidoAdmin, [1 => 3], $firma([1 => 3], [1 => 9500]),
+        Pedido::version($pedidoAdmin), bin2hex(random_bytes(32)), $admin), 'El modelo comprueba el estado actual al guardar, aunque cambie después de abrir el formulario');
+    $db->exec("UPDATE pedidos SET estado = 'En preparación' WHERE id_pedido = " . $idAdmin);
+    [, $htmlAdmin] = $solicitar($rutaAdmin);
+    $camposAdmin = array_replace($camposActuales($idAdmin, $htmlAdmin), ['estado' => 'Cancelado']);
+    comprobar($solicitar($rutaAdmin, $camposAdmin)[0] === 303 && $modelo->buscarGestion($idAdmin)['estado'] === 'Cancelado',
+        'El administrador puede cerrar un pedido activo');
+    comprobar($solicitar($rutaAdmin, $camposAdmin)[0] === 303 && $modelo->historial($idAdmin)['total'] === 3
+        && $solicitar($rutaAdmin)[0] === 403, 'El reenvío de un cierre no repite cambios ni habilita nuevas correcciones del pedido cerrado');
+    $salir();
+    $entrar('7400002');
+    comprobar($solicitar('/equipo/pedidos/editar?id=999999')[0] === 404 && $solicitar('/equipo/pedidos/editar?id[]=1')[0] === 422, 'Controla pedidos inexistentes e identificadores malformados');
+    [$estado, $html] = $solicitar($ruta);
+    comprobar($estado === 200 && str_contains($html, 'Cache-Control: no-store') && str_contains($html, 'Historial de modificaciones')
+        && str_contains($html, 'Cancelar') === false && str_contains($html, 'Cancelado') && str_contains($html, 'min="1000-01-01"'),
+        'El dueño ve el detalle, los estados y el historial del pedido cerrado con su fecha original');
     $campos = $camposActuales($id, $html);
     comprobar($solicitar($ruta, array_replace($campos, ['csrf' => 'incorrecto']))[0] === 422, 'Exige CSRF al modificar');
     comprobar($solicitar($ruta, array_replace($campos, ['pedido_token' => 'ajeno']))[0] === 422, 'Exige un formulario propio');
