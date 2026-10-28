@@ -136,6 +136,12 @@ producto y Registrar mercadería. El regreso al sitio público está solo en el
 menú. Se retiró la sección vacía de Próximos retiros; los pedidos se consultan
 desde el menú.
 
+La navegación del equipo usa el mismo menú hamburguesa del sitio público hasta
+1000 px. En escritorio los enlaces permanecen visibles; Salir sigue disponible
+en la cabecera. Se comparten `navegacion.js`, los estilos del botón y los SVG de
+`public/images/`. El menú admite Escape, cierre al elegir un enlace o tocar fuera
+y navegación por teclado. Sin JavaScript, los enlaces permanecen visibles.
+
 **Administrar personal** abre la gestión de roles en `/equipo/permisos`.
 Las solicitudes enlazan a esa misma pantalla. El antiguo acceso
 `/equipo/personal` redirige ahí al dueño, conservando los filtros; para el

@@ -1,4 +1,4 @@
-/* Navegación pública compartida. Sin JavaScript, los enlaces permanecen visibles. */
+/* Menú compartido del sitio y del equipo. Sin JavaScript, los enlaces permanecen visibles. */
 .encabezado--publico .encabezado__contenido {
     flex-wrap: nowrap;
 }
@@ -50,7 +50,7 @@
 }
 
 .encabezado__menu-boton[hidden],
-.encabezado__menu[hidden] {
+.encabezado [data-menu-panel][hidden] {
     display: none;
 }
 

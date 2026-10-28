@@ -1,4 +1,4 @@
-<header class="encabezado encabezado-equipo">
+<header class="encabezado encabezado-equipo" data-menu-encabezado>
     <div class="contenedor encabezado__contenido">
         <a class="marca" href="<?= $url('equipo-panel') ?>">
             <strong class="marca__nombre">PANADERÍA RUSTIC</strong>
@@ -8,9 +8,11 @@
             <input type="hidden" name="csrf" value="<?= $csrf ?>">
             <button class="boton boton--dorado encabezado-equipo__boton">Salir</button>
         </form>
+        <button class="encabezado__menu-boton" type="button" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="menu-administracion" data-menu-boton hidden>
+            <span class="encabezado__menu-icono" aria-hidden="true"></span>
+        </button>
     </div>
-</header>
-<nav class="navegacion-equipo" aria-label="Administración">
+<nav class="navegacion-equipo" id="menu-administracion" aria-label="Administración" data-menu-panel>
     <div class="contenedor navegacion-equipo__contenido">
         <a class="boton boton--contorno navegacion-equipo__enlace" href="<?= $url('inicio') ?>">Inicio del sitio</a>
         <a class="boton <?= $seccionActiva === 'resumen' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace" href="<?= $url('equipo-panel') ?>" <?= $seccionActiva === 'resumen' ? 'aria-current="page"' : '' ?>>Panel administrativo</a>
@@ -24,3 +26,4 @@
         <?php endif; ?>
     </div>
 </nav>
+</header>

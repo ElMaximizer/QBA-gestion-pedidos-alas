@@ -23,10 +23,10 @@ final class Vista
             $esPanel ? 'css/panel.css' : ($esRegistro ? 'css/registro.css' : 'css/pedidos.css')];
         $scripts = in_array($vista, ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login'], true) ? ['js/registro.js'] : [];
 
+        $estilos[] = 'css/navegacion.css';
+        $scripts[] = 'js/navegacion.js';
         if (!$esPanel) {
-            $estilos[] = 'css/navegacion.css';
             $estilos[] = 'css/carrito.css';
-            $scripts[] = 'js/navegacion.js';
             $scripts[] = 'js/carrito.js';
         }
 
