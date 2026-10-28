@@ -29,15 +29,17 @@ final class RegistroPedidoEquipoController
     {
         header('Cache-Control: no-store');
         $usuario = Sesion::requerirEquipo();
-        if ($esEdicion ? $usuario['rol'] !== 'dueno' : !in_array($usuario['rol'], ['administrador', 'dueno'], true)) {
+        if (!in_array($usuario['rol'], ['administrador', 'dueno'], true)) {
             http_response_code(403);
             Vista::mostrar('error', ['tituloPagina' => 'Acceso no permitido', 'layoutEquipo' => true,
-                'mensaje' => $esEdicion ? 'Solo el dueño puede modificar pedidos.'
+                'mensaje' => $esEdicion ? 'Solo administrador y dueño pueden modificar pedidos.'
                     : 'El registro de pedidos está disponible para administrador y dueño.',
                 'rutaVolver' => 'equipo-pedidos', 'textoVolver' => 'Volver a pedidos']);
             return;
         }
 
+        $formularios = array_filter($_SESSION['qba']['formularios_pedido_equipo'] ?? [],
+            static fn (array $formulario): bool => $formulario['creado'] >= time() - 1800);
         $modelo = new Pedido(Conexion::obtener());
         $idEdicion = null;
         $pedido = null;
@@ -50,6 +52,19 @@ final class RegistroPedidoEquipoController
                 Vista::mostrar('error', ['tituloPagina' => 'Pedido no encontrado', 'layoutEquipo' => true,
                     'mensaje' => 'No encontramos ese pedido.', 'rutaVolver' => 'equipo-pedidos', 'textoVolver' => 'Volver a pedidos']);
                 return;
+            }
+            if (!Pedido::puedeModificar($usuario['rol'], $pedido['estado'])) {
+                $tokenEnviado = $_SERVER['REQUEST_METHOD'] === 'POST' && is_string($_POST['pedido_token'] ?? null)
+                    ? $_POST['pedido_token'] : '';
+                $guardado = $formularios[$tokenEnviado] ?? null;
+                // Un envío ya confirmado puede volver al listado sin repetir la modificación.
+                if (($guardado['id_edicion'] ?? null) !== $idEdicion || ($guardado['pedido'] ?? null) !== $idEdicion) {
+                    http_response_code(403);
+                    Vista::mostrar('error', ['tituloPagina' => 'Acceso no permitido', 'layoutEquipo' => true,
+                        'mensaje' => 'Solo el dueño puede corregir pedidos entregados o cancelados.',
+                        'rutaVolver' => 'equipo-pedidos', 'textoVolver' => 'Volver a pedidos']);
+                    return;
+                }
             }
         }
         $productos = Pedido::opcionesGestion(Producto::catalogo()->listar(), $pedido);
@@ -65,8 +80,6 @@ final class RegistroPedidoEquipoController
                 'id_producto' => $linea['clave_producto'], 'cantidad' => (string) $linea['cantidad'],
             ], $pedido['lineas']);
         }
-        $formularios = array_filter($_SESSION['qba']['formularios_pedido_equipo'] ?? [],
-            static fn (array $formulario): bool => $formulario['creado'] >= time() - 1800);
         $token = '';
         $error = '';
         $puedeConfirmar = false;

@@ -68,6 +68,9 @@ final class PedidosEquipoController
         }
 
         $resultado = (new ConsultaPedidos(Conexion::obtener()))->listar($busqueda, $estado, $fecha, $pagina);
+        $resultado['pedidos'] = array_map(static fn (array $pedido): array => $pedido + [
+            'puede_modificar' => Pedido::puedeModificar($usuario['rol'], $pedido['estado']),
+        ], $resultado['pedidos']);
         Vista::mostrar('equipo-pedidos', $resultado + [
             'tituloPagina' => 'Consultar pedidos | Panadería Rustic',
             'seccionActiva' => 'pedidos',
@@ -77,7 +80,6 @@ final class PedidosEquipoController
             'fecha' => $fecha,
             'puedeRegistrarSena' => $puedeRegistrarSena,
             'puedeRegistrarPedido' => in_array($usuario['rol'], ['administrador', 'dueno'], true),
-            'puedeModificarPedido' => $usuario['rol'] === 'dueno',
             'estados' => Pedido::ESTADOS,
             'aviso' => $aviso,
             'error' => $error,

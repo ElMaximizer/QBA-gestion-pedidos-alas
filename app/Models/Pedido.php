@@ -188,8 +188,14 @@ final class Pedido
         return hash('sha256', serialize([self::instantanea($pedido), array_column($pedido['lineas'], 'id_detalle')]));
     }
 
+    public static function puedeModificar(string $rol, string $estado): bool
+    {
+        return $rol === 'dueno' || ($rol === 'administrador'
+            && in_array($estado, ['Pendiente', 'En preparación', 'Listo para retirar'], true));
+    }
+
     public function modificar(int $id, array $datos, array $cantidades, string $firmaEsperada,
-        string $version, string $token, int $idDueno, string $motivo = ''): void
+        string $version, string $token, int $idResponsable, string $motivo = ''): void
     {
         self::validar($datos, false);
         if (!in_array($datos['estado'] ?? null, self::ESTADOS, true) || !mb_check_encoding($motivo, 'UTF-8')
@@ -199,15 +205,15 @@ final class Pedido
         }
         $this->db->beginTransaction();
         try {
-            $consulta = $this->db->prepare("SELECT nombre FROM usuarios_equipo WHERE id_usuario = ?
-                AND estado = 'aprobado' AND rol = 'dueno' LOCK IN SHARE MODE");
-            $consulta->execute([$idDueno]);
-            $responsable = $consulta->fetchColumn();
-            if ($responsable === false) throw new DomainException('Solo el dueño puede modificar pedidos.');
+            $consulta = $this->db->prepare("SELECT nombre, rol FROM usuarios_equipo WHERE id_usuario = ?
+                AND estado = 'aprobado' AND rol IN ('administrador', 'dueno') LOCK IN SHARE MODE");
+            $consulta->execute([$idResponsable]);
+            $responsable = $consulta->fetch(PDO::FETCH_ASSOC);
+            if ($responsable === false) throw new DomainException('Solo administrador y dueño pueden modificar pedidos.');
             $consulta = $this->db->prepare('SELECT id_pedido, id_usuario FROM pedido_cambios WHERE token_formulario = ?');
             $consulta->execute([$token]);
             if ($cambio = $consulta->fetch()) {
-                if ((int) $cambio['id_pedido'] !== $id || (int) $cambio['id_usuario'] !== $idDueno) {
+                if ((int) $cambio['id_pedido'] !== $id || (int) $cambio['id_usuario'] !== $idResponsable) {
                     throw new DomainException('El formulario pertenece a otro pedido o a otra cuenta.');
                 }
                 $this->db->commit();
@@ -215,6 +221,9 @@ final class Pedido
             }
             $pedido = $this->buscarGestion($id, true);
             if ($pedido === null) throw new DomainException('El pedido ya no está disponible.');
+            if (!self::puedeModificar($responsable['rol'], $pedido['estado'])) {
+                throw new DomainException('Solo el dueño puede corregir pedidos entregados o cancelados.');
+            }
             if (!hash_equals(self::version($pedido), $version)) {
                 throw new DomainException('El pedido fue modificado desde otra pantalla. Volvé a abrirlo para revisar los cambios antes de guardar.');
             }
@@ -260,7 +269,7 @@ final class Pedido
             $this->guardarDetalles($id, $lineas);
             $consulta = $this->db->prepare('INSERT INTO pedido_cambios
                 (id_pedido, id_usuario, nombre_responsable, motivo, antes, despues, token_formulario) VALUES (?, ?, ?, ?, ?, ?, ?)');
-            $consulta->execute([$id, $idDueno, $responsable, $motivo,
+            $consulta->execute([$id, $idResponsable, $responsable['nombre'], $motivo,
                 json_encode($antes, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
                 json_encode($despues, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE), $token]);
             $this->db->commit();
