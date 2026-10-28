@@ -41,7 +41,7 @@ final class Cliente
         }
     }
 
-    public function verificar(string $email, string $codigo): void
+    public function verificar(string $email, string $codigo): int
     {
         $email = DatosCuenta::email($email);
         if (!preg_match('/^[0-9]{6}$/D', $codigo)) {
@@ -49,6 +49,7 @@ final class Cliente
         }
         $this->db->beginTransaction();
         $errorVerificacion = '';
+        $idCliente = 0;
         try {
             $consulta = $this->db->prepare('SELECT id_cliente, verificado, codigo_verificacion_hash,
                 codigo_verificacion_vence > UTC_TIMESTAMP() AS vigente, intentos_verificacion
@@ -69,6 +70,7 @@ final class Cliente
                     ? 'Alcanzaste el límite de intentos. Pedí un nuevo código.'
                     : 'El código no coincide. Revisalo e intentá nuevamente.';
             } else {
+                $idCliente = (int) $cliente['id_cliente'];
                 $actualizar = $this->db->prepare('UPDATE clientes SET verificado = 1,
                     codigo_verificacion_hash = NULL, codigo_verificacion_vence = NULL,
                     intentos_verificacion = 0 WHERE id_cliente = ?');
@@ -85,6 +87,7 @@ final class Cliente
         if ($errorVerificacion !== '') {
             throw new DomainException($errorVerificacion);
         }
+        return $idCliente;
     }
 
     public function reenviar(string $email): ?array
