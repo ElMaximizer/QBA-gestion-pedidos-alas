@@ -5,7 +5,9 @@ use App\Controllers\AccesoController;
 use App\Controllers\AccesoEquipoController;
 use App\Controllers\CarritoController;
 use App\Controllers\ContactoController;
+use App\Controllers\ContenidoInicioController;
 use App\Controllers\InicioController;
+use App\Controllers\InformacionController;
 use App\Controllers\NosotrosController;
 use App\Controllers\GestionProductoController;
 use App\Controllers\PanelEquipoController;
@@ -16,6 +18,7 @@ use App\Controllers\PersonalEquipoController;
 use App\Controllers\ProductoController;
 use App\Controllers\RegistroController;
 use App\Controllers\RegistroEquipoController;
+use App\Controllers\RegistroPedidoEquipoController;
 use App\Controllers\StockEquipoController;
 use App\Controllers\EntregasMercaderiaController;
 
@@ -23,6 +26,8 @@ use App\Controllers\EntregasMercaderiaController;
 return [
     'inicio' => ['', InicioController::class, 'index', ['GET', 'HEAD']],
     'nosotros' => ['nosotros', NosotrosController::class, 'index', ['GET', 'HEAD']],
+    'aviso-legal' => ['aviso-legal', InformacionController::class, 'legal', ['GET', 'HEAD']],
+    'como-comprar' => ['como-comprar', InformacionController::class, 'comprar', ['GET', 'HEAD']],
     'contacto' => ['contacto', ContactoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'contacto-enviado' => ['contacto/enviado', ContactoController::class, 'enviado', ['GET', 'HEAD']],
     'productos' => ['productos', ProductoController::class, 'index', ['GET', 'HEAD']],
@@ -39,7 +44,10 @@ return [
     'equipo-solicitud-enviada' => ['equipo/solicitud-enviada', RegistroEquipoController::class, 'enviado', ['GET', 'HEAD']],
     'equipo-login' => ['equipo/login', AccesoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-panel' => ['equipo/panel', PanelEquipoController::class, 'index', ['GET', 'HEAD']],
+    'equipo-contenido-inicio' => ['equipo/contenido-inicio', ContenidoInicioController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-pedidos' => ['equipo/pedidos', PedidosEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-pedido-registrar' => ['equipo/pedidos/registrar', RegistroPedidoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-pedido-editar' => ['equipo/pedidos/editar', RegistroPedidoEquipoController::class, 'editar', ['GET', 'HEAD', 'POST']],
     'equipo-permisos' => ['equipo/permisos', PermisosEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-personal' => ['equipo/personal', PersonalEquipoController::class, 'index', ['GET', 'HEAD']],
     'equipo-cerrar-sesion' => ['equipo/salir', AccesoEquipoController::class, 'salir', ['POST']],

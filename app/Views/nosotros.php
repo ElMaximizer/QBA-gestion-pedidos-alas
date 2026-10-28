@@ -4,10 +4,10 @@
             <div class="nosotros__introduccion">
                 <span class="etiqueta">NUESTRA PANADERÍA</span>
                 <h1 class="nosotros__titulo" id="titulo-nosotros">El sabor que nos reúne.</h1>
-                <p class="nosotros__bajada">En Alas creemos que los pequeños momentos merecen algo hecho con dedicación.</p>
+                <p class="nosotros__bajada">En Rustic creemos que los pequeños momentos merecen algo hecho con dedicación.</p>
             </div>
             <div class="nosotros__detalle">
-                <img class="nosotros__imagen" src="<?= $escapar($recurso('images/panes.png')) ?>" alt="Panes y productos artesanales de Panadería Alas" width="664" height="398">
+                <img class="nosotros__imagen" src="<?= $escapar($recurso('images/panes.png')) ?>" alt="Panes y productos artesanales de Panadería Rustic" width="664" height="398">
                 <div class="nosotros__texto">
                     <h2 class="nosotros__subtitulo">De nuestras manos<br>a tu mesa.</h2>
                     <p>Un pan para el desayuno, bizcochos para una charla o una torta para celebrar. Queremos acompañarte con sabores que inviten a compartir.</p>

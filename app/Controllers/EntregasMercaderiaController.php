@@ -23,7 +23,7 @@ final class EntregasMercaderiaController
         $resultado = (new EntregaMercaderia(Conexion::obtener()))->listar($busqueda, $pagina);
         $aviso = $_SESSION['qba']['aviso_mercaderia'] ?? '';
         if ($_SERVER['REQUEST_METHOD'] === 'GET') unset($_SESSION['qba']['aviso_mercaderia']);
-        Vista::mostrar('equipo-entregas-mercaderia', $resultado + ['tituloPagina' => 'Entregas de mercadería | Panadería Alas',
+        Vista::mostrar('equipo-entregas-mercaderia', $resultado + ['tituloPagina' => 'Entregas de mercadería | Panadería Rustic',
             'layoutEquipo' => true, 'seccionActiva' => 'stock', 'busqueda' => $busqueda, 'aviso' => $aviso]);
     }
 
@@ -85,7 +85,7 @@ final class EntregasMercaderiaController
             $formularios[$token] = time();
         }
         $_SESSION['qba']['formularios_mercaderia'] = $formularios;
-        Vista::mostrar('equipo-mercaderia-form', ['tituloPagina' => 'Registrar mercadería | Panadería Alas',
+        Vista::mostrar('equipo-mercaderia-form', ['tituloPagina' => 'Registrar mercadería | Panadería Rustic',
             'layoutEquipo' => true, 'seccionActiva' => 'stock', 'valores' => $valores, 'error' => $error, 'token' => $token,
             'materias' => (new StockMateriaPrima(Conexion::obtener()))->disponibles(),
             'maximoLineas' => EntregaMercaderia::MAXIMO_LINEAS, 'hoy' => date('Y-m-d')]);

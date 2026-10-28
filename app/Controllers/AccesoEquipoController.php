@@ -40,7 +40,7 @@ final class AccesoEquipoController
                 $error = 'No pudimos iniciar sesión en este momento. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('equipo-login', ['tituloPagina' => 'Acceso del equipo | Panadería Alas',
+        Vista::mostrar('equipo-login', ['tituloPagina' => 'Acceso del equipo | Panadería Rustic',
             'cedula' => $cedula, 'error' => $error]);
     }
 
