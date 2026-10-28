@@ -136,6 +136,12 @@ producto y Registrar mercadería. El regreso al sitio público está solo en el
 menú. Se retiró la sección vacía de Próximos retiros; los pedidos se consultan
 desde el menú.
 
+La navegación del equipo usa el mismo menú hamburguesa del sitio público hasta
+1000 px. En escritorio los enlaces permanecen visibles; Salir sigue disponible
+en la cabecera. Se comparten `navegacion.js`, los estilos del botón y los SVG de
+`public/images/`. El menú admite Escape, cierre al elegir un enlace o tocar fuera
+y navegación por teclado. Sin JavaScript, los enlaces permanecen visibles.
+
 **Administrar personal** abre la gestión de roles en `/equipo/permisos`.
 Las solicitudes enlazan a esa misma pantalla. El antiguo acceso
 `/equipo/personal` redirige ahí al dueño, conservando los filtros; para el
@@ -659,6 +665,11 @@ redirige con 303 para evitar repetirla al recargar.
   Reenviar el mismo formulario devuelve el mismo pedido.
 
 ## BEM y diseño
+
+Los SVG se guardan como archivos en `public/images/`; los nuevos iconos también
+deben crearse ahí, sin incrustar su contenido en PHP, HTML, CSS o JavaScript.
+Los iconos monocromáticos del footer y del menú usan esos archivos como máscaras
+CSS para heredar el color del tema y sus estados de interacción.
 
 Se conservan las imágenes, colores, tipografía, medidas y puntos de adaptación
 del diseño público anterior. Los bloques nuevos incluyen detalle, campo,

@@ -1,4 +1,4 @@
-/* Navegación pública compartida. Sin JavaScript, los enlaces permanecen visibles. */
+/* Menú compartido del sitio y del equipo. Sin JavaScript, los enlaces permanecen visibles. */
 .encabezado--publico .encabezado__contenido {
     flex-wrap: nowrap;
 }
@@ -37,13 +37,20 @@
     outline-offset: 4px;
 }
 
-.encabezado__menu-icono { display: block; }
-.encabezado__menu-cruz { display: none; }
-.encabezado--menu-abierto .encabezado__menu-lineas { display: none; }
-.encabezado--menu-abierto .encabezado__menu-cruz { display: block; }
+.encabezado__menu-icono {
+    display: block;
+    width: 24px;
+    height: 24px;
+    background-color: currentColor;
+    mask: url("../images/menu.svg") center / contain no-repeat;
+}
+
+.encabezado--menu-abierto .encabezado__menu-icono {
+    mask-image: url("../images/cerrar.svg");
+}
 
 .encabezado__menu-boton[hidden],
-.encabezado__menu[hidden] {
+.encabezado [data-menu-panel][hidden] {
     display: none;
 }
 
