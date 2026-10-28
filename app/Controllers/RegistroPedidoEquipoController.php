@@ -182,7 +182,7 @@ final class RegistroPedidoEquipoController
             if (!$pagina) throw new DomainException('Seleccioná una página válida del historial.');
             $historial = $modelo->historial($idEdicion, $pagina);
         }
-        Vista::mostrar('equipo-pedido-form', ['tituloPagina' => ($esEdicion ? 'Modificar pedido #' . $idEdicion : 'Registrar pedido') . ' | Panadería Alas', 'layoutEquipo' => true,
+        Vista::mostrar('equipo-pedido-form', ['tituloPagina' => ($esEdicion ? 'Modificar pedido #' . $idEdicion : 'Registrar pedido') . ' | Panadería Rustic', 'layoutEquipo' => true,
             'seccionActiva' => 'pedidos', 'valores' => $valores, 'productos' => $productos, 'precios' => $precios,
             'error' => $error, 'token' => $token, 'puedeConfirmar' => $puedeConfirmar, 'resumen' => $resumen,
             'total' => $total, 'resumenCompleto' => $resumenCompleto, 'maximoProductos' => Pedido::MAXIMO_PRODUCTOS,

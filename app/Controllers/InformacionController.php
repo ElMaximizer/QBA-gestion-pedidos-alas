@@ -9,11 +9,11 @@ final class InformacionController
 {
     public function legal(): void
     {
-        Vista::mostrar('aviso-legal', ['tituloPagina' => 'Aviso legal | Panadería Alas']);
+        Vista::mostrar('aviso-legal', ['tituloPagina' => 'Aviso legal | Panadería Rustic']);
     }
 
     public function comprar(): void
     {
-        Vista::mostrar('como-comprar', ['tituloPagina' => 'Cómo comprar | Panadería Alas']);
+        Vista::mostrar('como-comprar', ['tituloPagina' => 'Cómo comprar | Panadería Rustic']);
     }
 }

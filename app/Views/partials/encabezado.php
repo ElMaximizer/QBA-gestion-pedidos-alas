@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Panes, bizcochos y tortas elaborados con dedicación en Panadería Alas.">
+    <meta name="description" content="Panes, bizcochos y tortas elaborados con dedicación en Panadería Rustic.">
     <title><?= $escapar($tituloPagina) ?></title>
     <link rel="stylesheet" href="<?= $escapar($recurso('css/inicio.css')) ?>">
     <?php foreach ($estilos as $estilo): ?>
@@ -16,17 +16,24 @@
 <body class="pagina<?= $esPanel ? ' pagina--equipo' : '' ?>">
     <a class="salto-contenido" href="#contenido">Ir al contenido</a>
     <?php if ($esPanel): require __DIR__ . '/equipo-encabezado.php'; else: ?>
-    <header class="encabezado">
+    <header class="encabezado encabezado--publico" data-menu-encabezado>
         <div class="contenedor encabezado__contenido">
             <a class="marca" href="<?= $url('inicio') ?>">
-                <strong class="marca__nombre">PANADERÍA ALAS</strong>
+                <strong class="marca__nombre">PANADERÍA RUSTIC</strong>
                 <span class="marca__descripcion">PANADERÍA ARTESANAL</span>
             </a>
+            <button class="encabezado__menu-boton" type="button" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="menu-principal" data-menu-boton hidden>
+                <svg class="encabezado__menu-icono" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
+                    <path class="encabezado__menu-lineas" d="M4 6h16M4 12h16M4 18h16" />
+                    <path class="encabezado__menu-cruz" d="m6 6 12 12M18 6 6 18" />
+                </svg>
+            </button>
+            <div class="encabezado__menu" id="menu-principal" data-menu-panel>
             <nav class="navegacion" aria-label="Navegación principal">
                 <a class="navegacion__enlace" href="<?= $url('inicio') ?>" <?= $seccionActiva === 'inicio' ? 'aria-current="page"' : '' ?>>Inicio</a>
                 <a class="navegacion__enlace" href="<?= $url('productos') ?>" <?= $seccionActiva === 'productos' ? 'aria-current="page"' : '' ?>>Productos</a>
                 <a class="navegacion__enlace" href="<?= $url('nosotros') ?>" <?= $seccionActiva === 'nosotros' ? 'aria-current="page"' : '' ?>>Nosotros</a>
-                <a class="navegacion__enlace" href="<?= $url('contacto') ?>">Contacto</a>
+                <a class="navegacion__enlace" href="<?= $url('contacto') ?>" <?= $seccionActiva === 'contacto' ? 'aria-current="page"' : '' ?>>Contacto</a>
                 <a class="carrito" href="<?= $url('carrito') ?>" data-carrito-abrir>
                     <img class="carrito__icono" src="<?= $escapar($recurso('images/carrito.svg')) ?>" width="20" height="20" alt="">
                     Carrito <span class="carrito__cantidad"><?= $cantidadCarrito ?></span>
@@ -50,6 +57,7 @@
             <?php else: ?>
             <a class="boton boton--dorado encabezado__acceso" href="<?= $url('cliente-login') ?>">Acceso clientes</a>
             <?php endif; ?>
+            </div>
         </div>
     </header>
     <?php endif; ?>
