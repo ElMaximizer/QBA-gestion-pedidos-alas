@@ -4,8 +4,11 @@ declare(strict_types=1);
 namespace App\Controllers;
 
 use App\Core\Sesion;
+use App\Core\Conexion;
 use App\Core\Vista;
+use App\Models\ConsultaContacto;
 use App\Models\Producto;
+use App\Models\SolicitudesEquipo;
 use App\Models\UsuarioEquipo;
 
 final class PanelEquipoController
@@ -16,6 +19,8 @@ final class PanelEquipoController
         $usuario = Sesion::requerirEquipo();
         Vista::mostrar('equipo-panel', ['tituloPagina' => 'Panel de administración | Panadería Rustic',
             'seccionActiva' => 'resumen', 'usuario' => $usuario, 'nombreRol' => UsuarioEquipo::ROLES[$usuario['rol']],
-            'resumenProductos' => Producto::catalogo()->resumenActivos()]);
+            'resumenProductos' => Producto::catalogo()->resumenActivos(),
+            'consultasNuevas' => (new ConsultaContacto(Conexion::obtener()))->nuevas(),
+            'solicitudesPendientes' => $usuario['rol'] === 'dueno' ? (new SolicitudesEquipo(Conexion::obtener()))->pendientes() : 0]);
     }
 }
