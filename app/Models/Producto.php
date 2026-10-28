@@ -81,9 +81,8 @@ final class Producto
             $validos[$campo] = trim($texto);
         }
         if (!in_array($datos['categoria'] ?? null, self::CATEGORIAS, true)
-            || !in_array($datos['activo'] ?? null, ['0', '1'], true)
-            || !in_array($datos['destacado'] ?? null, ['0', '1'], true)) {
-            throw new DomainException('Seleccioná una categoría, un estado y una opción de destacado válidos.');
+            || !in_array($datos['activo'] ?? null, ['0', '1'], true)) {
+            throw new DomainException('Seleccioná una categoría y un estado válidos.');
         }
         $precio = $datos['precio'] ?? null;
         $precio = is_string($precio) ? str_replace(',', '.', trim($precio)) : '';
@@ -95,8 +94,7 @@ final class Producto
             throw new DomainException('Ingresá un precio mayor que cero, con hasta dos decimales.');
         }
         return $validos + ['categoria' => $datos['categoria'], 'activo' => (int) $datos['activo'],
-            'precio' => sprintf('%d.%02d', intdiv($centavos, 100), $centavos % 100),
-            'destacado' => (int) $datos['destacado']];
+            'precio' => sprintf('%d.%02d', intdiv($centavos, 100), $centavos % 100)];
     }
 
     /** Huella del estado leído: evita sobrescribir cambios de otro formulario. */
@@ -114,28 +112,20 @@ final class Producto
         $this->db->beginTransaction();
         try {
             $anterior = $id === null ? null : $this->exigirVersion($id, $version);
-            if ($datos['destacado'] === 1 && $datos['activo'] === 1) {
-                $consulta = $this->db->prepare('SELECT COUNT(*) FROM productos
-                    WHERE destacado = 1 AND activo = 1 AND eliminado_en IS NULL AND id_producto <> ?');
-                $consulta->execute([$id ?? 0]);
-                if ((int) $consulta->fetchColumn() >= 3) {
-                    throw new DomainException('Ya hay tres favoritos activos. Desmarcá uno antes de elegir otro.');
-                }
-            }
             $imagenGuardada = $imagen ?? ($anterior['imagen_guardada'] ?? '');
             if (in_array($imagenGuardada, ['pan.svg', 'croissant.svg', 'torta.svg'], true)) {
                 $imagenGuardada = '';
             }
             $parametros = [$datos['nombre'], $datos['descripcion'], $datos['precio'], $datos['categoria'],
                 $datos['presentacion'], $datos['ingredientes'], $datos['alergenos'], $datos['activo'],
-                $datos['destacado'], $imagenGuardada];
+                $imagenGuardada];
             if ($id === null) {
                 $consulta = $this->db->prepare('INSERT INTO productos
-                    (nombre, descripcion, precio, categoria, presentacion, ingredientes, alergenos, activo, destacado, imagen)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+                    (nombre, descripcion, precio, categoria, presentacion, ingredientes, alergenos, activo, imagen)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
             } else {
                 $consulta = $this->db->prepare('UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, categoria = ?,
-                    presentacion = ?, ingredientes = ?, alergenos = ?, activo = ?, destacado = ?, imagen = ? WHERE id_producto = ?');
+                    presentacion = ?, ingredientes = ?, alergenos = ?, activo = ?, imagen = ? WHERE id_producto = ?');
                 $parametros[] = $id;
             }
             $consulta->execute($parametros);
@@ -188,49 +178,6 @@ final class Producto
         };
     }
 
-    public function listarGestionInicio(): array
-    {
-        $consulta = $this->db->query('SELECT * FROM productos WHERE activo = 1 AND eliminado_en IS NULL ORDER BY nombre, id_producto');
-        return array_map(self::normalizar(...), $consulta->fetchAll());
-    }
-
-    public function listarPortada(): array
-    {
-        $consulta = $this->db->query('SELECT * FROM productos WHERE activo = 1 AND eliminado_en IS NULL AND portada_orden IS NOT NULL ORDER BY portada_orden, id_producto LIMIT 5');
-        $productos = array_map(self::normalizar(...), $consulta->fetchAll());
-        return $productos !== [] ? $productos : $this->listar('', '', true);
-    }
-
-    public function guardarSeleccionInicio(array $favoritos, array $portada): void
-    {
-        if (count($favoritos) > 3 || count($portada) > 5 || count(array_unique($favoritos)) !== count($favoritos) || count(array_unique($portada)) !== count($portada)) {
-            throw new DomainException('Elegí hasta 3 favoritos y hasta 5 imágenes para el carrusel.');
-        }
-        foreach (array_merge($favoritos, $portada) as $id) {
-            if (!is_int($id) || $id < 1) { throw new DomainException('Revisá la selección de productos.'); }
-        }
-        $this->db->beginTransaction();
-        try {
-            $disponibles = $this->db->query('SELECT id_producto FROM productos WHERE activo = 1 AND eliminado_en IS NULL FOR UPDATE')->fetchAll(PDO::FETCH_COLUMN);
-            $idsDisponibles = array_map('intval', $disponibles);
-            if (array_diff(array_unique(array_merge($favoritos, $portada)), $idsDisponibles)) {
-                throw new DomainException('Un producto seleccionado ya no está disponible. Recargá la página.');
-            }
-            $this->db->exec('UPDATE productos SET destacado = 0, portada_orden = NULL');
-            if ($favoritos !== []) {
-                $consulta = $this->db->prepare('UPDATE productos SET destacado = 1 WHERE id_producto = ?');
-                foreach ($favoritos as $id) { $consulta->execute([$id]); }
-            }
-            if ($portada !== []) {
-                $consulta = $this->db->prepare('UPDATE productos SET portada_orden = ? WHERE id_producto = ?');
-                foreach ($portada as $orden => $id) { $consulta->execute([$orden + 1, $id]); }
-            }
-            $this->db->commit();
-        } catch (Throwable $error) {
-            if ($this->db->inTransaction()) { $this->db->rollBack(); }
-            throw $error;
-        }
-    }
     public function listar(string $busqueda = '', string $categoria = '', bool $destacados = false): array
     {
         $sql = 'SELECT * FROM productos WHERE activo = 1 AND eliminado_en IS NULL';
