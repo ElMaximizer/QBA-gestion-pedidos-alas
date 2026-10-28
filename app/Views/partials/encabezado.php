@@ -23,10 +23,7 @@
                 <span class="marca__descripcion">PANADERÍA ARTESANAL</span>
             </a>
             <button class="encabezado__menu-boton" type="button" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="menu-principal" data-menu-boton hidden>
-                <svg class="encabezado__menu-icono" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false">
-                    <path class="encabezado__menu-lineas" d="M4 6h16M4 12h16M4 18h16" />
-                    <path class="encabezado__menu-cruz" d="m6 6 12 12M18 6 6 18" />
-                </svg>
+                <span class="encabezado__menu-icono" aria-hidden="true"></span>
             </button>
             <div class="encabezado__menu" id="menu-principal" data-menu-panel>
             <nav class="navegacion" aria-label="Navegación principal">

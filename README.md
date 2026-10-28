@@ -660,6 +660,11 @@ redirige con 303 para evitar repetirla al recargar.
 
 ## BEM y diseño
 
+Los SVG se guardan como archivos en `public/images/`; los nuevos iconos también
+deben crearse ahí, sin incrustar su contenido en PHP, HTML, CSS o JavaScript.
+Los iconos monocromáticos del footer y del menú usan esos archivos como máscaras
+CSS para heredar el color del tema y sus estados de interacción.
+
 Se conservan las imágenes, colores, tipografía, medidas y puntos de adaptación
 del diseño público anterior. Los bloques nuevos incluyen detalle, campo,
 carrito-fila, cantidad y resumen. Los elementos usan bloque__elemento y los
