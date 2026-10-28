@@ -50,7 +50,7 @@
     <section class="panel-atencion" aria-labelledby="titulo-atencion">
         <h2 class="panel-atencion__titulo" id="titulo-atencion">Atención del equipo</h2>
         <div class="acciones panel-atencion__acciones">
-            <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Consultas recibidas (— nuevas)</a>
+            <a class="boton boton--contorno" href="<?= $url('equipo-consultas') ?>">Consultas recibidas (<?= $consultasNuevas ?> <?= $consultasNuevas === 1 ? 'nueva' : 'nuevas' ?>)</a>
             <?php // La consulta del personal corresponde a HU10; altas y bajas quedan para HU21. ?>
             <?php if (in_array($usuario['rol'], ['administrador', 'dueno'], true)): ?>
             <a class="boton boton--contorno" href="<?= $url('equipo-personal') ?>">Consultar personal</a>
@@ -58,7 +58,7 @@
             <?php if ($usuario['rol'] === 'dueno'): ?>
             <a class="boton boton--contorno" href="<?= $url('equipo-permisos') ?>">Administrar roles y permisos</a>
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Gestionar personal</a>
-            <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Solicitudes de acceso (—)</a>
+            <a class="boton boton--contorno" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso (<?= $solicitudesPendientes ?>)</a>
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Actividad del personal</a>
             <?php elseif ($usuario['rol'] === 'administrador'): ?>
             <a class="boton boton--contorno" role="link" aria-disabled="true" title="Próximamente">Solicitar alta de personal</a>
