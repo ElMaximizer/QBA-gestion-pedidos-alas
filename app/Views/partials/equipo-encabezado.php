@@ -17,8 +17,6 @@
         <?php if ($administraProductos): ?>
         <a class="boton <?= $seccionActiva === 'productos' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace" href="<?= $url('equipo-productos') ?>" <?= $seccionActiva === 'productos' ? 'aria-current="page"' : '' ?>>Productos</a>
         <a class="boton <?= $seccionActiva === 'contenido' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace" href="<?= $url('equipo-contenido-inicio') ?>" <?= $seccionActiva === 'contenido' ? 'aria-current="page"' : '' ?>>Contenido del inicio</a>
-        <?php else: ?>
-        <a class="boton boton--contorno navegacion-equipo__enlace" role="link" aria-disabled="true" title="Próximamente">Productos</a>
         <?php endif; ?>
         <a class="boton <?= $seccionActiva === 'pedidos' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace" href="<?= $url('equipo-pedidos') ?>" <?= $seccionActiva === 'pedidos' ? 'aria-current="page"' : '' ?>>Pedidos</a>
         <?php if ($administraProductos): ?>

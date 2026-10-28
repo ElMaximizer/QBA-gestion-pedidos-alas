@@ -38,7 +38,7 @@ sus contadores reales. No se agregan enlaces a la navegación superior.
   del registro del equipo y permite aprobarlas como empleado o rechazarlas.
   La decisión conserva la cuenta y su contraseña; no se puede sobrescribir una
   solicitud ya resuelta con un formulario anterior. Los roles de administrador
-  se asignan desde **Roles y permisos**, después de aprobar el acceso.
+  se asignan desde **Administrar personal**, después de aprobar el acceso.
 
 Las bandejas muestran 10 registros por página y comparten estilos BEM y paginación.
 Usan las tablas existentes `mensajes_contacto` y `usuarios_equipo`, sin otra
@@ -71,7 +71,7 @@ en el formulario ni se guardan en la sesión.
 
 El dueño revisa las solicitudes desde **Panel → Atención del equipo → Solicitudes
 de acceso**. Puede aprobar el acceso como empleado o rechazarlo; otros permisos se
-asignan desde **Roles y permisos**. No se crea una cuenta de dueño automáticamente.
+asignan desde **Administrar personal**. No se crea una cuenta de dueño automáticamente.
 
 Para incorporar la tabla sobre una instalación existente:
 
@@ -121,27 +121,39 @@ la tabla de intentos conservando los datos y las aprobaciones actuales:
 
 ## Panel del equipo — estructura visual
 
-La rama técnica admin/panel incorpora solamente la presentación del
+El panel del equipo toma como base el diseño del
 [panel anterior](https://github.com/ElMaximizer/software-pedidos-alas/blob/produccion/app/Views/admin/panel.php):
-cabecera interna con Salir, navegación, tarjetas de resumen, Próximos retiros,
+cabecera interna con Salir, navegación, tarjetas de resumen, acciones rápidas,
 Atención del equipo y pie de gestión interna. Reutiliza los colores, tamaños y
 componentes existentes con clases BEM y adaptación a pantallas pequeñas.
 
 Empleado, administrador y dueño comparten la misma pantalla. Las opciones de
-Atención del equipo conservan la visibilidad del proyecto anterior: consultas
-para todos; alta de personal y bandeja local para administrador; gestión de
-personal, solicitudes, actividad y bandeja local para dueño. Esa visibilidad
-es únicamente presentación; los permisos de cada futura operación deberán
-validarse en su implementación correspondiente. HU06 ya incorpora esa validación
-para la gestión de productos.
+Atención del equipo incluyen consultas para todos y **Administrar personal** y
+**Solicitudes de acceso** para el dueño. Se ocultan los módulos que todavía no
+tienen función. El menú conserva los accesos a Productos, Contenido del inicio,
+Pedidos y Stock según el rol; las acciones rápidas son Nuevo pedido, Agregar
+producto y Registrar mercadería. El regreso al sitio público está solo en el
+menú. Se retiró la sección vacía de Próximos retiros; los pedidos se consultan
+desde el menú.
+
+**Administrar personal** abre la gestión de roles en `/equipo/permisos`.
+Las solicitudes enlazan a esa misma pantalla. El antiguo acceso
+`/equipo/personal` redirige ahí al dueño, conservando los filtros; para el
+administrador conserva la consulta sin edición. Ambas usan una sola vista,
+hoja de estilos y consulta del listado. Los permisos para modificar roles
+siguen comprobándose en el servidor y solo los tiene el dueño.
 
 HU06 muestra en **Productos activos** la cantidad real de productos activos y
 de sus categorías, excluyendo los eliminados. Se actualiza al volver al panel
 después de agregar, editar, activar, desactivar o eliminar productos. Las consultas
-y solicitudes también muestran cantidades reales. Los contadores de pedidos
-muestran — y el área de retiros enlaza al listado de pedidos. Los accesos
-a módulos futuros están deshabilitados y no tienen URL ni
-formularios de operación. HU06 habilita **Productos** y **+ Agregar producto**
+y solicitudes también muestran cantidades reales. **Pedidos de hoy** cuenta los
+pedidos con retiro para hoy, excepto los cancelados, e indica cuántos continúan
+en estado Pendiente. **Por entregar** cuenta todos los pendientes, en preparación
+o listos para retirar, también los atrasados y los de fechas futuras. Excluye
+entregados y cancelados. Los tres valores se obtienen juntos en una consulta sin
+unir los detalles, usando la fecha de Uruguay; se actualizan al recargar el panel
+y muestran cero si no hay pedidos. No requieren cambios en la base. Las pruebas
+están en `tests/panel-resumen.php`. HU06 habilita **Productos** y **+ Agregar producto**
 para administrador y dueño. También funcionan el regreso al sitio, el regreso
 al panel y el cierre de sesión.
 

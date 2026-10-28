@@ -66,32 +66,6 @@
     margin: 20px 0 0;
 }
 
-.panel-retiros__titulo {
-    margin-block: 28px;
-    font-size: 30px;
-}
-
-.panel-retiros__cabecera {
-    display: grid;
-    grid-template-columns: 1.25fr .5fr 1.45fr .5fr .9fr .6fr;
-    align-items: center;
-    gap: 24px;
-    margin-bottom: 24px;
-    padding: 18px 16px;
-    background: var(--sand);
-    color: var(--muted);
-    font-size: 12px;
-}
-
-.panel-retiros__aviso {
-    margin-top: 20px;
-    font-size: 36px;
-}
-
-.panel-retiros__enlace {
-    margin-top: 4px;
-}
-
 .panel-atencion {
     margin-top: 64px;
     padding-top: 32px;
@@ -116,10 +90,6 @@
     line-height: 1.5;
 }
 
-.pie-equipo__enlace {
-    font-size: 12px;
-}
-
 @media (max-width: 850px) {
     .navegacion-equipo__contenido {
         flex-wrap: wrap;
@@ -128,10 +98,6 @@
 
     .navegacion-equipo__enlace {
         min-width: 150px;
-    }
-
-    .panel-retiros__cabecera {
-        display: none;
     }
 
     .panel h1 {
@@ -188,18 +154,6 @@
 
     .panel-estadistica__valor {
         font-size: 38px;
-    }
-
-    .panel-retiros__titulo {
-        font-size: 26px;
-    }
-
-    .panel-retiros__vacio {
-        padding: 28px 24px;
-    }
-
-    .panel-retiros__aviso {
-        font-size: 28px;
     }
 
     .panel-atencion__acciones {

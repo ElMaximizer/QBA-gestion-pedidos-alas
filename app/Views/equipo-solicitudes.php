@@ -33,7 +33,7 @@
                     <div><dt>Cédula</dt><dd><?= $escapar($solicitud['cedula']) ?></dd></div>
                     <div><dt>Correo</dt><dd><?= $escapar($solicitud['email']) ?></dd></div>
                 </dl>
-                <p class="bandeja-equipo__nota">Al aprobar, la persona podrá iniciar sesión como empleado. Si necesita permisos de administrador, podés asignarlos luego en <a class="enlace-texto" href="<?= $url('equipo-permisos') ?>">Roles y permisos</a>. Rechazar conserva la solicitud sin habilitar el acceso.</p>
+                <p class="bandeja-equipo__nota">Al aprobar, la persona podrá iniciar sesión como empleado. Podés cambiar su rol desde Administrar personal. Rechazar conserva la solicitud sin habilitar el acceso.</p>
                 <form class="bandeja-equipo__acciones" method="post" action="<?= $escapar($url('equipo-solicitudes', ['pagina' => $bandeja['pagina']])) ?>">
                     <input type="hidden" name="csrf" value="<?= $csrf ?>">
                     <input type="hidden" name="id_usuario" value="<?= (int) $solicitud['id_usuario'] ?>">
@@ -46,6 +46,6 @@
         <?php endif; ?>
     </section>
     <?php require __DIR__ . '/partials/bandeja-equipo-paginacion.php'; ?>
-    <p class="bandeja-equipo__nota">Solo se muestran las solicitudes que todavía necesitan una decisión. Las aprobadas se pueden consultar en <a class="enlace-texto" href="<?= $url('equipo-personal') ?>">Personal del equipo</a>.</p>
+    <p class="bandeja-equipo__nota">Solo se muestran las solicitudes que todavía necesitan una decisión. Podés consultar las cuentas aprobadas y cambiar sus roles en <a class="enlace-texto" href="<?= $url('equipo-permisos') ?>">Administrar personal</a>.</p>
     <a class="enlace-texto" href="<?= $url('equipo-panel') ?>">← Volver al panel</a>
 </main>

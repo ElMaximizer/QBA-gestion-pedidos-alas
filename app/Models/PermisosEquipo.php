@@ -10,15 +10,8 @@ use Throwable;
 
 final class PermisosEquipo
 {
-    public const ROLES = [
-        'empleado' => 'Empleado',
-        'administrador' => 'Administrador',
-    ];
-
-    public const FUNCIONES = [
-        'empleado' => 'Registrar y consultar pedidos, consultar productos, actualizar estados y registrar entregas.',
-        'administrador' => 'Administrar productos, controlar el stock, gestionar pedidos, registrar entregas y consultar ventas.',
-    ];
+    public const ROLES = PersonalEquipo::ROLES;
+    public const FUNCIONES = PersonalEquipo::FUNCIONES;
 
     public function __construct(private readonly PDO $db)
     {
@@ -31,35 +24,7 @@ final class PermisosEquipo
 
     public function listar(string $busqueda = '', string $rol = ''): array
     {
-        if (!mb_check_encoding($busqueda, 'UTF-8') || mb_strlen($busqueda) > 120
-            || !in_array($rol, ['', ...array_keys(self::ROLES)], true)) {
-            throw new DomainException('Revisá la búsqueda y el rol seleccionados.');
-        }
-
-        $condiciones = "estado = 'aprobado' AND rol IN ('empleado', 'administrador')";
-        $parametros = [];
-        if ($busqueda !== '') {
-            $condiciones .= ' AND (nombre LIKE ? OR email LIKE ?)';
-            $parametros[] = '%' . $busqueda . '%';
-            $parametros[] = '%' . $busqueda . '%';
-        }
-        if ($rol !== '') {
-            $condiciones .= ' AND rol = ?';
-            $parametros[] = $rol;
-        }
-
-        $consulta = $this->db->prepare('SELECT id_usuario, nombre, email, rol FROM usuarios_equipo WHERE '
-            . $condiciones . " ORDER BY CASE rol WHEN 'administrador' THEN 0 ELSE 1 END, nombre, id_usuario");
-        $consulta->execute($parametros);
-        $usuarios = $consulta->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($usuarios as &$usuario) {
-            $usuario['nombre_rol'] = self::ROLES[$usuario['rol']];
-            $usuario['funciones'] = self::FUNCIONES[$usuario['rol']];
-        }
-        unset($usuario);
-
-        return $usuarios;
+        return (new PersonalEquipo($this->db))->listar($busqueda, $rol);
     }
 
     public function cambiarRol(int $idUsuario, int $idDueno, string $rolNuevo): void
