@@ -1,7 +1,7 @@
 <header class="encabezado encabezado-equipo">
     <div class="contenedor encabezado__contenido">
         <a class="marca" href="<?= $url('equipo-panel') ?>">
-            <strong class="marca__nombre">PANADERÍA ALAS</strong>
+            <strong class="marca__nombre">PANADERÍA RUSTIC</strong>
             <span class="marca__descripcion">GESTIÓN DE PRODUCTOS Y PEDIDOS</span>
         </a>
         <form class="encabezado-equipo__salida" method="post" action="<?= $url('equipo-cerrar-sesion') ?>">

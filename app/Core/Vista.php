@@ -19,61 +19,72 @@ final class Vista
         $csrf = Sesion::csrf();
         $cantidadCarrito = Carrito::unidades();
         $seccionActiva = $variables['seccionActiva'] ?? '';
-        $esGestionProducto = in_array($vista, ['equipo-productos', 'equipo-producto-form', 'equipo-producto-eliminar'], true);
-        $esGestionStock = $vista === 'equipo-stock';
-        $esPermisosEquipo = $vista === 'equipo-permisos';
-        $esPersonalEquipo = $vista === 'equipo-personal';
+
+        $esGestionProducto = in_array(
+            $vista,
+            ['equipo-productos', 'equipo-producto-form', 'equipo-producto-eliminar'],
+            true
+        );
         $esContenidoInicio = $vista === 'equipo-contenido-inicio';
-        $esPanel = ($variables['layoutEquipo'] ?? false) || $vista === 'equipo-panel'
-            || $esGestionProducto || $esGestionStock || $esPermisosEquipo || $esPersonalEquipo || $esContenidoInicio;
-        $esRegistro = in_array($vista, ['cliente-login', 'cliente-registro', 'cliente-verificar', 'registro-completado',
-            'equipo-registro', 'equipo-solicitud-enviada', 'equipo-login', 'sesion-cerrada'], true);
-        $estilos = $vista === 'inicio' ? [] : ['css/componentes.css',
-            $esPanel ? 'css/panel.css' : ($esRegistro ? 'css/registro.css' : 'css/pedidos.css')];
-        $scripts = in_array($vista, ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login'], true) ? ['js/registro.js'] : [];
+        $esPanel = ($variables['layoutEquipo'] ?? false)
+            || $vista === 'equipo-panel'
+            || $esGestionProducto
+            || $esContenidoInicio;
+
+        $esRegistro = in_array($vista, [
+            'cliente-login',
+            'cliente-registro',
+            'cliente-verificar',
+            'registro-completado',
+            'equipo-registro',
+            'equipo-solicitud-enviada',
+            'equipo-login',
+        ], true);
+
+        $estilos = $vista === 'inicio'
+            ? []
+            : [
+                'css/componentes.css',
+                $esPanel
+                    ? 'css/panel.css'
+                    : ($esRegistro ? 'css/registro.css' : 'css/pedidos.css'),
+            ];
+
+        $scripts = in_array(
+            $vista,
+            ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login'],
+            true
+        ) ? ['js/registro.js'] : [];
 
         if ($vista === 'inicio') {
             $scripts[] = 'js/carrusel-inicio.js';
-        }
-
-        if ($vista === 'nosotros') {
-            $estilos[] = 'css/nosotros.css';
         }
 
         if ($esGestionProducto) {
             $estilos[] = 'css/gestion-productos.css';
         }
 
-        if ($esGestionStock) {
-            $estilos[] = 'css/equipo-stock.css';
+        if ($vista === 'carrito') {
+            $estilos[] = 'css/carrito.css';
         }
 
-        if (in_array($vista, ['equipo-entregas-mercaderia', 'equipo-mercaderia-form'], true)) {
-            $estilos[] = 'css/mercaderia.css';
-            if ($vista === 'equipo-mercaderia-form') $scripts[] = 'js/mercaderia.js';
+        if (in_array($vista, ['contacto', 'contacto-enviado'], true)) {
+            $estilos[] = 'css/contacto.css';
         }
 
-        if ($vista === 'equipo-pedidos') {
-            $estilos[] = 'css/equipo-pedidos.css';
-        }
-
-        if ($esPermisosEquipo) {
-            $estilos[] = 'css/equipo-permisos.css';
-        }
-
-        if ($esPersonalEquipo) {
-            $estilos[] = 'css/equipo-personal.css';
+        if ($vista === 'nosotros') {
+            $estilos[] = 'css/nosotros.css';
         }
 
         if ($esContenidoInicio) {
             $estilos[] = 'css/equipo-contenido-inicio.css';
         }
 
+        $estilos[] = 'css/tema-rustic.css';
+
         if ($vista === 'equipo-producto-form') {
             $scripts[] = 'js/productos.js';
         }
-
-        $estilos[] = 'css/tema-alas.css';
 
         extract($variables, EXTR_SKIP);
 

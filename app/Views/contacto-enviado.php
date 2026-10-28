@@ -1,1 +1,25 @@
-<main id="contenido" class="contenedor contacto-enviado"><section class="tarjeta contacto-enviado__tarjeta" aria-labelledby="contacto-enviado-titulo"><span class="etiqueta">CONSULTA ENVIADA</span><h1 id="contacto-enviado-titulo">¡Gracias por escribirnos!</h1><p>Recibimos tu mensaje. El equipo podrá responder al correo que indicaste.</p><div class="contacto-enviado__acciones"><a class="boton boton--dorado" href="<?= $url('productos') ?>">Seguir explorando</a><a class="boton boton--contorno" href="<?= $url('inicio') ?>">Volver al inicio</a></div></section></main>
+<main id="contenido" class="contenedor contacto-enviado">
+    <section
+        class="tarjeta contacto-enviado__tarjeta"
+        aria-labelledby="contacto-enviado-titulo"
+    >
+        <span class="etiqueta">CONSULTA ENVIADA</span>
+
+        <h1 id="contacto-enviado-titulo">¡Gracias por escribirnos!</h1>
+
+        <p>
+            Recibimos tu mensaje. El equipo podrá responder al correo que
+            indicaste.
+        </p>
+
+        <div class="contacto-enviado__acciones">
+            <a class="boton boton--dorado" href="<?= $url('productos') ?>">
+                Seguir explorando
+            </a>
+
+            <a class="boton boton--contorno" href="<?= $url('inicio') ?>">
+                Volver al inicio
+            </a>
+        </div>
+    </section>
+</main>

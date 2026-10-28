@@ -7,7 +7,7 @@
     <?php else: ?>
         <form method="post" action="<?= $url('equipo-contenido-inicio') ?>" class="contenido-inicio__formulario">
             <input type="hidden" name="csrf" value="<?= $csrf ?>">
-            <div class="contenido-inicio__ayuda"><p><strong>Favoritos de la casa:</strong> elegí hasta 3 productos. Se muestran en esa sección.</p><p><strong>Carrusel de portada:</strong> elegí hasta 5. Las imágenes cambian cada 4 segundos.</p></div>
+            <div class="contenido-inicio__ayuda"><p><strong>Favoritos de la casa:</strong> elegí hasta 3 productos. Se muestran en esa sección.</p><p><strong>Carrusel de portada:</strong> elegí hasta 5 imágenes. Las imágenes cambian cada 1 segundo.</p></div>
             <div class="contenido-inicio__lista">
                 <?php foreach ($productos as $producto): ?>
                     <?php $idProducto = (int) $producto['id_producto']; ?>

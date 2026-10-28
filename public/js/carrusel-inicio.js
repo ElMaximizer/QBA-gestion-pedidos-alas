@@ -31,7 +31,7 @@
     const iniciar = () => {
         detener();
         if (!movimientoReducido.matches && !document.hidden) {
-            temporizador = window.setInterval(() => mostrar(actual + 1), 4000);
+            temporizador = window.setInterval(() => mostrar(actual + 1), 1000);
         }
     };
 

@@ -4,7 +4,7 @@
             <div>
                 <span class="etiqueta">HORNEADO FRESCO CADA DÍA</span>
                 <h1 class="portada__titulo" id="titulo-inicio">El sabor de siempre,<br> hecho para compartir.</h1>
-                <p class="portada__descripcion">Panes, bizcochos y tortas elaborados con dedicación. Encuentra tu próximo favorito en Panadería Alas.</p>
+                <p class="portada__descripcion">Panes, bizcochos y tortas elaborados con dedicación. Encuentra tu próximo favorito en Panadería Rustic.</p>
                 <div class="portada__acciones">
                     <a class="boton boton--dorado" href="<?= $url('productos') ?>">Ver productos</a>
                     <a class="boton boton--contorno" role="link" aria-disabled="true">Conocer la panadería</a>
@@ -22,7 +22,7 @@
                              alt="<?= $escapar($producto['nombre']) ?>" width="664" height="398"
                              <?= $indice === 0 ? 'fetchpriority="high"' : 'loading="lazy"' ?>>
                         <span class="portada__leyenda">
-                            <span class="portada__leyenda-etiqueta">DESTACADO DE ALAS</span>
+                            <span class="portada__leyenda-etiqueta">DESTACADO DE RUSTIC</span>
                             <strong><?= $escapar($producto['nombre']) ?></strong>
                             <span><?= $dinero($producto['precio']) ?> / <?= $escapar($producto['presentacion']) ?></span>
                         </span>

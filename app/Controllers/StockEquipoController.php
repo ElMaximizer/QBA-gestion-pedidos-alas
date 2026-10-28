@@ -76,7 +76,7 @@ final class StockEquipoController
         }
         $resultado = $modelo->listar($busqueda, $estado, $pagina);
         Vista::mostrar('equipo-stock', $resultado + [
-            'tituloPagina' => 'Controlar stock | Panadería Alas', 'seccionActiva' => 'stock', 'layoutEquipo' => true,
+            'tituloPagina' => 'Controlar stock | Panadería R U S T I C', 'seccionActiva' => 'stock', 'layoutEquipo' => true,
             'busqueda' => $busqueda, 'estado' => $estado, 'aviso' => $aviso, 'error' => $error,
             'valores' => $valores, 'unidades' => StockMateriaPrima::UNIDADES,
         ]);

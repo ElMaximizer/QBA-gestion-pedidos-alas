@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Panes, bizcochos y tortas elaborados con dedicación en Panadería Alas.">
+    <meta name="description" content="Panes, bizcochos y tortas elaborados con dedicación en Panadería Rustic.">
     <title><?= $escapar($tituloPagina) ?></title>
     <link rel="stylesheet" href="<?= $escapar($recurso('css/inicio.css')) ?>">
     <?php foreach ($estilos as $estilo): ?>
@@ -19,7 +19,7 @@
     <header class="encabezado">
         <div class="contenedor encabezado__contenido">
             <a class="marca" href="<?= $url('inicio') ?>">
-                <strong class="marca__nombre">PANADERÍA ALAS</strong>
+                <strong class="marca__nombre">PANADERÍA RUSTIC</strong>
                 <span class="marca__descripcion">PANADERÍA ARTESANAL</span>
             </a>
             <nav class="navegacion" aria-label="Navegación principal">

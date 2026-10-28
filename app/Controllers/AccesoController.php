@@ -45,7 +45,7 @@ final class AccesoController
                 $error = 'No pudimos iniciar sesión en este momento. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('cliente-login', ['tituloPagina' => 'Acceso para clientes | Panadería Alas',
+        Vista::mostrar('cliente-login', ['tituloPagina' => 'Acceso para clientes | Panadería R U S T I C',
             'email' => $email, 'error' => $error, 'continuarPedido' => $continuarPedido]);
     }
 
@@ -56,7 +56,7 @@ final class AccesoController
         if (!is_string($mensaje)) {
             Http::redirigir('inicio');
         }
-        Vista::mostrar('sesion-cerrada', ['tituloPagina' => 'Sesión cerrada | Panadería Alas', 'mensaje' => $mensaje]);
+        Vista::mostrar('sesion-cerrada', ['tituloPagina' => 'Sesión cerrada | Panadería R U S T I C', 'mensaje' => $mensaje]);
     }
 
     public function salir(): void

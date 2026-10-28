@@ -10,5 +10,5 @@ return [
     'username' => '', // Dirección completa de la cuenta de Gmail que envía.
     'password' => '', // Contraseña de aplicación de Google, sin espacios.
     'from_email' => '', // Vacío: utiliza la misma dirección que username.
-    'from_name' => 'Panadería Alas',
+    'from_name' => 'Panadería R U S T I C',
 ];

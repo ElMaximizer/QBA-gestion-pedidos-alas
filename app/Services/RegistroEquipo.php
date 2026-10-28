@@ -22,9 +22,9 @@ final class RegistroEquipo
     {
         $usuario = $this->usuarios->solicitar($nombre, $cedula, $email, $password, $confirmacion);
         try {
-            $this->correo->enviar($usuario['email'], $usuario['nombre'], 'Solicitud de acceso recibida · Panadería Alas',
+            $this->correo->enviar($usuario['email'], $usuario['nombre'], 'Solicitud de acceso recibida · Panadería R U S T I C',
                 "Hola {$usuario['nombre']},\n\nRecibimos tu solicitud de acceso al equipo. "
-                . 'El dueño de Panadería Alas debe aprobarla antes de que puedas iniciar sesión.');
+                . 'El dueño de Panadería Rustic debe aprobarla antes de que puedas iniciar sesión.');
             $usuario['correo_enviado'] = true;
         } catch (Throwable $error) {
             // La solicitud persiste aunque falle el aviso; no se registran datos personales ni credenciales.

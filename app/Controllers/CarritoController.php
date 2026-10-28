@@ -36,7 +36,7 @@ final class CarritoController
         if (!$puedeContinuar && $error === '') {
             $error = 'Hay productos que ya no están disponibles. Quitalos del carrito para continuar.';
         }
-        $datos = ['tituloPagina' => 'Tu carrito | Panadería Alas', 'error' => $error,
+        $datos = ['tituloPagina' => 'Tu carrito | Panadería R U S T I C', 'error' => $error,
             'articulos' => $articulos, 'total' => array_sum(array_column($articulos, 'subtotal')), 'puedeContinuar' => $puedeContinuar];
         if ($esPeticionJson) {
             header('Content-Type: application/json; charset=UTF-8');

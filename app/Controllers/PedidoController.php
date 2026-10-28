@@ -72,7 +72,7 @@ final class PedidoController
                 $error = 'Hay productos que ya no están disponibles. Revisá el carrito antes de continuar.';
             }
         }
-        Vista::mostrar('realizar-pedido', ['tituloPagina' => 'Realizar pedido | Panadería Alas', 'datos' => $datos,
+        Vista::mostrar('realizar-pedido', ['tituloPagina' => 'Realizar pedido | Panadería R U S T I C', 'datos' => $datos,
             'articulos' => $articulos, 'total' => array_sum(array_column($articulos, 'subtotal')),
             'error' => $error, 'token' => $token, 'puedeConfirmar' => $puedeConfirmar]);
     }
@@ -84,6 +84,6 @@ final class PedidoController
         if (!$idPedido) {
             Http::redirigir('productos');
         }
-        Vista::mostrar('pedido-confirmado', ['tituloPagina' => 'Pedido registrado | Panadería Alas', 'idPedido' => $idPedido]);
+        Vista::mostrar('pedido-confirmado', ['tituloPagina' => 'Pedido registrado | Panadería R U S T I C', 'idPedido' => $idPedido]);
     }
 }

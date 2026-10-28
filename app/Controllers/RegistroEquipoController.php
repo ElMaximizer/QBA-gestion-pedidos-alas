@@ -38,7 +38,7 @@ final class RegistroEquipoController
                 $error = 'No pudimos guardar tu solicitud en este momento. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('equipo-registro', ['tituloPagina' => 'Solicitar usuario | Panadería Alas',
+        Vista::mostrar('equipo-registro', ['tituloPagina' => 'Solicitar usuario | Panadería R U S T I C',
             'datos' => $datos, 'error' => $error]);
     }
 
@@ -50,7 +50,7 @@ final class RegistroEquipoController
             unset($_SESSION['qba']['solicitud_equipo']);
             Http::redirigir('equipo-registro');
         }
-        Vista::mostrar('equipo-solicitud-enviada', ['tituloPagina' => 'Solicitud recibida | Panadería Alas',
+        Vista::mostrar('equipo-solicitud-enviada', ['tituloPagina' => 'Solicitud recibida | Panadería Rustic',
             'correoEnviado' => $solicitud['correo_enviado']]);
     }
 }

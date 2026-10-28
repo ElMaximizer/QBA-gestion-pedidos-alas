@@ -30,7 +30,7 @@ final class GestionProductoController
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             unset($_SESSION['qba']['aviso_productos']);
         }
-        Vista::mostrar('equipo-productos', $resultado + ['tituloPagina' => 'Gestión de productos | Panadería Alas',
+        Vista::mostrar('equipo-productos', $resultado + ['tituloPagina' => 'Gestión de productos | Panadería R U S T I C',
             'seccionActiva' => 'productos', 'busqueda' => $busqueda, 'estado' => $estado, 'aviso' => $aviso]);
     }
 
@@ -84,7 +84,7 @@ final class GestionProductoController
                 $error = 'No pudimos guardar el producto en este momento. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('equipo-producto-form', ['tituloPagina' => ($esEdicion ? 'Editar' : 'Agregar') . ' producto | Panadería Alas',
+        Vista::mostrar('equipo-producto-form', ['tituloPagina' => ($esEdicion ? 'Editar' : 'Agregar') . ' producto | Panadería R U S T I C',
             'seccionActiva' => 'productos', 'valores' => $valores, 'id' => $id, 'version' => $version,
             'error' => $error, 'esEdicion' => $esEdicion, 'imagen' => Producto::imagen($valores), 'categorias' => Producto::CATEGORIAS]);
     }
@@ -112,7 +112,7 @@ final class GestionProductoController
                 $error = 'No pudimos eliminar el producto en este momento. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('equipo-producto-eliminar', ['tituloPagina' => 'Eliminar producto | Panadería Alas',
+        Vista::mostrar('equipo-producto-eliminar', ['tituloPagina' => 'Eliminar producto | Panadería R U S T I C',
             'seccionActiva' => 'productos', 'producto' => $producto, 'version' => $version, 'error' => $error]);
     }
 

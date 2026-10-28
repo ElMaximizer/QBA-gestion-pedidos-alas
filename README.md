@@ -1,4 +1,4 @@
-# QBA — Gestión de pedidos de Panadería Alas
+# QBA — Gestión de pedidos de Panadería Rustic
 
 Proyecto PHP con MVC y CSS según BEM. Conserva el diseño público del
 [repositorio anterior](https://github.com/ElMaximizer/software-pedidos-alas/tree/6e4a0b26bc2ba412db66dd1541acb209d3e4f6ae).

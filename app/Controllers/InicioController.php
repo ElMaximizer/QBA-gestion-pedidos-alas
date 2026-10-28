@@ -20,7 +20,7 @@ final class InicioController
         $productosDestacados = $catalogo->listar(destacados: true);
         $productosCarrusel = $catalogo->listarPortada();
 
-        Vista::mostrar('inicio', ['tituloPagina' => 'Inicio | Panadería Alas', 'seccionActiva' => 'inicio',
+        Vista::mostrar('inicio', ['tituloPagina' => 'Inicio | Panadería R U S T I C', 'seccionActiva' => 'inicio',
             'categorias' => $categorias, 'productosDestacados' => $productosDestacados,
             'productosCarrusel' => $productosCarrusel]);
     }

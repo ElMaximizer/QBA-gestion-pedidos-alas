@@ -69,7 +69,7 @@ final class PedidosEquipoController
 
         $resultado = (new ConsultaPedidos(Conexion::obtener()))->listar($busqueda, $estado, $fecha, $pagina);
         Vista::mostrar('equipo-pedidos', $resultado + [
-            'tituloPagina' => 'Consultar pedidos | Panadería Alas',
+            'tituloPagina' => 'Consultar pedidos | Panadería R U S T I C',
             'seccionActiva' => 'pedidos',
             'layoutEquipo' => true,
             'busqueda' => $busqueda,

@@ -77,7 +77,7 @@ final class PermisosEquipoController
         }
 
         Vista::mostrar('equipo-permisos', [
-            'tituloPagina' => 'Roles y permisos | Panadería Alas',
+            'tituloPagina' => 'Roles y permisos | Panadería R U S T I C',
             'seccionActiva' => 'permisos',
             'busqueda' => $busqueda,
             'rol' => $rol,

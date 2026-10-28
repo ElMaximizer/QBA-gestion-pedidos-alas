@@ -10,7 +10,7 @@ final class NosotrosController
     public function index(): void
     {
         Vista::mostrar('nosotros', [
-            'tituloPagina' => 'Nosotros | Panadería Alas',
+            'tituloPagina' => 'Nosotros | Panadería R U S T I C',
             'seccionActiva' => 'nosotros',
         ]);
     }

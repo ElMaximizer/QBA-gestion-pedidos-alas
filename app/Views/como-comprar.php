@@ -1,7 +1,7 @@
 <main id="contenido" class="contenedor informacion">
     <header class="informacion__encabezado">
-        <span class="etiqueta">TUS PEDIDOS EN ALAS</span>
-        <h1 class="informacion__titulo">Comprar en Alas</h1>
+        <span class="etiqueta">TUS PEDIDOS EN RUSTIC</span>
+        <h1 class="informacion__titulo">Comprar en Rustic</h1>
         <p>Elegí tus productos y enviá tu pedido desde la web.</p>
     </header>
     <section class="informacion__tarjeta informacion__guia" id="como-comprar" aria-labelledby="titulo-como-comprar">

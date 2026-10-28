@@ -45,7 +45,7 @@ final class ContenidoInicioController
             $aviso = (string) ($_SESSION['qba']['aviso_contenido_inicio'] ?? '');
             unset($_SESSION['qba']['aviso_contenido_inicio']);
         }
-        Vista::mostrar('equipo-contenido-inicio', ['tituloPagina' => 'Contenido del inicio | Panadería Alas', 'seccionActiva' => 'resumen', 'productos' => $productos, 'seleccionFavoritos' => $seleccionFavoritos, 'seleccionPortada' => $seleccionPortada, 'error' => $error, 'aviso' => $aviso]);
+        Vista::mostrar('equipo-contenido-inicio', ['tituloPagina' => 'Contenido del inicio | Panadería R U S T I C', 'seccionActiva' => 'resumen', 'productos' => $productos, 'seleccionFavoritos' => $seleccionFavoritos, 'seleccionPortada' => $seleccionPortada, 'error' => $error, 'aviso' => $aviso]);
     }
     private function ids(mixed $entrada): array
     {
