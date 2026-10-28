@@ -64,7 +64,7 @@ final class EntornoPruebas
             $this->db->exec("CREATE DATABASE `{$this->base}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
             $this->baseCreada = true;
             $this->db->exec("USE `{$this->base}`");
-            foreach (['estructura.sql', 'contenido-inicio.sql', 'clientes.sql', 'acceso-clientes.sql', 'equipo.sql', 'pedidos-equipo.sql', 'pedido-cambios.sql', 'acceso-equipo.sql', 'entregas-mercaderia.sql', 'productos_demo.sql'] as $archivo) {
+            foreach (['estructura.sql', 'clientes.sql', 'acceso-clientes.sql', 'equipo.sql', 'acceso-equipo.sql', 'entregas-mercaderia.sql', 'productos_demo.sql'] as $archivo) {
                 $this->db->exec(file_get_contents(dirname(__DIR__) . '/database/' . $archivo));
             }
         } catch (Throwable $error) {

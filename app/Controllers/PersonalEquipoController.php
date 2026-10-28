@@ -44,7 +44,7 @@ final class PersonalEquipoController
         }
 
         Vista::mostrar('equipo-personal', [
-            'tituloPagina' => 'Personal del equipo | Panadería Rustic',
+            'tituloPagina' => 'Personal del equipo | Panadería Alas',
             'seccionActiva' => 'personal',
             'busqueda' => $busqueda,
             'rol' => $rol,

@@ -1,7 +1,7 @@
 <header class="encabezado encabezado-equipo">
     <div class="contenedor encabezado__contenido">
         <a class="marca" href="<?= $url('equipo-panel') ?>">
-            <strong class="marca__nombre">PANADERÍA RUSTIC</strong>
+            <strong class="marca__nombre">PANADERÍA ALAS</strong>
             <span class="marca__descripcion">GESTIÓN DE PRODUCTOS Y PEDIDOS</span>
         </a>
         <form class="encabezado-equipo__salida" method="post" action="<?= $url('equipo-cerrar-sesion') ?>">
@@ -16,7 +16,6 @@
         <a class="boton <?= $seccionActiva === 'resumen' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace" href="<?= $url('equipo-panel') ?>" <?= $seccionActiva === 'resumen' ? 'aria-current="page"' : '' ?>>Panel administrativo</a>
         <?php if ($administraProductos): ?>
         <a class="boton <?= $seccionActiva === 'productos' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace" href="<?= $url('equipo-productos') ?>" <?= $seccionActiva === 'productos' ? 'aria-current="page"' : '' ?>>Productos</a>
-        <a class="boton <?= $seccionActiva === 'contenido' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace" href="<?= $url('equipo-contenido-inicio') ?>" <?= $seccionActiva === 'contenido' ? 'aria-current="page"' : '' ?>>Contenido del inicio</a>
         <?php else: ?>
         <a class="boton boton--contorno navegacion-equipo__enlace" role="link" aria-disabled="true" title="Próximamente">Productos</a>
         <?php endif; ?>

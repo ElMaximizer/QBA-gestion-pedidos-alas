@@ -17,16 +17,8 @@ final class PedidoController
 {
     public function crear(): void
     {
-        header('Cache-Control: no-store');
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !Carrito::cantidades()) {
-            Http::redirigir('carrito');
-        }
         $cliente = Sesion::cliente();
-        if ($cliente === null) {
-            $_SESSION['qba']['continuar_pedido'] = true;
-            Http::redirigir('cliente-login');
-        }
-        $datos = ['cliente_nombre' => $cliente['nombre'], 'telefono' => '', 'fecha_retiro' => date('Y-m-d', strtotime('+1 day')),
+        $datos = ['cliente_nombre' => $cliente['nombre'] ?? '', 'telefono' => '', 'fecha_retiro' => date('Y-m-d', strtotime('+1 day')),
             'hora_retiro' => '10:00', 'notas' => ''];
         $error = '';
         $token = '';
@@ -50,7 +42,7 @@ final class PedidoController
                     $datos[$campo] = Http::texto($_POST, $campo);
                 }
                 $id = (new Pedido(Conexion::obtener()))->crear($datos, Carrito::cantidades(), $formulario['firma'], $token,
-                    (int) $cliente['id_cliente']);
+                    $cliente ? (int) $cliente['id_cliente'] : null);
                 Sesion::confirmar($token, $id);
                 Carrito::vaciar();
                 Http::redirigir('pedido-confirmado');
@@ -65,6 +57,9 @@ final class PedidoController
         }
         // Conservamos el carrito para que un producto retirado se pueda quitar desde su pantalla.
         $articulos = $carrito->articulos(false);
+        if (!$articulos && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            Http::redirigir('carrito');
+        }
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             $puedeConfirmar = !in_array(false, array_column($articulos, 'disponible'), true);
             $token = Sesion::nuevoFormulario(Carrito::firma($articulos));
@@ -72,18 +67,17 @@ final class PedidoController
                 $error = 'Hay productos que ya no están disponibles. Revisá el carrito antes de continuar.';
             }
         }
-        Vista::mostrar('realizar-pedido', ['tituloPagina' => 'Realizar pedido | Panadería Rustic', 'datos' => $datos,
+        Vista::mostrar('realizar-pedido', ['tituloPagina' => 'Realizar pedido | Panadería Alas', 'datos' => $datos,
             'articulos' => $articulos, 'total' => array_sum(array_column($articulos, 'subtotal')),
             'error' => $error, 'token' => $token, 'puedeConfirmar' => $puedeConfirmar]);
     }
 
     public function confirmado(): void
     {
-        header('Cache-Control: no-store');
         $idPedido = $_SESSION['qba']['pedido_confirmado'] ?? null;
         if (!$idPedido) {
             Http::redirigir('productos');
         }
-        Vista::mostrar('pedido-confirmado', ['tituloPagina' => 'Pedido registrado | Panadería Rustic', 'idPedido' => $idPedido]);
+        Vista::mostrar('pedido-confirmado', ['tituloPagina' => 'Pedido registrado | Panadería Alas', 'idPedido' => $idPedido]);
     }
 }

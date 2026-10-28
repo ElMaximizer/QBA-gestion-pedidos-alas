@@ -8,7 +8,6 @@ use App\Core\Conexion;
 use App\Core\Sesion;
 use App\Core\Vista;
 use App\Models\ConsultaPedidos;
-use App\Models\Pedido;
 use DomainException;
 use Throwable;
 
@@ -69,16 +68,13 @@ final class PedidosEquipoController
 
         $resultado = (new ConsultaPedidos(Conexion::obtener()))->listar($busqueda, $estado, $fecha, $pagina);
         Vista::mostrar('equipo-pedidos', $resultado + [
-            'tituloPagina' => 'Consultar pedidos | Panadería Rustic',
+            'tituloPagina' => 'Consultar pedidos | Panadería Alas',
             'seccionActiva' => 'pedidos',
             'layoutEquipo' => true,
             'busqueda' => $busqueda,
             'estado' => $estado,
             'fecha' => $fecha,
             'puedeRegistrarSena' => $puedeRegistrarSena,
-            'puedeRegistrarPedido' => in_array($usuario['rol'], ['administrador', 'dueno'], true),
-            'puedeModificarPedido' => $usuario['rol'] === 'dueno',
-            'estados' => Pedido::ESTADOS,
             'aviso' => $aviso,
             'error' => $error,
         ]);

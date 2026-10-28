@@ -17,7 +17,7 @@ final class ProductoController
         if (mb_strlen($busqueda) > 120 || ($categoria !== '' && !in_array($categoria, Producto::CATEGORIAS, true))) {
             throw new DomainException('Revisá la búsqueda y la categoría seleccionada.');
         }
-        Vista::mostrar('productos', ['tituloPagina' => 'Productos | Panadería Rustic', 'seccionActiva' => 'productos',
+        Vista::mostrar('productos', ['tituloPagina' => 'Productos | Panadería Alas', 'seccionActiva' => 'productos',
             'busqueda' => $busqueda, 'categoria' => $categoria, 'categorias' => Producto::CATEGORIAS,
             'productos' => Producto::catalogo()->listar($busqueda, $categoria)]);
     }
@@ -29,7 +29,7 @@ final class ProductoController
         if (!$producto) {
             http_response_code(404);
         }
-        Vista::mostrar('producto', ['tituloPagina' => ($producto['nombre'] ?? 'Producto no disponible') . ' | Panadería Rustic',
+        Vista::mostrar('producto', ['tituloPagina' => ($producto['nombre'] ?? 'Producto no disponible') . ' | Panadería Alas',
             'seccionActiva' => 'productos', 'producto' => $producto]);
     }
 }

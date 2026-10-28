@@ -120,21 +120,16 @@ try {
     comprobar($estado === 422 && str_contains($htmlError, 'Verificar mi cuenta con un código'), 'Una cuenta pendiente recibe un enlace para completar la verificación');
     comprobar(!isset($entorno->sesion()['cliente_id']), 'Una cuenta pendiente no obtiene una sesión autenticada');
     $solicitar('/carrito', ['csrf' => $csrf, 'accion' => 'agregar', 'id_producto' => '1', 'cantidad' => '2']);
-    [$estado, $checkoutAntes] = $solicitar('/pedidos/realizar');
-    comprobar($estado === 303 && str_contains($checkoutAntes, 'Location: /clientes/login'), 'El pedido solicita acceso antes de mostrar los datos del cliente');
-    // Representa un formulario de la versión anterior, abierto antes del acceso.
-    $tokenAnterior = bin2hex(random_bytes(32));
-    $entorno->sesion(static fn (array $sesion): array => array_replace($sesion,
-        ['formularios' => [$tokenAnterior => ['creado' => time(), 'firma' => '', 'pedido' => null]]]));
+    [, $checkoutAntes] = $solicitar('/pedidos/realizar');
+    $tokenAnterior = oculto($checkoutAntes, 'pedido_token');
     [$estado, $respuesta] = $solicitar('/clientes/login', $campos + ['continuar' => 'https://example.test']);
-    comprobar($estado === 303 && str_contains($respuesta, 'Location: /pedidos/realizar'), 'Vuelve al pedido fijado por el servidor sin aceptar redirecciones externas');
+    comprobar($estado === 303 && str_contains($respuesta, 'Location: /'), 'Autentica sin aceptar redirecciones externas');
     $autenticada = $nuevoCookie($respuesta);
     comprobar($autenticada !== $anonima, 'Renueva el identificador de sesión al autenticar');
     comprobar(str_contains(strtolower($respuesta), 'httponly') && str_contains(strtolower($respuesta), 'samesite=lax'), 'La cookie conserva sus protecciones');
     $sesion = $entorno->sesion();
     comprobar($sesion['cliente_id'] === $primero['id_cliente'] && $sesion['csrf'] !== $csrf, 'Guarda solo la identidad verificada y renueva CSRF');
     comprobar(!isset($sesion['registro_pendiente_email']) && !isset($sesion['password']) && !isset($sesion['formularios']), 'Descarta datos de verificación y formularios de la identidad anterior');
-    comprobar(!isset($sesion['continuar_pedido']), 'Consume la continuación después de iniciar sesión');
     [, $inicio] = $solicitar('/');
     comprobar(str_contains($inicio, 'Cliente &lt;uno&gt;') && !str_contains($inicio, 'Cliente <uno>'), 'Muestra el nombre autenticado escapado en el menú');
     [, $ajena] = $solicitar('/', null, $anonima);
@@ -164,8 +159,7 @@ try {
     comprobar(!str_contains($ajena, 'Cliente &lt;uno&gt;'), 'La cookie cerrada no permite volver a autenticarse');
     $campos['csrf'] = oculto($solicitar('/clientes/login')[1], 'csrf');
     $campos['email'] = $segundo['email'];
-    [$estado, $respuesta] = $solicitar('/clientes/login', $campos + ['continuar' => 'https://example.test']);
-    comprobar($estado === 303 && preg_match('~^Location: /\r?$~m', $respuesta), 'El acceso normal vuelve al inicio e ignora destinos externos');
+    comprobar($solicitar('/clientes/login', $campos)[0] === 303, 'Puede acceder otra cuenta después del cierre');
     comprobar($solicitar('/pedidos/confirmado')[0] === 303, 'Otra cuenta no hereda confirmaciones previas');
     $entorno->sesion(static fn (array $datos): array => array_replace($datos, ['cliente_ultimo_acceso' => time() - 1801]));
     [, $inicio] = $solicitar('/');

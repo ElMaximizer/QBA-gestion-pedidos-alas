@@ -40,7 +40,7 @@ final class RegistroController
                 $error = 'No pudimos crear la cuenta en este momento. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('cliente-registro', ['tituloPagina' => 'Crear cuenta de cliente | Panadería Rustic',
+        Vista::mostrar('cliente-registro', ['tituloPagina' => 'Crear cuenta de cliente | Panadería Alas',
             'nombre' => $nombre, 'email' => $email, 'error' => $error]);
     }
 
@@ -83,7 +83,7 @@ final class RegistroController
                 $error = 'No pudimos procesar la verificación. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('cliente-verificar', ['tituloPagina' => 'Verificar cuenta de cliente | Panadería Rustic',
+        Vista::mostrar('cliente-verificar', ['tituloPagina' => 'Verificar cuenta de cliente | Panadería Alas',
             'email' => $email, 'error' => $error, 'mensaje' => $mensaje]);
     }
 
@@ -93,6 +93,6 @@ final class RegistroController
         if (!$email) {
             Http::redirigir('registro');
         }
-        Vista::mostrar('registro-completado', ['tituloPagina' => 'Cuenta creada | Panadería Rustic', 'email' => $email]);
+        Vista::mostrar('registro-completado', ['tituloPagina' => 'Cuenta creada | Panadería Alas', 'email' => $email]);
     }
 }

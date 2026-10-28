@@ -106,9 +106,8 @@ try {
         comprobar(!isset($entorno->sesion()['equipo_id']), 'No concede sesión a una solicitud no aprobada');
     }
     $solicitar('/carrito', ['csrf' => $csrf, 'accion' => 'agregar', 'id_producto' => '1', 'cantidad' => '2']);
-    [$estado, $checkout] = $solicitar('/pedidos/realizar');
-    comprobar($estado === 303 && str_contains($checkout, 'Location: /clientes/login')
-        && !isset($entorno->sesion()['formularios']), 'Un visitante debe ingresar como cliente antes de abrir el pedido');
+    [, $checkout] = $solicitar('/pedidos/realizar');
+    comprobar(isset($entorno->sesion()['formularios']), 'Existe un formulario de pedido anterior al acceso');
     [$estado, $respuesta] = $solicitar('/equipo/login', $campos + ['rol' => 'dueno', 'estado' => 'aprobado', 'id_usuario' => '999', 'continuar' => 'https://example.test']);
     comprobar($estado === 303 && str_contains($respuesta, 'Location: /equipo/panel'), 'El acceso correcto redirige solo al panel local');
     $autenticada = $entorno->idSesion();
@@ -116,8 +115,6 @@ try {
     comprobar(str_contains(strtolower($respuesta), 'httponly') && str_contains(strtolower($respuesta), 'samesite=lax'), 'La cookie mantiene sus protecciones');
     $sesion = $entorno->sesion();
     comprobar($sesion['equipo_id'] === $empleado['id_usuario'] && $sesion['csrf'] !== $csrf, 'La identidad viene del servidor y el CSRF se renueva');
-    comprobar($solicitar('/pedidos/realizar')[0] === 303
-        && !isset($entorno->sesion()['formularios']), 'La sesión del equipo no habilita el formulario de pedidos del cliente');
     comprobar(!isset($sesion['rol']) && !isset($sesion['password']) && !isset($sesion['formularios']) && !isset($sesion['cliente_id']), 'No conserva privilegios, contraseñas ni formularios anteriores en sesión');
     [$estado, $panel] = $solicitar('/equipo/panel');
     comprobar($estado === 200 && str_contains($panel, 'Equipo &lt;uno&gt;') && !str_contains($panel, 'Equipo <uno>'), 'La pantalla protegida escapa el nombre del usuario');

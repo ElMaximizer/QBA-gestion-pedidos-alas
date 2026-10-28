@@ -16,8 +16,8 @@ final class CorreoVerificacion
 
     public function enviar(string $email, string $nombre, string $codigo): void
     {
-        $cuerpo = "Hola {$nombre},\n\nTu código para verificar la cuenta de Panadería Rustic es: {$codigo}\n\n"
+        $cuerpo = "Hola {$nombre},\n\nTu código para verificar la cuenta de Panadería Alas es: {$codigo}\n\n"
             . 'El código vence en 10 minutos. Si no solicitaste esta cuenta, podés ignorar este mensaje.';
-        $this->correo->enviar($email, $nombre, 'Código para verificar tu cuenta · Panadería Rustic', $cuerpo);
+        $this->correo->enviar($email, $nombre, 'Código para verificar tu cuenta · Panadería Alas', $cuerpo);
     }
 }
