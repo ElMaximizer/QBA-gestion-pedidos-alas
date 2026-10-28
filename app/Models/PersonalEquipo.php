@@ -31,7 +31,7 @@ final class PersonalEquipo
     public function listar(string $busqueda = '', string $rol = ''): array
     {
         if (!mb_check_encoding($busqueda, 'UTF-8') || mb_strlen($busqueda) > 120
-            || !in_array($rol, ['', 'empleado', 'administrador'], true)) {
+            || !in_array($rol, ['', ...array_keys(self::ROLES)], true)) {
             throw new DomainException('Revisá la búsqueda y el rol seleccionados.');
         }
 
@@ -48,11 +48,11 @@ final class PersonalEquipo
             $parametros[] = $rol;
         }
 
-        $consulta = $this->db->prepare('SELECT nombre, email, rol FROM usuarios_equipo WHERE '
+        $consulta = $this->db->prepare('SELECT id_usuario, nombre, email, rol FROM usuarios_equipo WHERE '
             . $condiciones . " ORDER BY CASE rol WHEN 'administrador' THEN 0 ELSE 1 END, nombre, id_usuario");
         $consulta->execute($parametros);
 
-        $personas = $consulta->fetchAll();
+        $personas = $consulta->fetchAll(PDO::FETCH_ASSOC);
         foreach ($personas as &$persona) {
             $persona['nombre_rol'] = self::ROLES[$persona['rol']];
             $persona['funciones'] = self::FUNCIONES[$persona['rol']];

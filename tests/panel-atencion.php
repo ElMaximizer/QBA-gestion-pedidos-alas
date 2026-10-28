@@ -7,6 +7,7 @@ require __DIR__ . '/soporte.php';
 
 use App\Models\AccesoEquipo;
 use App\Models\ConsultaContacto;
+use App\Models\PersonalEquipo;
 use App\Models\PermisosEquipo;
 use App\Models\SolicitudesEquipo;
 
@@ -150,6 +151,45 @@ try {
     $identificar($usuarios['dueno']);
     [, $panel] = $solicitar('/equipo/panel');
     comprobar(str_contains($panel, 'Consultas recibidas (9 nuevas)') && str_contains($panel, 'Solicitudes de acceso (11)'), 'Los dos contadores se actualizan al volver al panel');
+
+    $personal = new PersonalEquipo($db);
+    comprobar($personal->listar('Equipo', 'empleado') === (new PermisosEquipo($db))->listar('Equipo', 'empleado'),
+        'La consulta del personal y la gestión de roles comparten los mismos filtros y datos');
+    comprobar(count($personal->listar()) === 3 && !isset($personal->listar()[0]['password_hash']),
+        'El listado compartido excluye dueño, pendientes y rechazados, y no recupera contraseñas');
+    $identificar($usuarios['administrador']);
+    [$estado, $soloConsulta] = $solicitar('/equipo/personal');
+    comprobar($estado === 200 && str_contains($soloConsulta, 'Funciones del rol')
+        && str_contains($soloConsulta, '&lt;script&gt;Solicitante&lt;/script&gt;')
+        && !str_contains($soloConsulta, 'name="id_usuario"') && !str_contains($soloConsulta, '/equipo/solicitudes'),
+        'La vista compartida mantiene la consulta del administrador sin formularios de edición ni accesos del dueño');
+    comprobar($solicitar('/css/equipo-personal.css')[0] === 200 && str_contains($soloConsulta, 'css/equipo-personal.css'),
+        'La consulta utiliza la hoja de estilos compartida');
+    comprobar($solicitar('/equipo/permisos')[0] === 403 && $solicitar('/equipo/permisos', ['rol' => 'dueno'])[0] === 403
+        && $solicitar('/equipo/personal', ['rol' => 'dueno'])[0] === 405,
+        'Compartir la vista no permite al administrador cambiar roles por ninguna ruta');
+    $identificar($usuarios['empleado']);
+    comprobar($solicitar('/equipo/personal')[0] === 403 && $solicitar('/equipo/permisos')[0] === 403,
+        'El empleado sigue sin acceso al listado ni a la edición de personal');
+    $identificar($usuarios['dueno']);
+    [$estado, $redireccion] = $solicitar('/equipo/personal?q=Equipo%20%26%20pan&rol=empleado');
+    comprobar($estado === 303 && str_contains($redireccion, 'Location: /equipo/permisos?q=Equipo%20%26%20pan&rol=empleado'),
+        'Los enlaces antiguos del dueño llegan a una sola pantalla conservando los filtros');
+    [$estado, $gestion] = $solicitar('/equipo/permisos');
+    comprobar($estado === 200 && str_contains($gestion, '<h1 class="titulo-pagina__titulo">Administrar personal</h1>')
+        && str_contains($gestion, 'name="id_usuario"') && str_contains($gestion, 'css/equipo-personal.css')
+        && str_contains($gestion, '&lt;script&gt;Solicitante&lt;/script&gt;'), 'El dueño conserva la edición en la pantalla unificada');
+    $cambioRol = ['csrf' => oculto($gestion, 'csrf'), 'id_usuario' => $usuarios['empleado'], 'rol' => 'administrador'];
+    comprobar($solicitar('/equipo/permisos', array_replace($cambioRol, ['csrf' => 'incorrecto']))[0] === 422
+        && (new AccesoEquipo($db))->buscarAprobado($usuarios['empleado'])['rol'] === 'empleado', 'Cambiar roles sigue exigiendo CSRF');
+    comprobar($solicitar('/equipo/permisos', $cambioRol)[0] === 303
+        && (new AccesoEquipo($db))->buscarAprobado($usuarios['empleado'])['rol'] === 'administrador',
+        'El formulario compartido conserva la actualización de roles del dueño');
+    comprobar($solicitar('/equipo/permisos', array_replace($cambioRol, ['id_usuario' => $usuarios['dueno']]))[0] === 422,
+        'El dueño no puede cambiar su propia cuenta desde el formulario');
+    comprobar($solicitar('/equipo/permisos?rol=invalido')[0] === 422 && $solicitar('/equipo/permisos?q%5B%5D=x')[0] === 422,
+        'El listado compartido mantiene la validación de filtros');
+
     $db->exec("UPDATE usuarios_equipo SET estado = 'pendiente' WHERE id_usuario = " . $usuarios['dueno']);
     rechaza(fn () => $solicitudes->resolver($pendientes[1], $usuarios['dueno'], 'aprobar'), 'El modelo impide guardar si revocaron al dueño');
     comprobar($solicitar('/equipo/solicitudes')[0] === 303, 'La autorización se vuelve a comprobar en cada petición');

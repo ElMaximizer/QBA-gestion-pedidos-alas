@@ -122,14 +122,14 @@ try {
     [$estado, $panel] = $solicitar('/equipo/panel');
     comprobar($estado === 200 && str_contains($panel, 'Equipo &lt;uno&gt;') && !str_contains($panel, 'Equipo <uno>'), 'La pantalla protegida escapa el nombre del usuario');
     comprobar(str_contains($panel, 'Tu rol: Empleado.') && str_contains($panel, 'Cache-Control: no-store'), 'El rol real se consulta en la base y el panel no se guarda en caché');
-    comprobar(!str_contains($panel, 'Gestionar personal') && !str_contains($panel, 'Solicitar alta de personal')
+    comprobar(!str_contains($panel, 'Administrar personal') && !str_contains($panel, 'Solicitar alta de personal')
         && !str_contains($panel, 'Bandeja de correo local'), 'El panel de empleado no muestra los accesos exclusivos de otros roles');
     $documento = new DOMDocument();
     @$documento->loadHTML('<?xml encoding="UTF-8">' . $panel);
     $xpath = new DOMXPath($documento);
-    comprobar($xpath->query('//a[@aria-disabled="true"][@href]')->length === 0
+    comprobar($xpath->query('//a[@aria-disabled="true"]')->length === 0
         && $xpath->query('//form[not(contains(@action,"/equipo/salir"))]')->length === 0,
-        'Los módulos futuros no tienen destinos ni formularios que ejecuten operaciones');
+        'El panel muestra solo accesos disponibles y no agrega formularios de operación');
     comprobar($solicitar('/equipo/login')[0] === 303, 'Una sesión del equipo ya iniciada vuelve al panel');
     comprobar($solicitar('/equipo/panel', null, $anonima)[0] === 303, 'La cookie anterior no obtiene acceso al panel');
     comprobar($solicitar('/equipo/salir', ['csrf' => $csrf])[0] === 422, 'El CSRF anterior no puede cerrar la sesión nueva');
@@ -139,14 +139,15 @@ try {
     $db->exec("UPDATE usuarios_equipo SET rol = 'administrador' WHERE id_usuario = " . $empleado['id_usuario']);
     [, $panelAdmin] = $solicitar('/equipo/panel');
     comprobar(str_contains($panelAdmin, 'Tu rol: Administrador.'), 'Revalida un cambio de rol en la siguiente petición');
-    comprobar(str_contains($panelAdmin, 'Solicitar alta de personal') && str_contains($panelAdmin, 'Bandeja de correo local')
-        && !str_contains($panelAdmin, 'Gestionar personal'), 'El panel de administrador conserva sus opciones del diseño anterior');
+    comprobar(str_contains($panelAdmin, '+ Agregar producto') && str_contains($panelAdmin, '+ Registrar mercadería')
+        && !str_contains($panelAdmin, 'Administrar personal') && !str_contains($panelAdmin, 'aria-disabled="true"'),
+        'El panel de administrador conserva sus acciones disponibles sin accesos del dueño ni módulos futuros');
     $db->exec("UPDATE usuarios_equipo SET rol = 'dueno' WHERE id_usuario = " . $empleado['id_usuario']);
     [, $panelDueno] = $solicitar('/equipo/panel');
     comprobar(str_contains($panelDueno, 'Tu rol: Dueño.'), 'Reconoce el rol de dueño guardado en la base');
-    comprobar(str_contains($panelDueno, 'Gestionar personal') && str_contains($panelDueno, 'Solicitudes de acceso')
-        && str_contains($panelDueno, 'Actividad del personal') && !str_contains($panelDueno, 'Solicitar alta de personal'),
-        'El panel del dueño conserva sus opciones del diseño anterior');
+    comprobar(str_contains($panelDueno, 'href="/equipo/permisos">Administrar personal</a>') && str_contains($panelDueno, 'Solicitudes de acceso')
+        && !str_contains($panelDueno, 'aria-disabled="true"'),
+        'El panel del dueño permite administrar personal y solicitudes sin módulos futuros');
     $csrfNuevo = $entorno->sesion()['csrf'];
     comprobar($solicitar('/equipo/salir', ['csrf' => $csrfNuevo])[0] === 303, 'Cierra la sesión con POST y CSRF');
     comprobar($entorno->idSesion() !== $autenticada && !isset($entorno->sesion()['equipo_id']), 'Salir renueva la cookie y elimina la identidad');
