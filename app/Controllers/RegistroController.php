@@ -70,7 +70,8 @@ final class RegistroController
                 if ($accion !== 'verificar') {
                     throw new DomainException('Seleccioná una acción válida.');
                 }
-                $clientes->verificar($email, Http::texto($_POST, 'codigo'));
+                $idCliente = $clientes->verificar($email, Http::texto($_POST, 'codigo'));
+                Sesion::iniciarCliente($idCliente);
                 unset($_SESSION['qba']['registro_pendiente_email']);
                 $_SESSION['qba']['registro_completado_email'] = strtolower($email);
                 Http::redirigir('registro-completado');

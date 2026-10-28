@@ -48,6 +48,7 @@ final class AccesoEquipoController
     {
         Sesion::validarCsrf($_POST['csrf'] ?? null);
         Sesion::cerrarEquipo();
-        Http::redirigir('equipo-login');
+        $_SESSION['qba']['sesion_cerrada'] = 'Cerraste la sesión del equipo correctamente.';
+        Http::redirigir('sesion-cerrada');
     }
 }
