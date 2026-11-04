@@ -12,17 +12,17 @@
             <?php if ($error): ?>
             <div class="aviso aviso--error" role="alert"><?= $escapar($error) ?></div>
             <?php endif; ?>
-            <label class="campo">Nombre del cliente *
-                <input class="campo__entrada" name="cliente_nombre" value="<?= $escapar($datos['cliente_nombre']) ?>" maxlength="120" required autocomplete="name">
+            <label class="campo"><span class="campo-obligatorio__etiqueta">Nombre del cliente <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" name="cliente_nombre" value="<?= $escapar($datos['cliente_nombre']) ?>" maxlength="120" required autocomplete="name">
             </label>
-            <label class="campo">Teléfono *
-                <input class="campo__entrada" type="tel" name="telefono" value="<?= $escapar($datos['telefono']) ?>" maxlength="30" required autocomplete="tel">
+            <label class="campo"><span class="campo-obligatorio__etiqueta">Teléfono <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="tel" name="telefono" value="<?= $escapar($datos['telefono']) ?>" maxlength="30" required autocomplete="tel">
             </label>
-            <label class="campo">Fecha de retiro *
-                <input class="campo__entrada" type="date" name="fecha_retiro" value="<?= $escapar($datos['fecha_retiro']) ?>" min="<?= date('Y-m-d') ?>" required>
+            <label class="campo"><span class="campo-obligatorio__etiqueta">Fecha de retiro <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="date" name="fecha_retiro" value="<?= $escapar($datos['fecha_retiro']) ?>" min="<?= date('Y-m-d') ?>" required>
             </label>
-            <label class="campo">Hora de retiro *
-                <input class="campo__entrada" type="time" name="hora_retiro" value="<?= $escapar($datos['hora_retiro']) ?>" required>
+            <label class="campo"><span class="campo-obligatorio__etiqueta">Hora de retiro <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="time" name="hora_retiro" value="<?= $escapar($datos['hora_retiro']) ?>" required>
             </label>
             <label class="campo">Notas del pedido
                 <textarea class="campo__entrada campo__entrada--multilinea" name="notas" rows="4" maxlength="2000"><?= $escapar($datos['notas']) ?></textarea>

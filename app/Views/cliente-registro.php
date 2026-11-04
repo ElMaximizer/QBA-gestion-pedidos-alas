@@ -18,15 +18,15 @@
             <?php endif; ?>
             <form method="post" action="<?= $url('registro') ?>" class="pila">
                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
-                <label class="campo">Nombre completo
-                    <input class="campo__entrada" name="nombre" value="<?= $escapar($nombre) ?>" maxlength="120" autocomplete="name" required>
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Nombre completo <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" name="nombre" value="<?= $escapar($nombre) ?>" maxlength="120" autocomplete="name" required>
                 </label>
-                <label class="campo">Correo electrónico
-                    <input class="campo__entrada" type="email" name="email" value="<?= $escapar($email) ?>" maxlength="190" autocomplete="email" required>
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Correo electrónico <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="email" name="email" value="<?= $escapar($email) ?>" maxlength="190" autocomplete="email" required>
                 </label>
                 <?php $autocompletePassword = 'new-password'; require __DIR__ . '/partials/campo-contrasena.php'; ?>
-                <label class="campo">Confirmar contraseña
-                    <input class="campo__entrada" type="password" name="confirm_password" minlength="8" maxlength="72" autocomplete="new-password" required>
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Confirmar contraseña <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="password" name="confirm_password" minlength="8" maxlength="72" autocomplete="new-password" required>
                 </label>
                 <button class="boton boton--dorado boton--completo">Crear cuenta</button>
                 <a class="enlace-texto" href="<?= $url('cliente-login') ?>">Ya tengo cuenta · Iniciar sesión</a>

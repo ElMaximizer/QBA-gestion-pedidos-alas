@@ -18,19 +18,19 @@
         <form class="equipo-stock__alta-form" method="post" action="<?= $escapar($url('equipo-stock')) ?>">
             <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
             <input type="hidden" name="accion" value="agregar">
-            <label class="campo">Nombre
-                <input class="campo__entrada" type="text" name="nombre" maxlength="100" required value="<?= $escapar($valores['nombre']) ?>" placeholder="Harina de trigo">
+            <label class="campo"><span class="campo-obligatorio__etiqueta">Nombre <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="text" name="nombre" maxlength="100" required value="<?= $escapar($valores['nombre']) ?>" placeholder="Harina de trigo">
             </label>
-            <label class="campo">Unidad
-                <select class="campo__entrada" name="unidad" required>
+            <label class="campo"><span class="campo-obligatorio__etiqueta">Unidad <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<select class="campo__entrada" name="unidad" required>
                     <?php foreach ($unidades as $unidad): ?><option value="<?= $escapar($unidad) ?>" <?= $valores['unidad'] === $unidad ? 'selected' : '' ?>><?= $escapar($unidad) ?></option><?php endforeach; ?>
                 </select>
             </label>
-            <label class="campo">Cantidad actual
-                <input class="campo__entrada" type="number" name="stock_actual" min="0" max="999999999.999" step="0.001" required value="<?= $escapar($valores['stock_actual']) ?>">
+            <label class="campo"><span class="campo-obligatorio__etiqueta">Cantidad actual <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="number" name="stock_actual" min="0" max="999999999.999" step="0.001" required value="<?= $escapar($valores['stock_actual']) ?>">
             </label>
-            <label class="campo">Mínimo para reponer
-                <input class="campo__entrada" type="number" name="stock_minimo" min="0" max="999999999.999" step="0.001" required value="<?= $escapar($valores['stock_minimo']) ?>">
+            <label class="campo"><span class="campo-obligatorio__etiqueta">Mínimo para reponer <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="number" name="stock_minimo" min="0" max="999999999.999" step="0.001" required value="<?= $escapar($valores['stock_minimo']) ?>">
             </label>
             <button class="boton boton--dorado equipo-stock__alta-boton">Agregar al inventario</button>
         </form>
@@ -63,11 +63,11 @@
                 <input type="hidden" name="accion" value="actualizar">
                 <input type="hidden" name="id_materia" value="<?= (int) $materia['id_materia'] ?>">
                 <input type="hidden" name="version" value="<?= $escapar(\App\Models\StockMateriaPrima::version($materia)) ?>">
-                <label class="campo">Disponible (<?= $escapar($materia['unidad']) ?>)
-                    <input class="campo__entrada" type="number" name="stock_actual" min="0" max="999999999.999" step="0.001" required value="<?= $escapar($materia['stock_actual']) ?>">
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Disponible (<?= $escapar($materia['unidad']) ?>) <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="number" name="stock_actual" min="0" max="999999999.999" step="0.001" required value="<?= $escapar($materia['stock_actual']) ?>">
                 </label>
-                <label class="campo">Mínimo (<?= $escapar($materia['unidad']) ?>)
-                    <input class="campo__entrada" type="number" name="stock_minimo" min="0" max="999999999.999" step="0.001" required value="<?= $escapar($materia['stock_minimo']) ?>">
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Mínimo (<?= $escapar($materia['unidad']) ?>) <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="number" name="stock_minimo" min="0" max="999999999.999" step="0.001" required value="<?= $escapar($materia['stock_minimo']) ?>">
                 </label>
                 <button class="boton boton--contorno">Guardar stock</button>
             </form>

@@ -24,8 +24,8 @@
             <?php endif; ?>
             <form method="post" action="<?= $url('cliente-login') ?>" class="pila">
                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
-                <label class="campo">Correo electrónico
-                    <input class="campo__entrada" type="email" name="email" value="<?= $escapar($email) ?>" maxlength="190" autocomplete="email" required>
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Correo electrónico <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="email" name="email" value="<?= $escapar($email) ?>" maxlength="190" autocomplete="email" required>
                 </label>
                 <?php $autocompletePassword = 'current-password'; require __DIR__ . '/partials/campo-contrasena.php'; ?>
                 <button class="boton boton--dorado boton--completo">Ingresar</button>

@@ -19,11 +19,11 @@
         <section class="tarjeta mercaderia__seccion" aria-labelledby="mercaderia-datos">
             <h2 id="mercaderia-datos">Datos de la entrega</h2>
             <div class="mercaderia__datos">
-                <label class="campo">Proveedor
-                    <input class="campo__entrada" name="proveedor" maxlength="120" required value="<?= $escapar($valores['proveedor']) ?>" placeholder="Nombre del proveedor">
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Proveedor <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" name="proveedor" maxlength="120" required value="<?= $escapar($valores['proveedor']) ?>" placeholder="Nombre del proveedor">
                 </label>
-                <label class="campo">Fecha de recepción
-                    <input class="campo__entrada" type="date" name="fecha_recepcion" min="1000-01-01" max="<?= $hoy ?>" required value="<?= $escapar($valores['fecha_recepcion']) ?>">
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Fecha de recepción <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="date" name="fecha_recepcion" min="1000-01-01" max="<?= $hoy ?>" required value="<?= $escapar($valores['fecha_recepcion']) ?>">
                 </label>
                 <label class="campo mercaderia__comprobante">Comprobante (opcional)
                     <input class="campo__entrada" name="comprobante" maxlength="80" value="<?= $escapar($valores['comprobante']) ?>" placeholder="Número de remito o factura">
@@ -37,16 +37,16 @@
                 <?php foreach ($valores['lineas'] as $indice => $linea): ?>
                 <fieldset class="mercaderia__linea">
                     <legend class="mercaderia__leyenda">Insumo <?= $indice + 1 ?></legend>
-                    <label class="campo">Materia prima y unidad
-                        <select class="campo__entrada" name="lineas[<?= $indice ?>][id_materia]" required>
+                    <label class="campo"><span class="campo-obligatorio__etiqueta">Materia prima y unidad <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<select class="campo__entrada" name="lineas[<?= $indice ?>][id_materia]" required>
                             <option value="">Seleccioná una materia prima</option>
                             <?php foreach ($materias as $materia): ?>
                             <option value="<?= (int) $materia['id_materia'] ?>" <?= (string) $materia['id_materia'] === $linea['id_materia'] ? 'selected' : '' ?>><?= $escapar($materia['nombre'] . ' (' . $materia['unidad'] . ')') ?></option>
                             <?php endforeach; ?>
                         </select>
                     </label>
-                    <label class="campo">Cantidad recibida
-                        <input class="campo__entrada" name="lineas[<?= $indice ?>][cantidad]" inputmode="decimal" maxlength="13" required value="<?= $escapar($linea['cantidad']) ?>" placeholder="Ej.: 25,500">
+                    <label class="campo"><span class="campo-obligatorio__etiqueta">Cantidad recibida <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" name="lineas[<?= $indice ?>][cantidad]" inputmode="decimal" maxlength="13" required value="<?= $escapar($linea['cantidad']) ?>" placeholder="Ej.: 25,500">
                     </label>
                     <button class="boton-texto boton-texto--rojo mercaderia__quitar" name="quitar_linea" value="<?= $indice ?>" formnovalidate aria-label="Quitar insumo <?= $indice + 1 ?>" <?= count($valores['lineas']) === 1 ? 'disabled' : '' ?>>Quitar</button>
                 </fieldset>

@@ -25,6 +25,7 @@ final class Vista
 
         $estilos[] = 'css/navegacion.css';
         $scripts[] = 'js/navegacion.js';
+
         if (!$esPanel) {
             $estilos[] = 'css/carrito.css';
             $scripts[] = 'js/carrito.js';
@@ -64,7 +65,10 @@ final class Vista
 
         if (in_array($vista, ['equipo-entregas-mercaderia', 'equipo-mercaderia-form'], true)) {
             $estilos[] = 'css/mercaderia.css';
-            if ($vista === 'equipo-mercaderia-form') $scripts[] = 'js/mercaderia.js';
+
+            if ($vista === 'equipo-mercaderia-form') {
+                $scripts[] = 'js/mercaderia.js';
+            }
         }
 
         if ($vista === 'equipo-pedidos') {
@@ -85,6 +89,8 @@ final class Vista
         }
 
         $estilos[] = 'css/tema-rustic.css';
+        $estilos[] = 'css/tema-rustic-americana.css';
+
         extract($variables, EXTR_SKIP);
 
         require dirname(__DIR__) . '/Views/partials/encabezado.php';
@@ -97,6 +103,7 @@ final class Vista
         extract(self::contexto(), EXTR_SKIP);
         extract($variables, EXTR_SKIP);
         ob_start();
+
         try {
             require dirname(__DIR__) . '/Views/' . $vista . '.php';
             return (string) ob_get_clean();
@@ -110,7 +117,7 @@ final class Vista
     {
         return [
             'escapar' => static fn (mixed $texto): string => htmlspecialchars((string) $texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            'dinero' => static fn (int $centavos): string => '$ ' . number_format($centavos / 100, $centavos % 100 === 0 ? 0 : 2, ',', '.'),
+            'dinero' => static fn (int $centavos): string => '$ ' . number_format($centavos / 100, 0, ',', '.'),
             'url' => static fn (string $ruta, array $parametros = []): string => Rutas::url($ruta, $parametros),
             'recurso' => static fn (string $archivo): string => Rutas::recurso($archivo),
             'clienteActual' => Sesion::cliente(),

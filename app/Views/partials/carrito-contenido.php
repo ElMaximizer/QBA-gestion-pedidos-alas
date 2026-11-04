@@ -33,8 +33,8 @@
                         <input type="hidden" name="csrf" value="<?= $csrf ?>">
                         <input type="hidden" name="accion" value="actualizar">
                         <input type="hidden" name="id_producto" value="<?= $articulo['id_producto'] ?>">
-                        <label class="carrito-contenido__campo">Cantidad
-                            <input class="carrito-contenido__entrada" type="number" name="cantidad" min="1" max="99" value="<?= $articulo['cantidad'] ?>" aria-label="Cantidad de <?= $escapar($articulo['nombre']) ?>" required>
+                        <label class="carrito-contenido__campo"><span class="campo-obligatorio__etiqueta">Cantidad <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="carrito-contenido__entrada" type="number" name="cantidad" min="1" max="99" value="<?= $articulo['cantidad'] ?>" aria-label="Cantidad de <?= $escapar($articulo['nombre']) ?>" required>
                         </label>
                         <button class="carrito-contenido__actualizar">Actualizar</button>
                     </form>
