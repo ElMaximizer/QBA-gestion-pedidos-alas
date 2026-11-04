@@ -20,11 +20,11 @@
             <?php endif; ?>
             <form id="verificacion-cuenta" method="post" action="<?= $url('verificar-cuenta') ?>" class="pila">
                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
-                <label class="campo">Correo electrónico
-                    <input class="campo__entrada" type="email" name="email" value="<?= $escapar($email) ?>" maxlength="190" autocomplete="email" required>
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Correo electrónico <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="email" name="email" value="<?= $escapar($email) ?>" maxlength="190" autocomplete="email" required>
                 </label>
-                <label class="campo">Código de verificación
-                    <input class="campo__entrada" name="codigo" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="123456" required>
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Código de verificación <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" name="codigo" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" placeholder="123456" required>
                 </label>
                 <button class="boton boton--dorado boton--completo" name="accion" value="verificar">Verificar y activar</button>
             </form>

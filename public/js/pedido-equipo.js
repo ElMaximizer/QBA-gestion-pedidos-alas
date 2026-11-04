@@ -10,7 +10,7 @@
     const maximo = Number(formulario.dataset.maximo);
     const maximaCantidad = Number(formulario.dataset.cantidadMaxima);
     const dinero = (centavos) => '$ ' + (centavos / 100).toLocaleString('es-UY', {
-        minimumFractionDigits: centavos % 100 === 0 ? 0 : 2, maximumFractionDigits: 2,
+        minimumFractionDigits: 0, maximumFractionDigits: 0,
     });
 
     const actualizar = () => {

@@ -26,8 +26,8 @@
                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
                 <input type="hidden" name="accion" value="agregar">
                 <input type="hidden" name="id_producto" value="<?= $producto['id_producto'] ?>">
-                <label class="campo">Cantidad
-                    <input class="campo__entrada" type="number" name="cantidad" min="1" max="99" value="1" required>
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Cantidad <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="number" name="cantidad" min="1" max="99" value="1" required>
                 </label>
                 <button class="boton boton--dorado">Agregar al carrito</button>
             </form>

@@ -14,8 +14,8 @@
             <?php endif; ?>
             <form method="post" action="<?= $url('equipo-login') ?>" class="pila">
                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
-                <label class="campo">Cédula
-                    <input class="campo__entrada" type="text" name="cedula" value="<?= $escapar($cedula) ?>" placeholder="Ingresa tu número de cédula" inputmode="numeric" pattern="[0-9]{6,8}" maxlength="8" autocomplete="username" aria-describedby="ayuda-cedula" required>
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Cédula <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="text" name="cedula" value="<?= $escapar($cedula) ?>" placeholder="Ingresa tu número de cédula" inputmode="numeric" pattern="[0-9]{6,8}" maxlength="8" autocomplete="username" aria-describedby="ayuda-cedula" required>
                     <span class="campo__ayuda" id="ayuda-cedula">Sin puntos ni guiones.</span>
                 </label>
                 <?php $autocompletePassword = 'current-password'; $placeholderPassword = '••••••••'; require __DIR__ . '/partials/campo-contrasena.php'; ?>

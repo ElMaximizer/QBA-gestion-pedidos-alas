@@ -1,8 +1,8 @@
 <header class="encabezado encabezado-equipo" data-menu-encabezado>
     <div class="contenedor encabezado__contenido">
         <a class="marca" href="<?= $url('equipo-panel') ?>">
-            <strong class="marca__nombre">PANADERÍA RUSTIC</strong>
-            <span class="marca__descripcion">GESTIÓN DE PRODUCTOS Y PEDIDOS</span>
+            <span class="equipo-logo"><img src="<?= $escapar($recurso('images/rustic/logo-blanco.png')) ?>" alt="Panadería artesanal Rustic" width="1200" height="1200"></span><span class="equipo-identidad"><strong class="marca__nombre">Panel del equipo</strong>
+            <span class="marca__descripcion">GESTIÓN DE PRODUCTOS Y PEDIDOS</span></span>
         </a>
         <form class="encabezado-equipo__salida" method="post" action="<?= $url('equipo-cerrar-sesion') ?>">
             <input type="hidden" name="csrf" value="<?= $csrf ?>">

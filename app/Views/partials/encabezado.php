@@ -6,12 +6,17 @@
     <meta name="description" content="Panes, bizcochos y tortas elaborados con dedicación en Panadería Rustic.">
     <title><?= $escapar($tituloPagina) ?></title>
     <link rel="stylesheet" href="<?= $escapar($recurso('css/inicio.css')) ?>">
-    <?php foreach ($estilos as $estilo): ?>
+    <?php foreach ($estilos as $estilo): if (!$esPanel && in_array($estilo, ['css/tema-rustic.css', 'css/tema-rustic-americana.css', 'css/tema-rustic-pophams.css'], true)) continue; ?>
     <link rel="stylesheet" href="<?= $escapar($recurso($estilo)) ?>">
     <?php endforeach; ?>
     <?php foreach ($scripts as $script): ?>
     <script src="<?= $escapar($recurso($script)) ?>" defer></script>
     <?php endforeach; ?>
+    <?php if (!$esPanel): ?>
+    <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-nuevo.css')) ?>?v=20261031-3">
+    <?php endif; ?>
+    <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-identidad.css')) ?>?v=2">
+    <link rel="stylesheet" href="<?= $escapar($recurso('css/campos-obligatorios.css')) ?>?v=1">
 </head>
 <body class="pagina<?= $esPanel ? ' pagina--equipo' : '' ?>">
     <a class="salto-contenido" href="#contenido">Ir al contenido</a>
@@ -19,8 +24,8 @@
     <header class="encabezado encabezado--publico" data-menu-encabezado>
         <div class="contenedor encabezado__contenido">
             <a class="marca" href="<?= $url('inicio') ?>">
-                <strong class="marca__nombre">PANADERÍA RUSTIC</strong>
-                <span class="marca__descripcion">PANADERÍA ARTESANAL</span>
+                <span class="marca__logo-marco"><img class="marca__logo" src="<?= $escapar($recurso('images/rustic/logo-negro.png')) ?>" alt="Panadería artesanal Rustic, Salto Uruguay" width="1200" height="1200"></span>
+                <span class="r-brand-name">RUSTIC<span>PANADERÍA ARTESANAL</span></span>
             </a>
             <button class="encabezado__menu-boton" type="button" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="menu-principal" data-menu-boton hidden>
                 <span class="encabezado__menu-icono" aria-hidden="true"></span>
@@ -52,7 +57,7 @@
                 </details>
             </div>
             <?php else: ?>
-            <a class="boton boton--dorado encabezado__acceso" href="<?= $url('cliente-login') ?>">Acceso clientes</a>
+            <a class="boton boton--dorado encabezado__acceso" href="<?= $url('cliente-login') ?>">Mi cuenta ↗</a>
             <?php endif; ?>
             </div>
         </div>

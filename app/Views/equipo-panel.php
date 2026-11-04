@@ -22,13 +22,6 @@
             <p class="panel-estadistica__detalle">Revisa los horarios de retiro</p>
         </article>
     </div>
-    <?php if ($administraProductos): ?>
-    <div class="acciones">
-        <a class="boton boton--dorado" href="<?= $url('equipo-pedido-registrar') ?>">+ Nuevo pedido</a>
-        <a class="boton boton--contorno" href="<?= $url('producto-agregar') ?>">+ Agregar producto</a>
-        <a class="boton boton--contorno" href="<?= $url('mercaderia-registrar') ?>">+ Registrar mercadería</a>
-    </div>
-    <?php endif; ?>
     <section class="panel-atencion" aria-labelledby="titulo-atencion">
         <h2 class="panel-atencion__titulo" id="titulo-atencion">Atención del equipo</h2>
         <div class="acciones panel-atencion__acciones">
