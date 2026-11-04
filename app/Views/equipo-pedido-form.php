@@ -27,21 +27,21 @@
             <p class="pedido-equipo__ayuda"><?= $esEdicion
                 ? ($pedido['id_cliente'] === null ? 'Este pedido no tiene una cuenta de cliente asociada.' : 'La cuenta del cliente asociada al pedido se conserva al editar.')
                 : 'El cliente no necesita tener una cuenta para un pedido tomado por el equipo.' ?></p>
-            <label class="campo">Nombre del cliente
-                <input class="campo__entrada" name="cliente_nombre" maxlength="120" required autocomplete="off"
+            <label class="campo"><span class="campo-obligatorio__etiqueta">Nombre del cliente <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" name="cliente_nombre" maxlength="120" required autocomplete="off"
                     value="<?= $escapar($valores['cliente_nombre']) ?>" placeholder="Nombre y apellido">
             </label>
-            <label class="campo">Teléfono
-                <input class="campo__entrada" type="tel" name="telefono" maxlength="30" required autocomplete="off"
+            <label class="campo"><span class="campo-obligatorio__etiqueta">Teléfono <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="tel" name="telefono" maxlength="30" required autocomplete="off"
                     value="<?= $escapar($valores['telefono']) ?>" placeholder="Número de contacto" aria-describedby="pedido-telefono-ayuda">
                 <span class="campo__ayuda" id="pedido-telefono-ayuda">Para coordinar el retiro.</span>
             </label>
             <div class="pedido-equipo__retiro">
-                <label class="campo">Fecha de retiro
-                    <input class="campo__entrada" type="date" name="fecha_retiro" min="<?= $esEdicion ? '1000-01-01' : $hoy ?>" required value="<?= $escapar($valores['fecha_retiro']) ?>">
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Fecha de retiro <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="date" name="fecha_retiro" min="<?= $esEdicion ? '1000-01-01' : $hoy ?>" required value="<?= $escapar($valores['fecha_retiro']) ?>">
                 </label>
-                <label class="campo">Hora de retiro
-                    <input class="campo__entrada" type="time" name="hora_retiro" required value="<?= $escapar($valores['hora_retiro']) ?>">
+                <label class="campo"><span class="campo-obligatorio__etiqueta">Hora de retiro <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="time" name="hora_retiro" required value="<?= $escapar($valores['hora_retiro']) ?>">
                 </label>
             </div>
             <hr class="separador pedido-equipo__separador">
@@ -54,8 +54,8 @@
                 <?php foreach ($valores['lineas'] as $indice => $linea): ?>
                 <fieldset class="pedido-equipo__linea">
                     <legend class="pedido-equipo__leyenda">Producto <?= $indice + 1 ?></legend>
-                    <label class="campo">Producto
-                        <select class="campo__entrada" name="lineas[<?= $indice ?>][id_producto]" required data-pedido-producto>
+                    <label class="campo"><span class="campo-obligatorio__etiqueta">Producto <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<select class="campo__entrada" name="lineas[<?= $indice ?>][id_producto]" required data-pedido-producto>
                             <option value="">Seleccioná un producto</option>
                             <?php if ($linea['id_producto'] !== '' && !isset($precios[$linea['id_producto']])): ?>
                             <option value="<?= $escapar($linea['id_producto']) ?>" selected>Producto no disponible · elegí otro</option>
@@ -66,8 +66,8 @@
                             <?php endforeach; ?>
                         </select>
                     </label>
-                    <label class="campo">Cantidad
-                        <input class="campo__entrada" type="number" inputmode="numeric" name="lineas[<?= $indice ?>][cantidad]" min="1" max="<?= $maximaCantidad ?>" step="1" required value="<?= $escapar($linea['cantidad']) ?>" data-pedido-cantidad>
+                    <label class="campo"><span class="campo-obligatorio__etiqueta">Cantidad <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<input class="campo__entrada" type="number" inputmode="numeric" name="lineas[<?= $indice ?>][cantidad]" min="1" max="<?= $maximaCantidad ?>" step="1" required value="<?= $escapar($linea['cantidad']) ?>" data-pedido-cantidad>
                     </label>
                     <button class="boton-texto boton-texto--rojo pedido-equipo__quitar" type="submit" name="quitar_linea" value="<?= $indice ?>"
                         formnovalidate aria-label="Quitar producto <?= $indice + 1 ?>" <?= count($valores['lineas']) === 1 ? 'disabled' : '' ?>>Quitar línea</button>
@@ -81,8 +81,8 @@
                     placeholder="Indicaciones para preparar el pedido"><?= $escapar($valores['notas']) ?></textarea>
             </label>
             <?php if ($esEdicion): ?>
-            <label class="campo">Estado del pedido
-                <select class="campo__entrada" name="estado" required data-pedido-estado>
+            <label class="campo"><span class="campo-obligatorio__etiqueta">Estado del pedido <span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span></span>
+<select class="campo__entrada" name="estado" required data-pedido-estado>
                     <?php foreach ($estados as $opcionEstado): ?>
                     <option value="<?= $escapar($opcionEstado) ?>" <?= $valores['estado'] === $opcionEstado ? 'selected' : '' ?>><?= $escapar($opcionEstado) ?></option>
                     <?php endforeach; ?>
