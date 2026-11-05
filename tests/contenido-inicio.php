@@ -94,7 +94,7 @@ try {
         && !str_contains($inicio, '<script>nombre</script>'), 'Escapa nombres de productos en la portada');
     $db->exec('UPDATE productos SET activo = 0');
     [$estado, $inicio] = $solicitar('/');
-    comprobar($estado === 200 && str_contains($inicio, 'images/panes.png')
+    comprobar($estado === 200 && str_contains($inicio, 'images/pan-horneado.webp')
         && !str_contains($inicio, 'data-diapositiva'), 'Un catálogo vacío conserva la portada estática');
     $db->exec('UPDATE productos SET activo = 1');
     $db->exec('ALTER TABLE productos DROP COLUMN portada_orden');
