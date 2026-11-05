@@ -24,7 +24,7 @@
     <header class="encabezado encabezado--publico" data-menu-encabezado>
         <div class="contenedor encabezado__contenido">
             <a class="marca" href="<?= $url('inicio') ?>">
-                <span class="marca__logo-marco"><img class="marca__logo" src="<?= $escapar($recurso('images/rustic/logo-negro.png')) ?>" alt="Panadería artesanal Rustic, Salto Uruguay" width="1200" height="1200"></span>
+                <span class="marca__logo-marco"><img class="marca__logo" src="<?= $escapar($recurso('images/rustic/logo-negro.svg')) ?>" alt="Panadería artesanal Rustic, Salto Uruguay" width="1200" height="1200"></span>
                 <span class="r-brand-name">RUSTIC<span>PANADERÍA ARTESANAL</span></span>
             </a>
             <button class="encabezado__menu-boton" type="button" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="menu-principal" data-menu-boton hidden>

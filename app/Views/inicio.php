@@ -1,6 +1,6 @@
 <main id="contenido" class="r-home">
     <section class="r-hero" aria-labelledby="r-titulo">
-        <img class="r-hero__foto" src="<?= $escapar($recurso('images/rustic/pan-trenzado.jpg')) ?>" alt="Pan trenzado artesanal de Rustic con semillas, sobre una mesa de madera" width="1080" height="724" fetchpriority="high">
+        <img class="r-hero__foto" src="<?= $escapar($recurso('images/rustic/pan-trenzado.webp')) ?>" alt="Pan trenzado artesanal de Rustic con semillas, sobre una mesa de madera" width="1080" height="724" fetchpriority="high">
         <div class="r-hero__velo"></div>
         <div class="r-hero__sello" aria-hidden="true"><span>HECHO EN</span><strong>Salto</strong><span>PARA COMPARTIR</span></div>
         <div class="r-hero__texto">
@@ -20,7 +20,7 @@
     <section class="r-selection r-wrap" aria-labelledby="r-selection-titulo">
         <div class="r-section-head"><div><span class="r-eyebrow">PARA CADA MOMENTO DEL DÍA</span><h2 id="r-selection-titulo">Encontrá tu favorito.</h2></div><a class="r-link" href="<?= $url('productos') ?>">Ver todo el catálogo ↗</a></div>
         <div class="r-selection__grid">
-            <a class="r-selection__image" href="<?= $escapar($url('productos', ['categoria' => 'Panes'])) ?>"><img src="<?= $escapar($recurso('images/rustic/pan-artesanal.jpg')) ?>" alt="Pan artesanal de corteza dorada junto a su cesto de fermentación" width="4928" height="3264" loading="lazy"><span>El placer de lo recién hecho. <span aria-hidden="true">↗</span></span></a>
+            <a class="r-selection__image" href="<?= $escapar($url('productos', ['categoria' => 'Panes'])) ?>"><img src="<?= $escapar($recurso('images/rustic/pan-artesanal.webp')) ?>" alt="Pan artesanal de corteza dorada junto a su cesto de fermentación" width="4928" height="3264" loading="lazy"><span>El placer de lo recién hecho. <span aria-hidden="true">↗</span></span></a>
             <div class="r-category-list">
                 <?php foreach ($categorias as $indice => $categoria): ?>
                 <a class="r-category" href="<?= $escapar($url('productos', ['categoria' => $categoria['nombre']])) ?>"><span class="r-category__numero"><?= sprintf('%02d', $indice + 1) ?></span><div><h3><?= $escapar($categoria['nombre']) ?></h3><p><?= $escapar($categoria['descripcion']) ?></p></div><span class="r-category__arrow" aria-hidden="true">↗</span></a>
@@ -40,7 +40,7 @@
     </section>
     <?php endif; ?>
 
-    <section class="r-story" aria-labelledby="r-story-titulo"><div class="r-story__image"><img src="<?= $escapar($recurso('images/rustic/pan-horneado.jpg')) ?>" alt="Detalle de la corteza de un pan de Rustic sobre una rejilla" width="4928" height="3264" loading="lazy"></div><div class="r-story__text"><span class="r-eyebrow">EL OFICIO. EL CUIDADO. EL SABOR.</span><h2 id="r-story-titulo">Hay cosas que<br>merecen <em>su tiempo.</em></h2><p>La dedicación se nota en los detalles. En la textura de la corteza, en el aroma de cada preparación y en las ganas de volver a compartir.</p><a class="r-button r-button--dark" href="<?= $url('nosotros') ?>">Nuestra historia <span aria-hidden="true">↗</span></a></div></section>
+    <section class="r-story" aria-labelledby="r-story-titulo"><div class="r-story__image"><img src="<?= $escapar($recurso('images/rustic/pan-horneado.webp')) ?>" alt="Detalle de la corteza de un pan de Rustic sobre una rejilla" width="4928" height="3264" loading="lazy"></div><div class="r-story__text"><span class="r-eyebrow">EL OFICIO. EL CUIDADO. EL SABOR.</span><h2 id="r-story-titulo">Hay cosas que<br>merecen <em>su tiempo.</em></h2><p>La dedicación se nota en los detalles. En la textura de la corteza, en el aroma de cada preparación y en las ganas de volver a compartir.</p><a class="r-button r-button--dark" href="<?= $url('nosotros') ?>">Nuestra historia <span aria-hidden="true">↗</span></a></div></section>
 
     <section class="r-visit r-wrap" aria-labelledby="r-visit-titulo"><span class="r-eyebrow">TU PRÓXIMO MOMENTO RUSTIC</span><div class="r-visit__grid"><h2 id="r-visit-titulo">La mesa está lista.<br><em>Solo faltás vos.</em></h2><div><p>Uruguay 1486, Salto, Uruguay<br>Martes a domingo · 15:30 a 19:30</p><a class="r-button r-button--dark" href="<?= $url('productos') ?>">Elegí algo rico <span aria-hidden="true">↗</span></a><a class="r-link r-visit__contact" href="<?= $url('contacto') ?>">Hablemos ↗</a></div></div></section>
 </main>

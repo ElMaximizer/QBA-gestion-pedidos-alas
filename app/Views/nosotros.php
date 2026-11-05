@@ -7,7 +7,7 @@
                 <p class="nosotros__bajada">En Rustic creemos que los pequeños momentos merecen algo hecho con dedicación.</p>
             </div>
             <div class="nosotros__detalle">
-                <img class="nosotros__imagen" src="<?= $escapar($recurso('images/panes.png')) ?>" alt="Panes y productos artesanales de Panadería Rustic" width="664" height="398">
+                <img class="nosotros__imagen" src="<?= $escapar($recurso('images/pan-horneado.webp')) ?>" alt="Panes y productos artesanales de Panadería Rustic" width="664" height="398">
                 <div class="nosotros__texto">
                     <h2 class="nosotros__subtitulo">De nuestras manos<br>a tu mesa.</h2>
                     <p>Un pan para el desayuno, bizcochos para una charla o una torta para celebrar. Queremos acompañarte con sabores que inviten a compartir.</p>

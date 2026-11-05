@@ -5,7 +5,7 @@
             <span class="etiqueta">PANADERÍA RUSTIC</span>
             <h1 class="registro__titulo-historia">Acceso para<br>clientes.</h1>
             <p class="registro__descripcion">Iniciá sesión para identificarte como cliente y continuar con tus compras.</p>
-            <img class="registro__imagen" src="<?= $escapar($recurso('images/panes.png')) ?>" width="648" height="350" alt="Elaboraciones artesanales de Panadería Rustic">
+            <img class="registro__imagen" src="<?= $escapar($recurso('images/pan-horneado.webp')) ?>" width="648" height="350" alt="Elaboraciones artesanales de Panadería Rustic">
         </section>
         <section class="tarjeta registro__tarjeta">
             <span class="etiqueta registro__etiqueta">CUENTA DE CLIENTE</span>
