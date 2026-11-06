@@ -2,9 +2,7 @@
     <div class="titulo-pagina">
         <span class="etiqueta"><?= $puedeEditarRoles ? 'SOLO DUEÑO' : 'EQUIPO' ?></span>
         <h1 class="titulo-pagina__titulo"><?= $puedeEditarRoles ? 'Administrar personal' : 'Personal del equipo' ?></h1>
-        <p class="titulo-pagina__descripcion"><?= $puedeEditarRoles
-            ? 'Consultá el equipo y asigná a cada cuenta aprobada el rol de empleado o administrador.'
-            : 'Consultá las cuentas aprobadas y las responsabilidades definidas para cada rol.' ?></p>
+        <p class="titulo-pagina__descripcion"> <?= $puedeEditarRoles ? 'Consultá el equipo y asigná a cada cuenta aprobada el rol de empleado o administrador.' : 'Consultá las cuentas aprobadas y las responsabilidades definidas para cada rol.' ?> </p>
     </div>
 
     <?php if ($aviso !== ''): ?>
@@ -15,24 +13,22 @@
     <?php endif; ?>
 
     <?php if ($puedeEditarRoles): ?>
-    <section class="equipo-personal__roles" aria-label="Permisos de cada rol">
-        <?php foreach (\App\Models\PersonalEquipo::ROLES as $clave => $nombre): ?>
-            <article class="tarjeta equipo-personal__rol">
-                <h2><?= $escapar($nombre) ?></h2>
-                <p><?= $escapar(\App\Models\PersonalEquipo::FUNCIONES[$clave]) ?></p>
+        <section class="equipo-personal__roles" aria-label="Permisos de cada rol">
+            <?php foreach (\App\Models\PersonalEquipo::ROLES as $clave => $nombre): ?>
+                <article class="tarjeta equipo-personal__rol">
+                    <h2><?= $escapar($nombre) ?></h2>
+                    <p><?= $escapar(\App\Models\PersonalEquipo::FUNCIONES[$clave]) ?></p>
+                </article>
+            <?php endforeach; ?>
+            <article class="tarjeta equipo-personal__rol equipo-personal__rol--dueno">
+                <h2>Dueño</h2>
+                <p>Acceso completo. La cuenta del dueño no se puede modificar desde esta pantalla.</p>
             </article>
-        <?php endforeach; ?>
-        <article class="tarjeta equipo-personal__rol equipo-personal__rol--dueno">
-            <h2>Dueño</h2>
-            <p>Acceso completo. La cuenta del dueño no se puede modificar desde esta pantalla.</p>
-        </article>
-    </section>
+        </section>
 
-    <p class="equipo-personal__nota">
-        Solo se muestran cuentas aprobadas. Revisá las cuentas pendientes en <a class="enlace-texto" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso</a>.
-    </p>
+        <p class="equipo-personal__nota"> Solo se muestran cuentas aprobadas. Revisá las cuentas pendientes en <a class="enlace-texto" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso</a>. </p>
     <?php else: ?>
-    <p class="equipo-personal__nota">Esta consulta no modifica cuentas, estados ni permisos.</p>
+        <p class="equipo-personal__nota">Esta consulta no modifica cuentas, estados ni permisos.</p>
     <?php endif; ?>
 
     <form class="equipo-personal__filtros" method="get" action="<?= $url($rutaPersonal) ?>">
@@ -45,7 +41,7 @@
             <select name="rol">
                 <option value="" <?= $rol === '' ? 'selected' : '' ?>>Todos los roles</option>
                 <?php foreach (\App\Models\PersonalEquipo::ROLES as $clave => $nombre): ?>
-                    <option value="<?= $escapar($clave) ?>" <?= $rol === $clave ? 'selected' : '' ?>><?= $escapar($nombre) ?></option>
+                    <option value="<?= $escapar($clave) ?>" <?= $rol === $clave ? 'selected' : '' ?>> <?= $escapar($nombre) ?></option>
                 <?php endforeach; ?>
             </select>
         </label>
@@ -80,23 +76,29 @@
                             <tr>
                                 <td><?= $escapar($usuario['nombre']) ?></td>
                                 <td><?= $escapar($usuario['email']) ?></td>
-                                <td><span class="equipo-personal__insignia"><?= $escapar($usuario['nombre_rol']) ?></span></td>
+                                <td><span
+                                        class="equipo-personal__insignia"><?= $escapar($usuario['nombre_rol']) ?></span>
+                                </td>
                                 <td>
                                     <?php if ($puedeEditarRoles): ?>
-                                    <form class="equipo-personal__cambio" method="post" action="<?= $url($rutaPersonal) ?>">
-                                        <input type="hidden" name="csrf" value="<?= $csrf ?>">
-                                        <input type="hidden" name="id_usuario" value="<?= (int) $usuario['id_usuario'] ?>">
-                                        <label class="equipo-personal__campo equipo-personal__campo--cambio">
-                                            <select name="rol" aria-label="Nuevo rol para <?= $escapar($usuario['nombre']) ?>">
-                                                <?php foreach (\App\Models\PersonalEquipo::ROLES as $clave => $nombre): ?>
-                                                    <option value="<?= $escapar($clave) ?>" <?= $usuario['rol'] === $clave ? 'selected' : '' ?>><?= $escapar($nombre) ?></option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        </label>
-                                        <button class="boton boton--contorno" type="submit" aria-label="Guardar permisos de <?= $escapar($usuario['nombre']) ?>">Guardar</button>
-                                    </form>
+                                        <form class="equipo-personal__cambio" method="post"
+                                            action="<?= $url($rutaPersonal) ?>">
+                                            <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                                            <input type="hidden" name="id_usuario"
+                                                value="<?= (int) $usuario['id_usuario'] ?>">
+                                            <label class="equipo-personal__campo equipo-personal__campo--cambio">
+                                                <select name="rol"
+                                                    aria-label="Nuevo rol para <?= $escapar($usuario['nombre']) ?>">
+                                                    <?php foreach (\App\Models\PersonalEquipo::ROLES as $clave => $nombre): ?>
+                                                        <option value="<?= $escapar($clave) ?>" <?= $usuario['rol'] === $clave ? 'selected' : '' ?>> <?= $escapar($nombre) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </label>
+                                            <button class="boton boton--contorno" type="submit"
+                                                aria-label="Guardar permisos de <?= $escapar($usuario['nombre']) ?>">Guardar</button>
+                                        </form>
                                     <?php else: ?>
-                                    <?= $escapar($usuario['funciones']) ?>
+                                        <?= $escapar($usuario['funciones']) ?>
                                     <?php endif; ?>
                                 </td>
                             </tr>

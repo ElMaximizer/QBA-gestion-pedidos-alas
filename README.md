@@ -1,7 +1,10 @@
 # QBA — Gestión de pedidos de Panadería Rustic
 
-Proyecto PHP con MVC y CSS según BEM. El diseño público incorpora el tema Rustic,
+Proyecto PHP organizado en controladores, modelos y vistas. El diseño público incorpora el tema Rustic,
 conservando los flujos de pedidos y cuentas de la base del proyecto.
+
+La [guía para leer y mantener el código](docs/codigo.md) explica las carpetas,
+las convenciones y cómo aplicar el formato compartido de PHP, CSS y JavaScript.
 
 ## Rediseño Rustic y contenido del inicio
 

@@ -24,11 +24,16 @@ final class RegistroController
                 Sesion::validarCsrf($_POST['csrf'] ?? null);
                 $nombre = Http::texto($_POST, 'nombre');
                 $email = Http::texto($_POST, 'email');
-                $cliente = (new RegistroCliente(Conexion::obtener()))->registrar($nombre, $email,
-                    Http::cadena($_POST, 'password'), Http::cadena($_POST, 'confirm_password'));
+                $cliente = (new RegistroCliente(Conexion::obtener()))->registrar(
+                    $nombre,
+                    $email,
+                    Http::cadena($_POST, 'password'),
+                    Http::cadena($_POST, 'confirm_password'),
+                );
                 $_SESSION['qba']['registro_pendiente_email'] = $cliente['email'];
                 if (!$cliente['correo_enviado']) {
-                    $_SESSION['qba']['registro_error_correo'] = 'Creamos tu cuenta, pero no pudimos enviar el código. Esperá un minuto y usá «Reenviar código».';
+                    $_SESSION['qba']['registro_error_correo'] =
+                        'Creamos tu cuenta, pero no pudimos enviar el código. Esperá un minuto y usá «Reenviar código».';
                 }
                 Http::redirigir('verificar-cuenta');
             } catch (DomainException $excepcion) {
@@ -40,8 +45,12 @@ final class RegistroController
                 $error = 'No pudimos crear la cuenta en este momento. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('cliente-registro', ['tituloPagina' => 'Crear cuenta de cliente | Panadería Rustic',
-            'nombre' => $nombre, 'email' => $email, 'error' => $error]);
+        Vista::mostrar('cliente-registro', [
+            'tituloPagina' => 'Crear cuenta de cliente | Panadería Rustic',
+            'nombre' => $nombre,
+            'email' => $email,
+            'error' => $error,
+        ]);
     }
 
     public function verificar(): void
@@ -61,9 +70,11 @@ final class RegistroController
                     $enviado = (new RegistroCliente(Conexion::obtener()))->reenviar($email);
                     $_SESSION['qba']['registro_pendiente_email'] = strtolower($email);
                     if ($enviado) {
-                        $_SESSION['qba']['registro_mensaje'] = 'Si la cuenta está pendiente, enviamos un nuevo código. Revisá también la carpeta de spam.';
+                        $_SESSION['qba']['registro_mensaje'] =
+                            'Si la cuenta está pendiente, enviamos un nuevo código. Revisá también la carpeta de spam.';
                     } else {
-                        $_SESSION['qba']['registro_error_correo'] = 'No pudimos enviar el código. Tu cuenta sigue pendiente; esperá un minuto y volvé a pedirlo.';
+                        $_SESSION['qba']['registro_error_correo'] =
+                            'No pudimos enviar el código. Tu cuenta sigue pendiente; esperá un minuto y volvé a pedirlo.';
                     }
                     Http::redirigir('verificar-cuenta');
                 }
@@ -83,8 +94,12 @@ final class RegistroController
                 $error = 'No pudimos procesar la verificación. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('cliente-verificar', ['tituloPagina' => 'Verificar cuenta de cliente | Panadería Rustic',
-            'email' => $email, 'error' => $error, 'mensaje' => $mensaje]);
+        Vista::mostrar('cliente-verificar', [
+            'tituloPagina' => 'Verificar cuenta de cliente | Panadería Rustic',
+            'email' => $email,
+            'error' => $error,
+            'mensaje' => $mensaje,
+        ]);
     }
 
     public function completado(): void
@@ -93,6 +108,9 @@ final class RegistroController
         if (!$email) {
             Http::redirigir('registro');
         }
-        Vista::mostrar('registro-completado', ['tituloPagina' => 'Cuenta creada | Panadería Rustic', 'email' => $email]);
+        Vista::mostrar('registro-completado', [
+            'tituloPagina' => 'Cuenta creada | Panadería Rustic',
+            'email' => $email,
+        ]);
     }
 }

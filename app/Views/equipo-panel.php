@@ -27,8 +27,8 @@
         <div class="acciones panel-atencion__acciones">
             <a class="boton boton--contorno" href="<?= $url('equipo-consultas') ?>">Consultas recibidas (<?= $consultasNuevas ?> <?= $consultasNuevas === 1 ? 'nueva' : 'nuevas' ?>)</a>
             <?php if ($usuario['rol'] === 'dueno'): ?>
-            <a class="boton boton--contorno" href="<?= $url('equipo-permisos') ?>">Administrar personal</a>
-            <a class="boton boton--contorno" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso (<?= $solicitudesPendientes ?>)</a>
+                <a class="boton boton--contorno" href="<?= $url('equipo-permisos') ?>">Administrar personal</a>
+                <a class="boton boton--contorno" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso (<?= $solicitudesPendientes ?>)</a>
             <?php endif; ?>
         </div>
     </section>

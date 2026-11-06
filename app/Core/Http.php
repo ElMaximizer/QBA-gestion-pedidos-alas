@@ -13,8 +13,11 @@ final class Http
     }
 
     // Las contraseñas conservan sus espacios; solamente los campos de texto se recortan.
-    public static function cadena(array $origen, string $nombre, string $predeterminado = ''): string
-    {
+    public static function cadena(
+        array $origen,
+        string $nombre,
+        string $predeterminado = '',
+    ): string {
         $valor = $origen[$nombre] ?? $predeterminado;
         if (!is_string($valor)) {
             throw new DomainException('Revisá los datos del formulario.');
@@ -25,6 +28,6 @@ final class Http
     public static function redirigir(string $ruta): never
     {
         header('Location: ' . Rutas::url($ruta), true, 303);
-        exit;
+        exit();
     }
 }

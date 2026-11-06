@@ -7,10 +7,14 @@
     <section class="informacion__tarjeta informacion__guia" id="como-comprar" aria-labelledby="titulo-como-comprar">
         <h2 class="informacion__subtitulo" id="titulo-como-comprar">¿Cómo comprar?</h2>
         <ol class="informacion__pasos">
-            <li><strong>Elegí tus productos.</strong> Recorré el <a class="informacion__enlace" href="<?= $url('productos') ?>">catálogo</a>, seleccioná las cantidades y agregalas al carrito.</li>
-            <li><strong>Ingresá a tu cuenta.</strong> Para confirmar el pedido necesitás iniciar sesión. Si todavía no tenés cuenta, <a class="informacion__enlace" href="<?= $url('registro') ?>">registrate</a> y verificá tu correo.</li>
-            <li><strong>Completá los datos de retiro.</strong> Revisá el carrito e indicá el nombre, teléfono, fecha y hora de retiro. Podés agregar notas para el equipo.</li>
-            <li><strong>Enviá el pedido.</strong> Al confirmar, vas a recibir un número de pedido. Queda pendiente de confirmación por el equipo.</li>
+            <li>
+                <strong>Elegí tus productos.</strong> Recorré el <a class="informacion__enlace" href="<?= $url('productos') ?>">catálogo</a>, seleccioná las cantidades y agregalas al carrito. </li>
+            <li>
+                <strong>Ingresá a tu cuenta.</strong> Para confirmar el pedido necesitás iniciar sesión. Si todavía no tenés cuenta, <a class="informacion__enlace" href="<?= $url('registro') ?>">registrate</a> y verificá tu correo. </li>
+            <li>
+                <strong>Completá los datos de retiro.</strong> Revisá el carrito e indicá el nombre, teléfono, fecha y hora de retiro. Podés agregar notas para el equipo. </li>
+            <li>
+                <strong>Enviá el pedido.</strong> Al confirmar, vas a recibir un número de pedido. Queda pendiente de confirmación por el equipo. </li>
         </ol>
         <p class="informacion__nota">No se realiza ningún cobro en línea al enviar el pedido.</p>
         <a class="boton boton--dorado" href="<?= $url('productos') ?>">Ver productos</a>
