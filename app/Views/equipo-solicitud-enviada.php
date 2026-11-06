@@ -8,7 +8,7 @@
             <h1 class="registro__titulo">Solicitud registrada</h1>
             <p>Recibimos tus datos. El dueño de Panadería Rustic debe aprobar tu solicitud antes de que puedas acceder al sistema del equipo.</p>
             <?php if (!$correoEnviado): ?>
-            <div class="aviso aviso--error" role="alert">Tu solicitud quedó guardada, pero no pudimos enviar el correo de confirmación. Consultá con el dueño; no hace falta registrarte nuevamente.</div>
+                <div class="aviso aviso--error" role="alert">Tu solicitud quedó guardada, pero no pudimos enviar el correo de confirmación. Consultá con el dueño; no hace falta registrarte nuevamente. </div>
             <?php endif; ?>
             <aside class="recuadro">
                 <h2 class="recuadro__titulo">Pendiente de aprobación</h2>

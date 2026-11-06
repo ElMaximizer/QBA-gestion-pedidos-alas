@@ -12,16 +12,55 @@ final class Vista
         extract(self::contexto(), EXTR_SKIP);
         $administraProductos = Sesion::administraProductos();
         $seccionActiva = $variables['seccionActiva'] ?? '';
-        $esGestionProducto = in_array($vista, ['equipo-productos', 'equipo-producto-form', 'equipo-producto-eliminar'], true);
+        $esGestionProducto = in_array(
+            $vista,
+            ['equipo-productos', 'equipo-producto-form', 'equipo-producto-eliminar'],
+            true,
+        );
         $esGestionStock = $vista === 'equipo-stock';
         $esPersonalEquipo = $vista === 'equipo-personal';
-        $esPanel = ($variables['layoutEquipo'] ?? false) || in_array($vista, ['equipo-panel', 'equipo-contenido-inicio'], true)
-            || $esGestionProducto || $esGestionStock || $esPersonalEquipo;
-        $esRegistro = in_array($vista, ['cliente-login', 'cliente-registro', 'cliente-verificar', 'registro-completado',
-            'equipo-registro', 'equipo-solicitud-enviada', 'equipo-login'], true);
-        $estilos = $vista === 'inicio' ? [] : ['css/componentes.css',
-            $esPanel ? 'css/panel.css' : ($esRegistro ? 'css/registro.css' : 'css/pedidos.css')];
-        $scripts = in_array($vista, ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login'], true) ? ['js/registro.js'] : [];
+        $esPanel =
+            ($variables['layoutEquipo'] ?? false) ||
+            in_array($vista, ['equipo-panel', 'equipo-contenido-inicio'], true) ||
+            $esGestionProducto ||
+            $esGestionStock ||
+            $esPersonalEquipo;
+        $esRegistro = in_array(
+            $vista,
+            [
+                'cliente-login',
+                'cliente-registro',
+                'cliente-verificar',
+                'registro-completado',
+                'equipo-registro',
+                'equipo-solicitud-enviada',
+                'equipo-login',
+            ],
+            true,
+        );
+        $estilos = [];
+        if ($vista !== 'inicio') {
+            $estilos[] = 'css/componentes.css';
+
+            if ($esPanel) {
+                $estilos[] = 'css/panel.css';
+            } elseif ($esRegistro) {
+                $estilos[] = 'css/registro.css';
+            } else {
+                $estilos[] = 'css/pedidos.css';
+            }
+        }
+
+        $scripts = [];
+        if (
+            in_array(
+                $vista,
+                ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login'],
+                true,
+            )
+        ) {
+            $scripts[] = 'js/registro.js';
+        }
 
         $estilos[] = 'css/navegacion.css';
         $scripts[] = 'js/navegacion.js';
@@ -116,10 +155,18 @@ final class Vista
     private static function contexto(): array
     {
         return [
-            'escapar' => static fn (mixed $texto): string => htmlspecialchars((string) $texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            'dinero' => static fn (int $centavos): string => '$ ' . number_format($centavos / 100, 0, ',', '.'),
-            'url' => static fn (string $ruta, array $parametros = []): string => Rutas::url($ruta, $parametros),
-            'recurso' => static fn (string $archivo): string => Rutas::recurso($archivo),
+            'escapar' => static function (mixed $texto): string {
+                return htmlspecialchars((string) $texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            },
+            'dinero' => static function (int $centavos): string {
+                return '$ ' . number_format($centavos / 100, 0, ',', '.');
+            },
+            'url' => static function (string $ruta, array $parametros = []): string {
+                return Rutas::url($ruta, $parametros);
+            },
+            'recurso' => static function (string $archivo): string {
+                return Rutas::recurso($archivo);
+            },
             'clienteActual' => Sesion::cliente(),
             'equipoActual' => Sesion::equipo(),
             'csrf' => Sesion::csrf(),

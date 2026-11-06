@@ -38,15 +38,21 @@ final class PermisosEquipoController
             $rol = Http::texto($_GET, 'rol');
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Sesion::validarCsrf($_POST['csrf'] ?? null);
-                $idUsuario = filter_var(Http::cadena($_POST, 'id_usuario'), FILTER_VALIDATE_INT,
-                    ['options' => ['min_range' => 1]]);
+                $idUsuario = filter_var(Http::cadena($_POST, 'id_usuario'), FILTER_VALIDATE_INT, [
+                    'options' => ['min_range' => 1],
+                ]);
                 $rolNuevo = Http::texto($_POST, 'rol');
                 if ($idUsuario === false) {
                     throw new DomainException('Seleccioná una cuenta válida.');
                 }
 
-                PermisosEquipo::gestion()->cambiarRol($idUsuario, (int) $dueno['id_usuario'], $rolNuevo);
-                $_SESSION['qba']['aviso_permisos'] = 'Rol actualizado correctamente. El nuevo permiso se aplica desde la siguiente petición.';
+                PermisosEquipo::gestion()->cambiarRol(
+                    $idUsuario,
+                    (int) $dueno['id_usuario'],
+                    $rolNuevo,
+                );
+                $_SESSION['qba']['aviso_permisos'] =
+                    'Rol actualizado correctamente. El nuevo permiso se aplica desde la siguiente petición.';
                 Http::redirigir('equipo-permisos');
             }
         } catch (DomainException $excepcion) {
