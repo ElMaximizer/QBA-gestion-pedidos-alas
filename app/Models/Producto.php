@@ -312,8 +312,8 @@ final class Producto
         $sql = 'SELECT * FROM productos WHERE activo = 1 AND eliminado_en IS NULL';
         $parametros = [];
         if ($busqueda !== '') {
-            $sql .= ' AND (nombre LIKE ? OR descripcion LIKE ? OR ingredientes LIKE ?)';
-            $parametros = array_fill(0, 3, '%' . $busqueda . '%');
+            $sql .= ' AND nombre LIKE ?';
+            $parametros[] = '%' . $busqueda . '%';
         }
         if (in_array($categoria, self::CATEGORIAS, true)) {
             $sql .= ' AND categoria = ?';

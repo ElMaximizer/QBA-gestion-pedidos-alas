@@ -5,7 +5,7 @@
         <p class="titulo-pagina__descripcion">Panes, bizcochos y tortas para acompañar tus momentos.</p>
     </div>
     <form class="busqueda" method="get" action="<?= $url('productos') ?>">
-        <label class="campo busqueda__campo">Buscar productos <input class="campo__entrada" name="q" value="<?= $escapar($busqueda) ?>" placeholder="Nombre o ingrediente"
+        <label class="campo busqueda__campo">Buscar productos <input class="campo__entrada" name="q" value="<?= $escapar($busqueda) ?>" placeholder="Nombre del producto"
                 maxlength="120">
         </label>
         <input type="hidden" name="categoria" value="<?= $escapar($categoria) ?>">
