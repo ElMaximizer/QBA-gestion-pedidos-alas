@@ -2,7 +2,7 @@
     <div class="titulo-pagina">
         <span class="etiqueta">ADMINISTRACIÓN</span>
         <h1 class="titulo-pagina__titulo">Consultar pedidos</h1>
-        <p class="titulo-pagina__descripcion">Buscá pedidos y revisá sus productos, fecha de retiro y estado.</p>
+        <p class="titulo-pagina__descripcion">Buscá pedidos y revisá los datos del cliente, la entrega, los productos y el estado.</p>
     </div>
     <?php if ($puedeRegistrarPedido): ?>
         <div class="acciones">
@@ -27,7 +27,7 @@
                 <?php endforeach; ?>
             </select>
         </label>
-        <label class="campo">Fecha de retiro <select class="campo__entrada" name="fecha">
+        <label class="campo">Fecha de retiro o entrega <select class="campo__entrada" name="fecha">
                 <option value="" <?= $fecha === '' ? 'selected' : '' ?>>Todas las fechas</option>
                 <option value="hoy" <?= $fecha === 'hoy' ? 'selected' : '' ?>>Hoy</option>
                 <option value="proximos" <?= $fecha === 'proximos' ? 'selected' : '' ?>>Desde hoy</option>
@@ -62,42 +62,86 @@
                         <dd><?= $escapar($pedido['telefono']) ?> </dd>
                     </div>
                     <div>
-                        <dt>Retiro </dt>
+                        <dt><?= ($pedido['modalidad_entrega'] ?? 'retiro') === 'domicilio' ? 'Entrega' : 'Retiro' ?> </dt>
                         <dd><?= $escapar(date('d/m/Y', strtotime($pedido['fecha_retiro']))) ?> · <?= $escapar(substr((string) $pedido['hora_retiro'], 0, 5)) ?> </dd>
+                    </div>
+                    <div>
+                        <dt>Modalidad</dt>
+                        <dd>
+                            <?php if (($pedido['modalidad_entrega'] ?? 'retiro') === 'domicilio'): ?>
+                                Envío a domicilio · sin costo
+                                <br><?= $escapar($pedido['direccion_entrega']) ?>
+                            <?php else: ?>
+                                Retiro en el local
+                            <?php endif; ?>
+                        </dd>
                     </div>
                     <div>
                         <dt>Total </dt>
                         <dd><?= $dinero($pedido['total_centavos']) ?> </dd>
                     </div>
-                    <div class="equipo-pedido__sena">
-                        <dt>Seña </dt>
+                    <div class="equipo-pedido__pago">
+                        <dt>Pago total</dt>
                         <dd>
-                            <?php if ($puedeRegistrarSena): ?>
-                                <form class="equipo-pedido__sena-form" method="post"
+                            <span class="equipo-pedido__metodo-pago">
+                                <?= $pedido['metodo_pago'] === 'transferencia' ? 'Transferencia' : 'Pago en el local' ?>
+                            </span>
+                            <span class="insignia <?= $pedido['estado_pago'] === 'pagado' ? 'insignia--exito' : 'insignia--neutra' ?>">
+                                <?= $pedido['estado_pago'] === 'pagado' ? 'Pagado' : 'Pendiente' ?>
+                            </span>
+                            <?php if ($puedeRegistrarPago): ?>
+                                <form class="equipo-pedido__pago-form" method="post"
                                     action="<?= $escapar($url('equipo-pedidos')) ?>">
                                     <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
                                     <input type="hidden" name="id_pedido" value="<?= $pedido['id_pedido'] ?>">
-                                    <input type="hidden" name="sena_recibida" value="0">
-                                    <label class="equipo-pedido__sena-opcion">
-                                        <input type="checkbox" name="sena_recibida" value="1"
-                                            <?= $pedido['sena_recibida'] ? 'checked' : '' ?>> Seña recibida </label>
-                                    <button class="boton boton--contorno equipo-pedido__sena-guardar">Guardar</button>
+                                    <input type="hidden" name="accion" value="registrar_pago">
+                                    <input type="hidden" name="pago_recibido" value="0">
+                                    <label class="equipo-pedido__pago-opcion">
+                                        <input type="checkbox" name="pago_recibido" value="1"
+                                            <?= $pedido['estado_pago'] === 'pagado' ? 'checked' : '' ?>> Pago total recibido
+                                    </label>
+                                    <button class="boton boton--contorno equipo-pedido__pago-guardar" type="submit">Guardar pago</button>
                                 </form>
-                            <?php else: ?>
-                                <?= $pedido['sena_recibida'] ? 'Recibida' : 'Pendiente' ?>
                             <?php endif; ?>
-
                         </dd>
                     </div>
                     <div class="equipo-pedido__productos">
                         <dt>Productos </dt>
                         <dd><?= $escapar($pedido['productos']) ?> </dd>
                     </div>
+                    <?php if (trim((string) $pedido['notas']) !== ''): ?>
+                        <div class="equipo-pedido__notas">
+                            <dt>Indicaciones del cliente</dt>
+                            <dd><?= nl2br($escapar($pedido['notas'])) ?></dd>
+                        </div>
+                    <?php endif; ?>
                 </dl>
+                <?php if ($puedeActualizarEstado && $pedido['estados_siguientes'] !== []): ?>
+                    <form class="equipo-pedido__estado-form" method="post" action="<?= $escapar($url('equipo-pedidos')) ?>">
+                        <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
+                        <input type="hidden" name="accion" value="actualizar_estado">
+                        <input type="hidden" name="id_pedido" value="<?= $pedido['id_pedido'] ?>">
+                        <label class="campo">
+                            <span>Avanzar estado</span>
+                            <select class="campo__entrada" name="estado_nuevo" required>
+                                <?php foreach ($pedido['estados_siguientes'] as $estadoSiguiente): ?>
+                                    <option value="<?= $escapar($estadoSiguiente) ?>"><?= $escapar($estadoSiguiente) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </label>
+                        <button class="boton boton--dorado" type="submit">
+                            <?= in_array('Entregado', $pedido['estados_siguientes'], true) ? 'Guardar avance / registrar entrega' : 'Actualizar estado' ?>
+                        </button>
+                    </form>
+                <?php endif; ?>
+                <div class="equipo-pedido__acciones">
+                    <a class="boton boton--contorno"
+                        href="<?= $escapar($url('equipo-pedido-detalle', ['id' => $pedido['id_pedido']])) ?>">Ver detalle</a>
                 <?php if ($pedido['puede_modificar']): ?>
                     <a class="boton boton--contorno"
                         href="<?= $escapar($url('equipo-pedido-editar', ['id' => $pedido['id_pedido']])) ?>">Ver / modificar pedido</a>
                 <?php endif; ?>
+                </div>
             </article>
         <?php endforeach; ?>
         <?php if (!$pedidos): ?>

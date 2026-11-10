@@ -31,6 +31,9 @@ final class PedidoController
             'telefono' => '',
             'fecha_retiro' => date('Y-m-d', strtotime('+1 day')),
             'hora_retiro' => '10:00',
+            'modalidad_entrega' => 'retiro',
+            'direccion_entrega' => '',
+            'metodo_pago' => 'local',
             'notas' => '',
         ];
         $error = '';
@@ -63,6 +66,7 @@ final class PedidoController
                     $token,
                     (int) $cliente['id_cliente'],
                 );
+                $_SESSION['qba']['pedido_confirmado_metodo_pago'] = $datos['metodo_pago'];
                 Sesion::confirmar($token, $id);
                 Carrito::vaciar();
                 Http::redirigir('pedido-confirmado');
@@ -107,6 +111,7 @@ final class PedidoController
         Vista::mostrar('pedido-confirmado', [
             'tituloPagina' => 'Pedido registrado | Panadería Rustic',
             'idPedido' => $idPedido,
+            'metodoPago' => $_SESSION['qba']['pedido_confirmado_metodo_pago'] ?? 'local',
         ]);
     }
 }

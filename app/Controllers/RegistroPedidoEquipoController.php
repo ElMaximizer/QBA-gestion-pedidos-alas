@@ -29,14 +29,14 @@ final class RegistroPedidoEquipoController
     {
         header('Cache-Control: no-store');
         $usuario = Sesion::requerirEquipo();
-        if (!in_array($usuario['rol'], ['administrador', 'dueno'], true)) {
+        if (!in_array($usuario['rol'], ['empleado', 'administrador', 'dueno'], true)) {
             http_response_code(403);
             Vista::mostrar('error', [
                 'tituloPagina' => 'Acceso no permitido',
                 'layoutEquipo' => true,
                 'mensaje' => $esEdicion
                     ? 'Solo administrador y dueño pueden modificar pedidos.'
-                    : 'El registro de pedidos está disponible para administrador y dueño.',
+                    : 'El registro de pedidos está disponible para el equipo aprobado.',
                 'rutaVolver' => 'equipo-pedidos',
                 'textoVolver' => 'Volver a pedidos',
             ]);
@@ -98,6 +98,8 @@ final class RegistroPedidoEquipoController
             'telefono' => '',
             'fecha_retiro' => date('Y-m-d', strtotime('+1 day')),
             'hora_retiro' => '10:00',
+            'modalidad_entrega' => 'retiro',
+            'direccion_entrega' => '',
             'notas' => '',
             'estado' => 'Pendiente',
             'motivo' => '',
@@ -105,7 +107,7 @@ final class RegistroPedidoEquipoController
         ];
         if ($pedido !== null) {
             foreach (
-                ['cliente_nombre', 'telefono', 'fecha_retiro', 'hora_retiro', 'notas', 'estado']
+                ['cliente_nombre', 'telefono', 'fecha_retiro', 'hora_retiro', 'modalidad_entrega', 'direccion_entrega', 'notas', 'estado']
                 as $campo
             ) {
                 $valores[$campo] = $pedido[$campo];
@@ -137,7 +139,7 @@ final class RegistroPedidoEquipoController
                 }
                 $puedeConfirmar = true;
                 foreach (
-                    ['cliente_nombre', 'telefono', 'fecha_retiro', 'hora_retiro', 'notas']
+                    ['cliente_nombre', 'telefono', 'fecha_retiro', 'hora_retiro', 'modalidad_entrega', 'direccion_entrega', 'notas']
                     as $campo
                 ) {
                     $valores[$campo] = Http::texto($_POST, $campo);

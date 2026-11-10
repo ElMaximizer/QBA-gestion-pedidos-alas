@@ -65,6 +65,64 @@
     grid-column: 1 / -1;
 }
 
+.equipo-pedido__notas {
+    grid-column: 1 / -1;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--cream, #f6f2ea);
+}
+
+.equipo-pedido__datos dd {
+    line-height: 1.5;
+}
+
+.equipo-pedido__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.equipo-pedido__pago {
+    grid-column: span 2;
+}
+
+.equipo-pedido__pago dd {
+    display: grid;
+    justify-items: start;
+    gap: 8px;
+}
+
+.equipo-pedido__pago-form,
+.equipo-pedido__estado-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 10px;
+}
+
+.equipo-pedido__pago-opcion {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.equipo-pedido__pago-opcion input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+}
+
+.equipo-pedido__estado-form {
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--cream, #f6f2ea);
+}
+
+.equipo-pedido__estado-form .campo {
+    min-width: min(100%, 230px);
+    margin: 0;
+}
+
 .equipo-pedido__sena-form {
     display: flex;
     flex-wrap: wrap;
@@ -138,5 +196,14 @@
 
     .equipo-pedido__sena {
         grid-column: 1 / -1;
+    }
+
+    .equipo-pedido__pago {
+        grid-column: 1 / -1;
+    }
+
+    .equipo-pedido__estado-form {
+        align-items: stretch;
+        flex-direction: column;
     }
 }

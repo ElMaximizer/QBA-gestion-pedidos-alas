@@ -35,6 +35,32 @@
     gap: 16px;
 }
 
+.pedido-equipo__modalidad {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin: 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.pedido-equipo__modalidad-opcion {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: inherit;
+    font-weight: 600;
+}
+
+.pedido-equipo__modalidad-opcion input {
+    accent-color: #b98547;
+}
+
+.pedido-equipo__direccion[hidden] {
+    display: none !important;
+}
+
 .pedido-equipo__separador {
     margin: 4px 0;
 }

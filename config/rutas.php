@@ -23,6 +23,7 @@ use App\Controllers\RegistroPedidoEquipoController;
 use App\Controllers\StockEquipoController;
 use App\Controllers\SolicitudesEquipoController;
 use App\Controllers\EntregasMercaderiaController;
+use App\Controllers\VentasEquipoController;
 
 // Nombre interno => [dirección pública, controlador, acción, métodos].
 return [
@@ -96,6 +97,7 @@ return [
         ['GET', 'HEAD', 'POST'],
     ],
     'equipo-panel' => ['equipo/panel', PanelEquipoController::class, 'index', ['GET', 'HEAD']],
+    'equipo-ventas' => ['equipo/ventas', VentasEquipoController::class, 'index', ['GET', 'HEAD']],
     'equipo-consultas' => [
         'equipo/consultas',
         ConsultasEquipoController::class,
@@ -119,6 +121,12 @@ return [
         PedidosEquipoController::class,
         'index',
         ['GET', 'HEAD', 'POST'],
+    ],
+    'equipo-pedido-detalle' => [
+        'equipo/pedidos/detalle',
+        PedidosEquipoController::class,
+        'detalle',
+        ['GET', 'HEAD'],
     ],
     'equipo-pedido-registrar' => [
         'equipo/pedidos/registrar',
