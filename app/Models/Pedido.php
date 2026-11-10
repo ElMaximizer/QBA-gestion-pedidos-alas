@@ -342,6 +342,65 @@ final class Pedido
         return [];
     }
 
+    /** Cancela un pedido desde el listado y registra el cambio en el historial. */
+    public function cancelarDesdeEquipo(int $idPedido, int $idUsuario): void
+    {
+        if ($idPedido < 1 || $idUsuario < 1) {
+            throw new DomainException('Seleccioná un pedido válido.');
+        }
+
+        $this->conexion->beginTransaction();
+        try {
+            $consulta = $this->conexion->prepare("SELECT nombre FROM usuarios_equipo
+                WHERE id_usuario = ? AND estado = 'aprobado'
+                AND rol IN ('administrador', 'dueno') FOR UPDATE");
+            $consulta->execute([$idUsuario]);
+            $responsable = $consulta->fetch(PDO::FETCH_ASSOC);
+            if ($responsable === false) {
+                throw new DomainException('Solo administrador y dueño pueden cancelar pedidos.');
+            }
+
+            $pedido = $this->buscarGestion($idPedido, true);
+            if ($pedido === null) {
+                throw new DomainException('El pedido ya no está disponible. Actualizá el listado.');
+            }
+            if (!in_array($pedido['estado'], ['Pendiente', 'En preparación', 'Listo para retirar'], true)) {
+                throw new DomainException('Este pedido ya no se puede cancelar desde el listado.');
+            }
+
+            $antes = self::instantanea($pedido);
+            $despues = $antes;
+            $despues['estado'] = 'Cancelado';
+
+            $actualizar = $this->conexion->prepare(
+                "UPDATE pedidos SET estado = 'Cancelado' WHERE id_pedido = ? AND estado = ?",
+            );
+            $actualizar->execute([$idPedido, $pedido['estado']]);
+            if ($actualizar->rowCount() !== 1) {
+                throw new DomainException('El estado del pedido cambió. Actualizá el listado e intentá nuevamente.');
+            }
+
+            $consulta = $this->conexion->prepare('INSERT INTO pedido_cambios
+                (id_pedido, id_usuario, nombre_responsable, motivo, antes, despues, token_formulario)
+                VALUES (?, ?, ?, ?, ?, ?, ?)');
+            $consulta->execute([
+                $idPedido,
+                $idUsuario,
+                $responsable['nombre'],
+                'Pedido cancelado desde el listado de pedidos.',
+                json_encode($antes, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
+                json_encode($despues, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
+                bin2hex(random_bytes(32)),
+            ]);
+            $this->conexion->commit();
+        } catch (Throwable $error) {
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
+            throw $error;
+        }
+    }
+
     /** Registra un avance del pedido realizado por una cuenta aprobada del equipo. */
     public function actualizarEstadoEquipo(int $idPedido, string $estadoNuevo, int $idUsuario): void
     {

@@ -207,3 +207,102 @@
         flex-direction: column;
     }
 }
+
+
+.equipo-pedido__cancelar-form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.equipo-pedido__cancelar {
+    min-height: 42px;
+    padding: 9px 16px;
+    border: 1px solid #b83d32;
+    border-radius: 999px;
+    color: #8f2d25;
+    background: #fff;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.equipo-pedido__cancelar:hover {
+    color: #fff;
+    background: #a9362c;
+}
+
+.equipo-pedido__cancelar:focus-visible {
+    outline: 3px solid #d89a90;
+    outline-offset: 3px;
+}
+
+.confirmacion-cancelacion {
+    width: min(100% - 32px, 480px);
+    padding: 0;
+    overflow: visible;
+    border: 1px solid var(--border, #e5d9c9);
+    border-radius: 20px;
+    color: var(--ink, #382b23);
+    background: var(--white, #fffdfa);
+    box-shadow: 0 24px 70px rgb(42 31 22 / 22%);
+}
+
+.confirmacion-cancelacion::backdrop {
+    background: rgb(35 27 22 / 48%);
+    backdrop-filter: blur(3px);
+}
+
+.confirmacion-cancelacion__contenido {
+    padding: clamp(24px, 5vw, 36px);
+}
+
+.confirmacion-cancelacion__titulo {
+    margin: 12px 0;
+    color: var(--ink, #382b23);
+    font-family: var(--font-heading, inherit);
+    font-size: clamp(1.35rem, 4vw, 1.75rem);
+    line-height: 1.2;
+}
+
+.confirmacion-cancelacion__mensaje {
+    margin: 0;
+    color: var(--muted, #766b61);
+    line-height: 1.6;
+}
+
+.confirmacion-cancelacion__acciones {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 26px;
+}
+
+.confirmacion-cancelacion__confirmar {
+    min-height: 42px;
+    padding: 9px 16px;
+    border: 1px solid #a9362c;
+    border-radius: 999px;
+    color: #fff;
+    background: #a9362c;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.confirmacion-cancelacion__confirmar:hover {
+    background: #862a23;
+}
+
+.confirmacion-cancelacion__confirmar:focus-visible,
+.confirmacion-cancelacion__acciones .boton:focus-visible {
+    outline: 3px solid #d89a90;
+    outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+    .confirmacion-cancelacion__acciones {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}
