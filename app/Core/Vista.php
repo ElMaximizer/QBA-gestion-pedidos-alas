@@ -87,6 +87,10 @@ final class Vista
             $estilos[] = 'css/bandeja-equipo.css';
         }
 
+        if ($vista === 'cliente-pedidos') {
+            $estilos[] = 'css/cliente-pedidos.css';
+        }
+
         if ($vista === 'nosotros') {
             $estilos[] = 'css/nosotros.css';
         }
