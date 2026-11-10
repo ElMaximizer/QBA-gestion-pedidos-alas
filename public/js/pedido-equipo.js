@@ -1,3 +1,48 @@
+let formularioParaCancelar = null;
+
+document.addEventListener('submit', (evento) => {
+    const formulario = evento.target.closest('form[data-confirmar-cancelacion]');
+
+    if (!formulario) {
+        return;
+    }
+
+    if (formulario.dataset.confirmado === 'true') {
+        delete formulario.dataset.confirmado;
+        return;
+    }
+
+    evento.preventDefault();
+    const dialogo = document.querySelector('[data-dialogo-cancelacion]');
+
+    if (!dialogo || typeof dialogo.showModal !== 'function') {
+        return;
+    }
+
+    formularioParaCancelar = formulario;
+    const numeroPedido = formulario.dataset.numeroPedido || '';
+    dialogo.querySelector('[data-mensaje-cancelacion]').textContent =
+        `El pedido #${numeroPedido} quedará como Cancelado y se conservará para futuras consultas.`;
+    dialogo.showModal();
+});
+
+document.querySelector('[data-cerrar-cancelacion]')?.addEventListener('click', () => {
+    document.querySelector('[data-dialogo-cancelacion]')?.close();
+    formularioParaCancelar = null;
+});
+
+document.querySelector('[data-aceptar-cancelacion]')?.addEventListener('click', () => {
+    if (!formularioParaCancelar) {
+        return;
+    }
+
+    const formulario = formularioParaCancelar;
+    formularioParaCancelar = null;
+    formulario.dataset.confirmado = 'true';
+    document.querySelector('[data-dialogo-cancelacion]')?.close();
+    formulario.requestSubmit();
+});
+
 function iniciarFormularioPedidoEquipo() {
     const formulario = document.querySelector('[data-pedido-equipo]');
 

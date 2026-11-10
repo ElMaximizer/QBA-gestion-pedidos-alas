@@ -117,6 +117,7 @@ final class Vista
 
         if ($vista === 'equipo-pedidos') {
             $estilos[] = 'css/equipo-pedidos.css';
+            $scripts[] = 'js/pedido-equipo.js';
         }
 
         if ($vista === 'equipo-ventas') {

@@ -137,6 +137,16 @@
                 <div class="equipo-pedido__acciones">
                     <a class="boton boton--contorno"
                         href="<?= $escapar($url('equipo-pedido-detalle', ['id' => $pedido['id_pedido']])) ?>">Ver detalle</a>
+                    <?php if ($pedido['puede_cancelar']): ?>
+                        <form class="equipo-pedido__cancelar-form" method="post"
+                            action="<?= $escapar($url('equipo-pedidos')) ?>"
+                            data-confirmar-cancelacion data-numero-pedido="<?= (int) $pedido['id_pedido'] ?>">
+                            <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
+                            <input type="hidden" name="accion" value="cancelar_pedido">
+                            <input type="hidden" name="id_pedido" value="<?= (int) $pedido['id_pedido'] ?>">
+                            <button class="boton equipo-pedido__cancelar" type="submit">Cancelar pedido</button>
+                        </form>
+                    <?php endif; ?>
                 <?php if ($pedido['puede_modificar']): ?>
                     <a class="boton boton--contorno"
                         href="<?= $escapar($url('equipo-pedido-editar', ['id' => $pedido['id_pedido']])) ?>">Ver / modificar pedido</a>
@@ -166,4 +176,16 @@
             <?php endif; ?>
         </nav>
     <?php endif; ?>
+
+    <dialog class="confirmacion-cancelacion" data-dialogo-cancelacion aria-labelledby="confirmacion-cancelacion-titulo">
+        <section class="confirmacion-cancelacion__contenido">
+            <span class="etiqueta">CANCELAR PEDIDO</span>
+            <h2 class="confirmacion-cancelacion__titulo" id="confirmacion-cancelacion-titulo">¿Estás seguro que quieres cancelar?</h2>
+            <p class="confirmacion-cancelacion__mensaje" data-mensaje-cancelacion></p>
+            <div class="confirmacion-cancelacion__acciones">
+                <button class="boton boton--contorno" type="button" data-cerrar-cancelacion>Volver</button>
+                <button class="boton confirmacion-cancelacion__confirmar" type="button" data-aceptar-cancelacion>Sí, cancelar pedido</button>
+            </div>
+        </section>
+    </dialog>
 </main>
