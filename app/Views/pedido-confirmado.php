@@ -9,6 +9,9 @@
             <p class="vacio__descripcion">Elegiste pagar en el local. El equipo coordinará contigo el pedido.</p>
         <?php endif; ?>
         <div class="acciones vacio__acciones">
+            <?php if ($clienteActual !== null): ?>
+                <a class="boton boton--dorado" href="<?= $url('cliente-pedidos') ?>">Ver mis pedidos</a>
+            <?php endif; ?>
             <a class="boton boton--dorado" href="<?= $url('productos') ?>">Seguir explorando</a>
             <a class="boton boton--contorno" href="<?= $url('inicio') ?>">Volver al inicio</a>
         </div>

@@ -14,6 +14,7 @@ use App\Controllers\GestionProductoController;
 use App\Controllers\PanelEquipoController;
 use App\Controllers\PedidosEquipoController;
 use App\Controllers\PedidoController;
+use App\Controllers\PedidosClienteController;
 use App\Controllers\PermisosEquipoController;
 use App\Controllers\PersonalEquipoController;
 use App\Controllers\ProductoController;
@@ -53,6 +54,7 @@ return [
         'confirmado',
         ['GET', 'HEAD'],
     ],
+    'cliente-pedidos' => ['clientes/pedidos', PedidosClienteController::class, 'index', ['GET', 'HEAD']],
     'registro' => [
         'clientes/registro',
         RegistroController::class,
