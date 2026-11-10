@@ -92,6 +92,60 @@
     gap: 8px;
 }
 
+.equipo-pedido__transferencia-datos {
+    width: min(100%, 420px);
+    padding: 10px 12px;
+    border: 1px solid var(--border, #e5d9c9);
+    border-radius: 10px;
+    background: var(--cream, #f6f2ea);
+}
+
+.equipo-pedido__transferencia-datos summary {
+    color: var(--ink, #382b23);
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.equipo-pedido__transferencia-datos dl {
+    display: grid;
+    gap: 7px;
+    margin: 12px 0 0;
+}
+
+.equipo-pedido__transferencia-datos dl div {
+    display: grid;
+    grid-template-columns: minmax(100px, .7fr) 1.3fr;
+    gap: 10px;
+}
+
+.equipo-pedido__transferencia-datos dt {
+    color: var(--muted, #766b61);
+    font-size: .85rem;
+}
+
+.equipo-pedido__transferencia-datos dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    font-weight: 600;
+}
+
+.equipo-pedido__transferencia-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.equipo-pedido__transferencia-acciones form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.equipo-pedido__transferencia-rechazada {
+    color: #8f2d25;
+    background: #f8e6e2;
+}
+
 .equipo-pedido__pago-form,
 .equipo-pedido__estado-form {
     display: flex;
@@ -205,6 +259,22 @@
     .equipo-pedido__estado-form {
         align-items: stretch;
         flex-direction: column;
+    }
+
+    .equipo-pedido__transferencia-acciones {
+        align-items: stretch;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .equipo-pedido__transferencia-acciones > *,
+    .equipo-pedido__transferencia-acciones .boton {
+        width: 100%;
+    }
+
+    .equipo-pedido__transferencia-datos dl div {
+        grid-template-columns: 1fr;
+        gap: 2px;
     }
 }
 
