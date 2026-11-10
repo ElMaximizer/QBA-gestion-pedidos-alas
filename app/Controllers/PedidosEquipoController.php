@@ -18,7 +18,8 @@ final class PedidosEquipoController
     {
         header('Cache-Control: no-store');
         $usuario = Sesion::requerirEquipo();
-        $puedeRegistrarPago = in_array($usuario['rol'] ?? null, ['administrador', 'dueno'], true);
+        $puedeVerTransferencias = in_array($usuario['rol'] ?? null, ['empleado', 'administrador', 'dueno'], true);
+        $puedeDecidirTransferencias = in_array($usuario['rol'] ?? null, ['administrador', 'dueno'], true);
         $puedeCancelar = in_array($usuario['rol'] ?? null, ['administrador', 'dueno'], true);
         $puedeActualizarEstado = in_array($usuario['rol'] ?? null, ['empleado', 'administrador', 'dueno'], true);
         $error = '';
@@ -34,23 +35,23 @@ final class PedidosEquipoController
                     throw new DomainException('Seleccioná un pedido válido.');
                 }
 
-                if ($accion === 'registrar_pago') {
-                    if (!$puedeRegistrarPago) {
+                if ($accion === 'revisar_transferencia') {
+                    if (!$puedeDecidirTransferencias) {
                         http_response_code(403);
-                        throw new DomainException('Solo administrador y dueño pueden registrar pagos.');
+                        throw new DomainException('Solo administrador y dueño pueden revisar transferencias.');
                     }
-                    $valorPago = $_POST['pago_recibido'] ?? null;
-                    if (!is_string($valorPago) || !in_array($valorPago, ['0', '1'], true)) {
-                        throw new DomainException('Revisá el estado del pago seleccionado.');
+                    $decision = Http::texto($_POST, 'decision');
+                    if (!in_array($decision, ['aprobar', 'rechazar'], true)) {
+                        throw new DomainException('Seleccioná una decisión válida para el comprobante.');
                     }
-                    (new ConsultaPedidos(Conexion::obtener()))->registrarPago(
+                    (new ConsultaPedidos(Conexion::obtener()))->revisarTransferencia(
                         $idPedido,
-                        $valorPago === '1',
+                        $decision === 'aprobar',
                         (int) $usuario['id_usuario'],
                     );
-                    $_SESSION['qba']['aviso_pedidos'] = $valorPago === '1'
-                        ? 'Se registró el pago total del pedido.'
-                        : 'El pago quedó pendiente nuevamente.';
+                    $_SESSION['qba']['aviso_pedidos'] = $decision === 'aprobar'
+                        ? 'La transferencia fue aprobada y el pago quedó confirmado.'
+                        : 'El comprobante fue rechazado. El cliente puede volver a enviarlo.';
                 } elseif ($accion === 'actualizar_estado') {
                     if (!$puedeActualizarEstado) {
                         http_response_code(403);
@@ -128,7 +129,8 @@ final class PedidosEquipoController
                 'busqueda' => $busqueda,
                 'estado' => $estado,
                 'fecha' => $fecha,
-                'puedeRegistrarPago' => $puedeRegistrarPago,
+                'puedeVerTransferencias' => $puedeVerTransferencias,
+                'puedeDecidirTransferencias' => $puedeDecidirTransferencias,
                 'puedeActualizarEstado' => $puedeActualizarEstado,
                 'puedeRegistrarPedido' => in_array(
                     $usuario['rol'],

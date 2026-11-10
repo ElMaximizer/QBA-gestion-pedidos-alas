@@ -1,4 +1,5 @@
 <main id="contenido" class="contenedor panel equipo-pedidos">
+    <?php $datosCuentaTransferencia = \App\Core\Transferencia::configuracion(); ?>
     <div class="titulo-pagina">
         <span class="etiqueta">ADMINISTRACIÓN</span>
         <h1 class="titulo-pagina__titulo">Consultar pedidos</h1>
@@ -81,27 +82,80 @@
                         <dd><?= $dinero($pedido['total_centavos']) ?> </dd>
                     </div>
                     <div class="equipo-pedido__pago">
-                        <dt>Pago total</dt>
+                        <dt>Forma de pago</dt>
                         <dd>
                             <span class="equipo-pedido__metodo-pago">
                                 <?= $pedido['metodo_pago'] === 'transferencia' ? 'Transferencia' : 'Pago en el local' ?>
                             </span>
-                            <span class="insignia <?= $pedido['estado_pago'] === 'pagado' ? 'insignia--exito' : 'insignia--neutra' ?>">
-                                <?= $pedido['estado_pago'] === 'pagado' ? 'Pagado' : 'Pendiente' ?>
+                            <?php
+                            $esTransferencia = $pedido['metodo_pago'] === 'transferencia';
+                            $estadoRevision = $pedido['estado_pago'] === 'pagado'
+                                ? 'aprobada'
+                                : ($pedido['estado_revision_transferencia'] ?? null);
+                            $comprobanteEnviado = $esTransferencia
+                                && !empty($pedido['estado_revision_transferencia']);
+                            $transferenciaInformada = $comprobanteEnviado && $estadoRevision === 'pendiente';
+                            $textoEstadoPago = !$esTransferencia
+                                ? ($pedido['estado_pago'] === 'pagado' ? 'Pagado' : 'Pendiente')
+                                : ($estadoRevision === 'aprobada'
+                                    ? 'Aprobada'
+                                    : ($estadoRevision === 'rechazada'
+                                        ? 'Rechazada'
+                                        : ($comprobanteEnviado
+                                            ? 'Pendiente de aprobación'
+                                            : (!empty($pedido['transferencia_enviada_en']) ? 'Comprobante no disponible' : 'Pendiente'))));
+                            ?>
+                            <span class="insignia <?= in_array($textoEstadoPago, ['Aprobada', 'Pagado'], true) ? 'insignia--exito' : 'insignia--neutra' ?><?= $textoEstadoPago === 'Rechazada' ? ' equipo-pedido__transferencia-rechazada' : '' ?>">
+                                <?= $escapar($textoEstadoPago) ?>
                             </span>
-                            <?php if ($puedeRegistrarPago): ?>
-                                <form class="equipo-pedido__pago-form" method="post"
-                                    action="<?= $escapar($url('equipo-pedidos')) ?>">
-                                    <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
-                                    <input type="hidden" name="id_pedido" value="<?= $pedido['id_pedido'] ?>">
-                                    <input type="hidden" name="accion" value="registrar_pago">
-                                    <input type="hidden" name="pago_recibido" value="0">
-                                    <label class="equipo-pedido__pago-opcion">
-                                        <input type="checkbox" name="pago_recibido" value="1"
-                                            <?= $pedido['estado_pago'] === 'pagado' ? 'checked' : '' ?>> Pago total recibido
-                                    </label>
-                                    <button class="boton boton--contorno equipo-pedido__pago-guardar" type="submit">Guardar pago</button>
-                                </form>
+                            <?php if ($esTransferencia && $puedeVerTransferencias): ?>
+                                <details class="equipo-pedido__transferencia-datos">
+                                    <summary>Ver datos de la transferencia</summary>
+                                    <?php if (\App\Core\Transferencia::configurada($datosCuentaTransferencia)): ?>
+                                        <dl>
+                                            <div><dt>Banco</dt><dd><?= $escapar($datosCuentaTransferencia['banco']) ?></dd></div>
+                                            <div><dt>Titular</dt><dd><?= $escapar($datosCuentaTransferencia['titular']) ?></dd></div>
+                                            <div><dt>Tipo de cuenta</dt><dd><?= $escapar($datosCuentaTransferencia['tipo_cuenta']) ?></dd></div>
+                                            <div><dt>Número de cuenta</dt><dd><?= $escapar($datosCuentaTransferencia['numero_cuenta']) ?></dd></div>
+                                            <?php if ($datosCuentaTransferencia['alias'] !== ''): ?><div><dt>Alias</dt><dd><?= $escapar($datosCuentaTransferencia['alias']) ?></dd></div><?php endif; ?>
+                                            <div><dt>Moneda</dt><dd><?= $escapar($datosCuentaTransferencia['moneda']) ?></dd></div>
+                                        </dl>
+                                    <?php else: ?>
+                                        <p>La cuenta bancaria todavía no está configurada.</p>
+                                    <?php endif; ?>
+                                </details>
+                            <?php endif; ?>
+                            <?php if ($transferenciaInformada): ?>
+                                <small>El cliente adjuntó el comprobante y espera la revisión del pago.</small>
+                            <?php elseif ($esTransferencia && $estadoRevision === 'rechazada'): ?>
+                                <small>El comprobante fue rechazado. El cliente podrá enviar uno nuevo.</small>
+                            <?php elseif ($esTransferencia && !$comprobanteEnviado && !empty($pedido['transferencia_enviada_en'])): ?>
+                                <small>El cliente informó la transferencia, pero no encontramos un comprobante adjunto.</small>
+                            <?php elseif ($esTransferencia && !$comprobanteEnviado && $pedido['estado_pago'] !== 'pagado'): ?>
+                                <small>El cliente todavía no envió el comprobante.</small>
+                            <?php endif; ?>
+                            <?php if ($comprobanteEnviado && $puedeVerTransferencias): ?>
+                                <div class="equipo-pedido__transferencia-acciones">
+                                    <a class="boton boton--contorno" href="<?= $escapar($url('equipo-comprobante-transferencia', ['id' => $pedido['id_pedido']])) ?>" target="_blank" rel="noopener">Ver comprobante</a>
+                                    <?php if ($puedeDecidirTransferencias && $transferenciaInformada): ?>
+                                        <form method="post" action="<?= $escapar($url('equipo-pedidos')) ?>">
+                                            <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
+                                            <input type="hidden" name="id_pedido" value="<?= (int) $pedido['id_pedido'] ?>">
+                                            <input type="hidden" name="accion" value="revisar_transferencia">
+                                            <input type="hidden" name="decision" value="aprobar">
+                                            <button class="boton boton--dorado" type="submit">Aprobar pago</button>
+                                        </form>
+                                        <form method="post" action="<?= $escapar($url('equipo-pedidos')) ?>">
+                                            <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
+                                            <input type="hidden" name="id_pedido" value="<?= (int) $pedido['id_pedido'] ?>">
+                                            <input type="hidden" name="accion" value="revisar_transferencia">
+                                            <input type="hidden" name="decision" value="rechazar">
+                                            <button class="boton boton--contorno" type="submit">Rechazar comprobante</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            <?php elseif ($comprobanteEnviado): ?>
+                                <small>El comprobante está pendiente de revisión por administración.</small>
                             <?php endif; ?>
                         </dd>
                     </div>

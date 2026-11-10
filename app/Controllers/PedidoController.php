@@ -6,6 +6,7 @@ namespace App\Controllers;
 use App\Core\Conexion;
 use App\Core\Http;
 use App\Core\Sesion;
+use App\Core\Transferencia;
 use App\Core\Vista;
 use App\Models\Carrito;
 use App\Models\Pedido;
@@ -67,6 +68,8 @@ final class PedidoController
                     (int) $cliente['id_cliente'],
                 );
                 $_SESSION['qba']['pedido_confirmado_metodo_pago'] = $datos['metodo_pago'];
+                $_SESSION['qba']['pedido_confirmado_total'] = array_sum(array_column($articulos, 'subtotal'));
+                $_SESSION['qba']['pedido_confirmado_nombre'] = $datos['cliente_nombre'];
                 Sesion::confirmar($token, $id);
                 Carrito::vaciar();
                 Http::redirigir('pedido-confirmado');
@@ -112,6 +115,9 @@ final class PedidoController
             'tituloPagina' => 'Pedido registrado | Panadería Rustic',
             'idPedido' => $idPedido,
             'metodoPago' => $_SESSION['qba']['pedido_confirmado_metodo_pago'] ?? 'local',
+            'transferencia' => Transferencia::configuracion(),
+            'totalPedidoCentavos' => (int) ($_SESSION['qba']['pedido_confirmado_total'] ?? 0),
+            'nombrePedidoDialogo' => (string) ($_SESSION['qba']['pedido_confirmado_nombre'] ?? ''),
         ]);
     }
 }

@@ -40,6 +40,7 @@ try {
         'estado_pago' => "ALTER TABLE pedidos ADD COLUMN estado_pago VARCHAR(20) NOT NULL DEFAULT 'pendiente' AFTER metodo_pago",
         'pago_confirmado_en' => 'ALTER TABLE pedidos ADD COLUMN pago_confirmado_en DATETIME NULL AFTER estado_pago',
         'id_usuario_pago' => 'ALTER TABLE pedidos ADD COLUMN id_usuario_pago INT UNSIGNED NULL AFTER pago_confirmado_en',
+        'transferencia_enviada_en' => 'ALTER TABLE pedidos ADD COLUMN transferencia_enviada_en DATETIME NULL AFTER id_usuario_pago',
         'entregado_en' => 'ALTER TABLE pedidos ADD COLUMN entregado_en DATETIME NULL AFTER id_usuario_pago',
         'id_usuario_entrega' => 'ALTER TABLE pedidos ADD COLUMN id_usuario_entrega INT UNSIGNED NULL AFTER entregado_en',
     ];
@@ -59,6 +60,7 @@ try {
     $conexion->exec(file_get_contents(__DIR__ . '/clientes.sql'));
     $conexion->exec(file_get_contents(__DIR__ . '/acceso-clientes.sql'));
     $conexion->exec(file_get_contents(__DIR__ . '/equipo.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/comprobantes-transferencia.sql'));
     $estadoEquipo = $conexion->query("SHOW COLUMNS FROM usuarios_equipo LIKE 'estado'")->fetch(PDO::FETCH_ASSOC);
     if ($estadoEquipo !== false && !str_contains((string) $estadoEquipo['Type'], 'desactivado')) {
         $conexion->exec("ALTER TABLE usuarios_equipo MODIFY estado ENUM('pendiente', 'aprobado', 'rechazado', 'desactivado') NOT NULL DEFAULT 'pendiente'");

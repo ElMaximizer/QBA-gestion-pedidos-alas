@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
     estado_pago VARCHAR(20) NOT NULL DEFAULT 'pendiente',
     pago_confirmado_en DATETIME NULL,
     id_usuario_pago INT UNSIGNED NULL,
+    transferencia_enviada_en DATETIME NULL,
     entregado_en DATETIME NULL,
     id_usuario_entrega INT UNSIGNED NULL,
     notas TEXT NOT NULL,

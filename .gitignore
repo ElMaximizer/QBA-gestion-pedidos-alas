@@ -1,4 +1,5 @@
 /config/correo.local.php
+/config/transferencia.local.php
 /public/images/productos/*
 !/public/images/productos/.htaccess
 /node_modules/

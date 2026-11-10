@@ -105,10 +105,12 @@ final class ConsultaPedidos
             'SELECT p.id_pedido, p.cliente_nombre, p.telefono, p.fecha_retiro,
                 p.hora_retiro, p.modalidad_entrega, p.direccion_entrega, p.notas,
                 p.estado, p.total, p.metodo_pago, p.estado_pago, p.pago_confirmado_en,
+                p.transferencia_enviada_en, MAX(c.estado_revision) AS estado_revision_transferencia,
                 p.sena_recibida, p.creado_en,
                 COALESCE(GROUP_CONCAT(CONCAT(d.nombre_producto, \' × \', d.cantidad)
                     ORDER BY d.id_detalle SEPARATOR \', \'), \'Sin detalle disponible\') AS productos
-            FROM pedidos p LEFT JOIN pedido_detalles d ON d.id_pedido = p.id_pedido' .
+            FROM pedidos p LEFT JOIN pedido_detalles d ON d.id_pedido = p.id_pedido
+                LEFT JOIN comprobantes_transferencia c ON c.id_pedido = p.id_pedido' .
                 $condicion .
                 ' GROUP BY p.id_pedido ORDER BY p.creado_en DESC, p.id_pedido DESC LIMIT ? OFFSET ?',
         );
@@ -155,47 +157,57 @@ final class ConsultaPedidos
         $consulta->execute([$recibida ? 1 : 0, $idPedido]);
     }
 
-    public function registrarPago(int $idPedido, bool $pagado, int $idUsuario): void
+    public function revisarTransferencia(int $idPedido, bool $aprobada, int $idUsuario): void
     {
         if ($idPedido < 1 || $idUsuario < 1) {
             throw new DomainException('Seleccioná un pedido y una cuenta válidos.');
         }
+
         $this->conexion->beginTransaction();
         try {
             $cuenta = $this->conexion->prepare("SELECT id_usuario FROM usuarios_equipo
                 WHERE id_usuario = ? AND estado = 'aprobado'
-                AND rol IN ('administrador', 'dueno') FOR UPDATE");
+                    AND rol IN ('administrador', 'dueno') FOR UPDATE");
             $cuenta->execute([$idUsuario]);
             if (!$cuenta->fetchColumn()) {
-                throw new DomainException('Solo administrador y dueño pueden registrar pagos.');
+                throw new DomainException('Solo administrador y dueño pueden aprobar o rechazar transferencias.');
             }
 
-            $pedido = $this->conexion->prepare(
-                'SELECT estado, estado_pago FROM pedidos WHERE id_pedido = ? FOR UPDATE',
-            );
-            $pedido->execute([$idPedido]);
-            $actual = $pedido->fetch(PDO::FETCH_ASSOC);
-            if ($actual === false) {
-                throw new DomainException('El pedido ya no está disponible. Actualizá el listado.');
-            }
-            $estadoPago = $pagado ? 'pagado' : 'pendiente';
-            if ($actual['estado'] === 'Cancelado' && $pagado) {
-                throw new DomainException('No se puede registrar un pago para un pedido cancelado.');
-            }
-            if ($actual['estado_pago'] === $estadoPago) {
-                $this->conexion->commit();
-                return;
+            $consulta = $this->conexion->prepare('SELECT estado, estado_pago, metodo_pago, transferencia_enviada_en
+                FROM pedidos WHERE id_pedido = ? FOR UPDATE');
+            $consulta->execute([$idPedido]);
+            $pedido = $consulta->fetch(PDO::FETCH_ASSOC);
+            if ($pedido === false || $pedido['metodo_pago'] !== 'transferencia'
+                || empty($pedido['transferencia_enviada_en']) || $pedido['estado'] === 'Cancelado') {
+                throw new DomainException('No hay una transferencia pendiente para revisar en este pedido.');
             }
 
-            if ($pagado) {
-                $guardar = $this->conexion->prepare('UPDATE pedidos SET estado_pago = ?,
-                    pago_confirmado_en = CURRENT_TIMESTAMP, id_usuario_pago = ? WHERE id_pedido = ?');
-                $guardar->execute([$estadoPago, $idUsuario, $idPedido]);
+            $comprobante = $this->conexion->prepare('SELECT estado_revision FROM comprobantes_transferencia
+                WHERE id_pedido = ? FOR UPDATE');
+            $comprobante->execute([$idPedido]);
+            $estadoRevision = $comprobante->fetchColumn();
+            if ($estadoRevision === false) {
+                throw new DomainException('No encontramos el comprobante adjunto a este pedido.');
+            }
+            if ($estadoRevision !== 'pendiente' || $pedido['estado_pago'] === 'pagado') {
+                throw new DomainException('Este comprobante ya fue revisado.');
+            }
+
+            if ($aprobada) {
+                $actualizar = $this->conexion->prepare("UPDATE pedidos SET estado_pago = 'pagado',
+                    pago_confirmado_en = CURRENT_TIMESTAMP, id_usuario_pago = ? WHERE id_pedido = ?");
+                $actualizar->execute([$idUsuario, $idPedido]);
             } else {
-                $guardar = $this->conexion->prepare('UPDATE pedidos SET estado_pago = ?,
-                    pago_confirmado_en = NULL, id_usuario_pago = NULL WHERE id_pedido = ?');
-                $guardar->execute([$estadoPago, $idPedido]);
+                $actualizar = $this->conexion->prepare("UPDATE pedidos SET estado_pago = 'pendiente',
+                    pago_confirmado_en = NULL, id_usuario_pago = NULL
+                    WHERE id_pedido = ?");
+                $actualizar->execute([$idPedido]);
             }
+
+            $marcarRevision = $this->conexion->prepare('UPDATE comprobantes_transferencia
+                SET estado_revision = ? WHERE id_pedido = ?');
+            $marcarRevision->execute([$aprobada ? 'aprobada' : 'rechazada', $idPedido]);
+
             $this->conexion->commit();
         } catch (\Throwable $error) {
             if ($this->conexion->inTransaction()) {

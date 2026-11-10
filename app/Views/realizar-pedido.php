@@ -63,7 +63,7 @@
                 <label class="entrega-opciones__opcion">
                     <input type="radio" name="metodo_pago" value="transferencia"
                         <?= ($datos['metodo_pago'] ?? 'local') === 'transferencia' ? 'checked' : '' ?> required>
-                    <span><strong>Transferencia por el total</strong><small>El equipo coordinará los datos y confirmará la recepción del pago.</small></span>
+                    <span><strong>Transferencia por el total</strong><small>Después de confirmar el pedido verás los datos de la cuenta y podrás avisar cuando hayas transferido.</small></span>
                 </label>
                 <label class="entrega-opciones__opcion">
                     <input type="radio" name="metodo_pago" value="local"
@@ -89,7 +89,7 @@
             <?php else: ?>
                 <a class="boton boton--dorado boton--completo" href="<?= $url('carrito') ?>">Revisar carrito</a>
             <?php endif; ?>
-            <p class="texto-pequeno resumen__texto">El envío a domicilio es gratuito. La transferencia se coordina fuera del sitio y queda pendiente hasta que el equipo confirme su recepción.</p>
+            <p class="texto-pequeno resumen__texto">El envío a domicilio es gratuito. Si elegís transferencia, el pedido quedará pendiente hasta que el equipo confirme la recepción.</p>
         </aside>
     </form>
 </main>

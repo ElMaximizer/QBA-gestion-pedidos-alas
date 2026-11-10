@@ -4,6 +4,7 @@ declare(strict_types=1);
 use App\Controllers\AccesoController;
 use App\Controllers\AccesoEquipoController;
 use App\Controllers\CarritoController;
+use App\Controllers\ComprobanteTransferenciaController;
 use App\Controllers\ContactoController;
 use App\Controllers\ConsultasEquipoController;
 use App\Controllers\ContenidoInicioController;
@@ -55,6 +56,8 @@ return [
         ['GET', 'HEAD'],
     ],
     'cliente-pedidos' => ['clientes/pedidos', PedidosClienteController::class, 'index', ['GET', 'HEAD']],
+    'cliente-transferencia-enviada' => ['clientes/pedidos/transferencia-enviada', PedidosClienteController::class, 'informarTransferencia', ['POST']],
+    'equipo-comprobante-transferencia' => ['equipo/pedidos/comprobante', ComprobanteTransferenciaController::class, 'ver', ['GET', 'HEAD']],
     'registro' => [
         'clientes/registro',
         RegistroController::class,

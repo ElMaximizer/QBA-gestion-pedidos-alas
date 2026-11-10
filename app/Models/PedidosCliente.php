@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use DomainException;
 use PDO;
 
 /** Pedidos visibles únicamente para la cuenta de cliente autenticada. */
@@ -23,9 +24,11 @@ final class PedidosCliente
 
         $consulta = $this->conexion->prepare('SELECT p.id_pedido, p.cliente_nombre, p.telefono,
             p.fecha_retiro, p.hora_retiro, p.modalidad_entrega, p.direccion_entrega,
-            p.metodo_pago, p.estado_pago, p.notas, p.estado, p.total, p.creado_en,
+            p.metodo_pago, p.estado_pago, p.transferencia_enviada_en, c.estado_revision AS estado_revision_transferencia,
+            p.notas, p.estado, p.total, p.creado_en,
             d.nombre_producto, d.cantidad, d.precio_unitario
             FROM pedidos p LEFT JOIN pedido_detalles d ON d.id_pedido = p.id_pedido
+            LEFT JOIN comprobantes_transferencia c ON c.id_pedido = p.id_pedido
             WHERE p.id_cliente = ?
             ORDER BY p.creado_en DESC, p.id_pedido DESC, d.id_detalle ASC');
         $consulta->execute([$idCliente]);
@@ -43,6 +46,8 @@ final class PedidosCliente
                     'direccion_entrega' => $fila['direccion_entrega'],
                     'metodo_pago' => $fila['metodo_pago'],
                     'estado_pago' => $fila['estado_pago'],
+                    'transferencia_enviada_en' => $fila['transferencia_enviada_en'],
+                    'estado_revision_transferencia' => $fila['estado_revision_transferencia'],
                     'hora_retiro' => substr((string) $fila['hora_retiro'], 0, 5),
                     'notas' => $fila['notas'],
                     'estado' => $fila['estado'],
@@ -60,6 +65,25 @@ final class PedidosCliente
             }
         }
         return array_values($pedidos);
+    }
+
+    public function informarTransferencia(int $idPedido, int $idCliente): void
+    {
+        if ($idPedido < 1 || $idCliente < 1) {
+            throw new DomainException('Seleccioná un pedido válido.');
+        }
+
+        $actualizar = $this->conexion->prepare("UPDATE pedidos
+            SET transferencia_enviada_en = CURRENT_TIMESTAMP
+            WHERE id_pedido = ? AND id_cliente = ? AND metodo_pago = 'transferencia'
+                AND estado_pago = 'pendiente' AND estado <> 'Cancelado'
+                AND transferencia_enviada_en IS NULL");
+        $actualizar->execute([$idPedido, $idCliente]);
+        if ($actualizar->rowCount() !== 1) {
+            throw new DomainException(
+                'No se pudo informar la transferencia. Revisá que sea un pedido propio pendiente y que no hayas enviado el aviso antes.',
+            );
+        }
     }
 
     private static function centavos(string $importe): int
