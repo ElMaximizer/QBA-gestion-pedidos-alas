@@ -22,6 +22,27 @@
             <p class="panel-estadistica__detalle">Revisa los horarios de retiro</p>
         </article>
     </div>
+    <div class="acciones">
+        <a class="boton boton--dorado" href="<?= $url('equipo-pedido-registrar') ?>">+ Registrar pedido</a>
+        <a class="boton boton--contorno" href="<?= $url('equipo-pedidos') ?>">Consultar pedidos</a>
+        <?php if (in_array($usuario['rol'], ['administrador', 'dueno'], true)): ?>
+            <a class="boton boton--contorno" href="<?= $url('equipo-ventas') ?>">Consultar ventas</a>
+        <?php endif; ?>
+    </div>
+    <section class="panel-atencion" aria-labelledby="titulo-productos-solicitados">
+        <h2 class="panel-atencion__titulo" id="titulo-productos-solicitados">Productos más solicitados</h2>
+        <?php if ($productosMasSolicitados === []): ?>
+            <p class="vacio__descripcion">Todavía no hay pedidos para mostrar estadísticas.</p>
+        <?php else: ?>
+            <ol class="panel__productos-solicitados">
+                <?php foreach ($productosMasSolicitados as $productoSolicitado): ?>
+                    <li><strong><?= $escapar($productoSolicitado['nombre_producto']) ?></strong>
+                        <span><?= (int) $productoSolicitado['unidades'] ?> unidades en <?= (int) $productoSolicitado['pedidos'] ?> pedidos</span>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+        <?php endif; ?>
+    </section>
     <section class="panel-atencion" aria-labelledby="titulo-atencion">
         <h2 class="panel-atencion__titulo" id="titulo-atencion">Atención del equipo</h2>
         <div class="acciones panel-atencion__acciones">

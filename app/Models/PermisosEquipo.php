@@ -25,9 +25,9 @@ final class PermisosEquipo
         return new self(Conexion::obtener());
     }
 
-    public function listar(string $busqueda = '', string $rol = ''): array
+    public function listar(string $busqueda = '', string $rol = '', bool $incluirDesactivados = false): array
     {
-        return (new PersonalEquipo($this->conexion))->listar($busqueda, $rol);
+        return (new PersonalEquipo($this->conexion))->listar($busqueda, $rol, $incluirDesactivados);
     }
 
     public function cambiarRol(int $idUsuario, int $idDueno, string $rolNuevo): void
@@ -69,6 +69,46 @@ final class PermisosEquipo
                 );
             }
 
+            $this->conexion->commit();
+        } catch (Throwable $error) {
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
+            throw $error;
+        }
+    }
+
+    public function cambiarEstado(int $idUsuario, int $idDueno, string $accion): void
+    {
+        if ($idUsuario < 1 || $idDueno < 1 || !in_array($accion, ['desactivar', 'reactivar'], true)) {
+            throw new DomainException('Seleccioná una cuenta y una acción válidas.');
+        }
+        if ($idUsuario === $idDueno) {
+            throw new DomainException('No podés modificar el estado de tu propia cuenta de dueño.');
+        }
+
+        $this->conexion->beginTransaction();
+        try {
+            $consulta = $this->conexion->prepare(
+                'SELECT id_usuario, estado, rol FROM usuarios_equipo WHERE id_usuario = ? FOR UPDATE',
+            );
+            $consulta->execute([$idUsuario]);
+            $usuario = $consulta->fetch(PDO::FETCH_ASSOC);
+            if (!$usuario || !in_array($usuario['rol'], ['empleado', 'administrador'], true)) {
+                throw new DomainException('La cuenta no está disponible para esta acción.');
+            }
+            $estadoEsperado = $accion === 'desactivar' ? 'aprobado' : 'desactivado';
+            $estadoNuevo = $accion === 'desactivar' ? 'desactivado' : 'aprobado';
+            if ($usuario['estado'] !== $estadoEsperado) {
+                throw new DomainException('El estado de la cuenta cambió. Actualizá la lista.');
+            }
+            $actualizar = $this->conexion->prepare(
+                'UPDATE usuarios_equipo SET estado = ? WHERE id_usuario = ? AND estado = ?',
+            );
+            $actualizar->execute([$estadoNuevo, $idUsuario, $estadoEsperado]);
+            if ($actualizar->rowCount() !== 1) {
+                throw new DomainException('No se pudo actualizar la cuenta. Recargá e intentá nuevamente.');
+            }
             $this->conexion->commit();
         } catch (Throwable $error) {
             if ($this->conexion->inTransaction()) {

@@ -70,6 +70,11 @@ final class Vista
             $scripts[] = 'js/carrito.js';
         }
 
+        if ($vista === 'realizar-pedido') {
+            $estilos[] = 'css/entrega-pedido.css';
+            $scripts[] = 'js/entrega-pedido.js';
+        }
+
         if ($vista === 'inicio') {
             $scripts[] = 'js/carrusel-inicio.js';
         }
@@ -114,9 +119,17 @@ final class Vista
             $estilos[] = 'css/equipo-pedidos.css';
         }
 
+        if ($vista === 'equipo-ventas') {
+            $estilos[] = 'css/equipo-ventas.css';
+        }
+
         if ($vista === 'equipo-pedido-form') {
             $estilos[] = 'css/equipo-pedido-form.css';
             $scripts[] = 'js/pedido-equipo.js';
+        }
+
+        if ($vista === 'equipo-pedido-detalle') {
+            $estilos[] = 'css/equipo-pedido-detalle.css';
         }
 
         if ($esPersonalEquipo) {

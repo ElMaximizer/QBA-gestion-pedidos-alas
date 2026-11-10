@@ -42,17 +42,30 @@ final class PermisosEquipoController
                     'options' => ['min_range' => 1],
                 ]);
                 $rolNuevo = Http::texto($_POST, 'rol');
+                $accion = Http::texto($_POST, 'accion', 'cambiar_rol');
                 if ($idUsuario === false) {
                     throw new DomainException('Seleccioná una cuenta válida.');
                 }
-
-                PermisosEquipo::gestion()->cambiarRol(
-                    $idUsuario,
-                    (int) $dueno['id_usuario'],
-                    $rolNuevo,
-                );
-                $_SESSION['qba']['aviso_permisos'] =
-                    'Rol actualizado correctamente. El nuevo permiso se aplica desde la siguiente petición.';
+                if ($accion === 'cambiar_rol') {
+                    PermisosEquipo::gestion()->cambiarRol(
+                        $idUsuario,
+                        (int) $dueno['id_usuario'],
+                        $rolNuevo,
+                    );
+                    $_SESSION['qba']['aviso_permisos'] =
+                        'Rol actualizado correctamente. El nuevo permiso se aplica desde la siguiente petición.';
+                } elseif (in_array($accion, ['desactivar', 'reactivar'], true)) {
+                    PermisosEquipo::gestion()->cambiarEstado(
+                        $idUsuario,
+                        (int) $dueno['id_usuario'],
+                        $accion,
+                    );
+                    $_SESSION['qba']['aviso_permisos'] = $accion === 'desactivar'
+                        ? 'La cuenta fue desactivada. Se cerrará su acceso en la siguiente petición.'
+                        : 'La cuenta fue reactivada y puede volver a ingresar.';
+                } else {
+                    throw new DomainException('Seleccioná una acción válida.');
+                }
                 Http::redirigir('equipo-permisos');
             }
         } catch (DomainException $excepcion) {
@@ -65,7 +78,7 @@ final class PermisosEquipoController
         }
 
         try {
-            $usuarios = PermisosEquipo::gestion()->listar($busqueda, $rol);
+            $usuarios = PermisosEquipo::gestion()->listar($busqueda, $rol, true);
         } catch (DomainException $excepcion) {
             http_response_code(422);
             $error = $error !== '' ? $error : $excepcion->getMessage();

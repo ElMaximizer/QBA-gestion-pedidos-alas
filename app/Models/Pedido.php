@@ -52,7 +52,7 @@ final class Pedido
             if ($idUsuarioRegistro !== null) {
                 $consulta = $this->conexion
                     ->prepare("SELECT id_usuario FROM usuarios_equipo WHERE id_usuario = ?
-                    AND estado = 'aprobado' AND rol IN ('administrador', 'dueno') LOCK IN SHARE MODE");
+                    AND estado = 'aprobado' AND rol IN ('empleado', 'administrador', 'dueno') LOCK IN SHARE MODE");
                 $consulta->execute([$idUsuarioRegistro]);
                 if (!$consulta->fetchColumn()) {
                     throw new DomainException(
@@ -117,9 +117,15 @@ final class Pedido
             if ($total > 9999999999) {
                 throw new DomainException('El total supera el máximo permitido.');
             }
+            $modalidadEntrega = $datos['modalidad_entrega'] ?? 'retiro';
+            $direccionEntrega = $modalidadEntrega === 'domicilio'
+                ? trim($datos['direccion_entrega'] ?? '')
+                : '';
+            $metodoPago = $datos['metodo_pago'] ?? 'local';
             $consulta = $this->conexion->prepare('INSERT INTO pedidos
-                (id_cliente, id_usuario_registro, cliente_nombre, telefono, fecha_retiro, hora_retiro, notas, total, token_confirmacion)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+                (id_cliente, id_usuario_registro, cliente_nombre, telefono, fecha_retiro, hora_retiro,
+                modalidad_entrega, direccion_entrega, metodo_pago, estado_pago, notas, total, token_confirmacion)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, \'pendiente\', ?, ?, ?)');
             $consulta->execute([
                 $idCliente,
                 $idUsuarioRegistro,
@@ -127,6 +133,9 @@ final class Pedido
                 $datos['telefono'],
                 $datos['fecha_retiro'],
                 $datos['hora_retiro'],
+                $modalidadEntrega,
+                $direccionEntrega,
+                $metodoPago,
                 $datos['notas'],
                 self::decimal($total),
                 $token,
@@ -187,6 +196,25 @@ final class Pedido
 
     public static function validar(array $datos, bool $exigirRetiroFuturo = true): void
     {
+        $modalidadEntrega = $datos['modalidad_entrega'] ?? 'retiro';
+        $direccionEntrega = $datos['direccion_entrega'] ?? '';
+        $metodoPago = $datos['metodo_pago'] ?? 'local';
+        if (!in_array($modalidadEntrega, ['retiro', 'domicilio'], true)) {
+            throw new DomainException('Elegí retiro en el local o envío a domicilio.');
+        }
+        if (!in_array($metodoPago, ['transferencia', 'local'], true)) {
+            throw new DomainException('Elegí transferencia total o pago en el local.');
+        }
+        if (
+            !is_string($direccionEntrega) ||
+            !mb_check_encoding($direccionEntrega, 'UTF-8') ||
+            mb_strlen($direccionEntrega) > 250 ||
+            ($modalidadEntrega === 'domicilio' && trim($direccionEntrega) === '')
+        ) {
+            throw new DomainException(
+                'Ingresá una dirección válida de hasta 250 caracteres para el envío a domicilio.',
+            );
+        }
         foreach (
             [
                 'cliente_nombre' => 120,
@@ -300,6 +328,71 @@ final class Pedido
                 in_array($estado, ['Pendiente', 'En preparación', 'Listo para retirar'], true));
     }
 
+    public static function siguientesEstados(string $estado, string $modalidadEntrega = 'retiro'): array
+    {
+        if ($estado === 'Pendiente') {
+            return ['En preparación'];
+        }
+        if ($estado === 'En preparación') {
+            return $modalidadEntrega === 'domicilio' ? ['Entregado'] : ['Listo para retirar'];
+        }
+        if ($estado === 'Listo para retirar') {
+            return ['Entregado'];
+        }
+        return [];
+    }
+
+    /** Registra un avance del pedido realizado por una cuenta aprobada del equipo. */
+    public function actualizarEstadoEquipo(int $idPedido, string $estadoNuevo, int $idUsuario): void
+    {
+        if ($idPedido < 1 || $idUsuario < 1) {
+            throw new DomainException('Seleccioná un pedido válido.');
+        }
+
+        $this->conexion->beginTransaction();
+        try {
+            $consulta = $this->conexion->prepare("SELECT id_usuario, rol FROM usuarios_equipo
+                WHERE id_usuario = ? AND estado = 'aprobado'
+                AND rol IN ('empleado', 'administrador', 'dueno') FOR UPDATE");
+            $consulta->execute([$idUsuario]);
+            if ($consulta->fetch(PDO::FETCH_ASSOC) === false) {
+                throw new DomainException('Tu cuenta no tiene permiso para actualizar pedidos.');
+            }
+
+            $consulta = $this->conexion->prepare(
+                'SELECT estado, modalidad_entrega FROM pedidos WHERE id_pedido = ? FOR UPDATE',
+            );
+            $consulta->execute([$idPedido]);
+            $pedido = $consulta->fetch(PDO::FETCH_ASSOC);
+            if ($pedido === false) {
+                throw new DomainException('El pedido ya no está disponible. Actualizá el listado.');
+            }
+            if (!in_array($estadoNuevo, self::siguientesEstados($pedido['estado'], $pedido['modalidad_entrega']), true)) {
+                throw new DomainException('Ese cambio de estado no está permitido para el pedido.');
+            }
+
+            if ($estadoNuevo === 'Entregado') {
+                $actualizar = $this->conexion->prepare('UPDATE pedidos
+                    SET estado = ?, entregado_en = CURRENT_TIMESTAMP, id_usuario_entrega = ?
+                    WHERE id_pedido = ? AND estado = ?');
+                $actualizar->execute([$estadoNuevo, $idUsuario, $idPedido, $pedido['estado']]);
+            } else {
+                $actualizar = $this->conexion->prepare('UPDATE pedidos
+                    SET estado = ? WHERE id_pedido = ? AND estado = ?');
+                $actualizar->execute([$estadoNuevo, $idPedido, $pedido['estado']]);
+            }
+            if ($actualizar->rowCount() !== 1) {
+                throw new DomainException('El pedido cambió en otra pantalla. Actualizá el listado.');
+            }
+            $this->conexion->commit();
+        } catch (Throwable $error) {
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
+            throw $error;
+        }
+    }
+
     public function modificar(
         int $id,
         array $datos,
@@ -411,14 +504,20 @@ final class Pedido
                 $this->conexion->commit();
                 return;
             }
+            $modalidadEntrega = $datos['modalidad_entrega'] ?? 'retiro';
+            $direccionEntrega = $modalidadEntrega === 'domicilio'
+                ? trim($datos['direccion_entrega'] ?? '')
+                : '';
             $consulta = $this->conexion
                 ->prepare('UPDATE pedidos SET cliente_nombre = ?, telefono = ?, fecha_retiro = ?,
-                hora_retiro = ?, notas = ?, estado = ?, total = ? WHERE id_pedido = ?');
+                hora_retiro = ?, modalidad_entrega = ?, direccion_entrega = ?, notas = ?, estado = ?, total = ? WHERE id_pedido = ?');
             $consulta->execute([
                 $datos['cliente_nombre'],
                 $datos['telefono'],
                 $datos['fecha_retiro'],
                 $datos['hora_retiro'],
+                $modalidadEntrega,
+                $direccionEntrega,
                 $datos['notas'],
                 $datos['estado'],
                 self::decimal($total),
@@ -489,10 +588,10 @@ final class Pedido
     {
         $datos = [];
         foreach (
-            ['cliente_nombre', 'telefono', 'fecha_retiro', 'hora_retiro', 'notas', 'estado']
+            ['cliente_nombre', 'telefono', 'fecha_retiro', 'hora_retiro', 'modalidad_entrega', 'direccion_entrega', 'notas', 'estado']
             as $campo
         ) {
-            $datos[$campo] = $pedido[$campo];
+            $datos[$campo] = $pedido[$campo] ?? ($campo === 'modalidad_entrega' ? 'retiro' : '');
         }
         $datos['total_centavos'] = $pedido['total_centavos'];
         $datos['lineas'] = [];

@@ -33,6 +33,21 @@ final class ConsultaPedidos
         return array_map('intval', $consulta->fetch(PDO::FETCH_ASSOC));
     }
 
+    /** Indicadores de demanda para HU23, basados en pedidos no cancelados. */
+    public function productosMasSolicitados(int $limite = 5): array
+    {
+        $limite = max(1, min($limite, 10));
+        $consulta = $this->conexion->query("SELECT d.nombre_producto, SUM(d.cantidad) AS unidades,
+            COUNT(DISTINCT d.id_pedido) AS pedidos
+            FROM pedido_detalles d
+            INNER JOIN pedidos p ON p.id_pedido = d.id_pedido
+            WHERE p.estado <> 'Cancelado'
+            GROUP BY d.nombre_producto
+            ORDER BY unidades DESC, d.nombre_producto ASC
+            LIMIT " . $limite);
+        return $consulta->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function listar(
         string $busqueda = '',
         string $estado = '',
@@ -53,9 +68,18 @@ final class ConsultaPedidos
         $parametros = [];
         if ($busqueda !== '') {
             $condicionesSql[] = '(CAST(p.id_pedido AS CHAR) LIKE ? OR p.cliente_nombre LIKE ? OR p.telefono LIKE ?
+                OR p.direccion_entrega LIKE ? OR p.notas LIKE ?
                 OR EXISTS (SELECT 1 FROM pedido_detalles d2 WHERE d2.id_pedido = p.id_pedido AND d2.nombre_producto LIKE ?))';
             $coincidencia = '%' . $busqueda . '%';
-            array_push($parametros, $coincidencia, $coincidencia, $coincidencia, $coincidencia);
+            array_push(
+                $parametros,
+                $coincidencia,
+                $coincidencia,
+                $coincidencia,
+                $coincidencia,
+                $coincidencia,
+                $coincidencia,
+            );
         }
         if ($estado !== '') {
             $condicionesSql[] = 'p.estado = ?';
@@ -79,7 +103,9 @@ final class ConsultaPedidos
 
         $consulta = $this->conexion->prepare(
             'SELECT p.id_pedido, p.cliente_nombre, p.telefono, p.fecha_retiro,
-                p.hora_retiro, p.estado, p.total, p.sena_recibida, p.creado_en,
+                p.hora_retiro, p.modalidad_entrega, p.direccion_entrega, p.notas,
+                p.estado, p.total, p.metodo_pago, p.estado_pago, p.pago_confirmado_en,
+                p.sena_recibida, p.creado_en,
                 COALESCE(GROUP_CONCAT(CONCAT(d.nombre_producto, \' × \', d.cantidad)
                     ORDER BY d.id_detalle SEPARATOR \', \'), \'Sin detalle disponible\') AS productos
             FROM pedidos p LEFT JOIN pedido_detalles d ON d.id_pedido = p.id_pedido' .
@@ -127,6 +153,56 @@ final class ConsultaPedidos
             'UPDATE pedidos SET sena_recibida = ? WHERE id_pedido = ?',
         );
         $consulta->execute([$recibida ? 1 : 0, $idPedido]);
+    }
+
+    public function registrarPago(int $idPedido, bool $pagado, int $idUsuario): void
+    {
+        if ($idPedido < 1 || $idUsuario < 1) {
+            throw new DomainException('Seleccioná un pedido y una cuenta válidos.');
+        }
+        $this->conexion->beginTransaction();
+        try {
+            $cuenta = $this->conexion->prepare("SELECT id_usuario FROM usuarios_equipo
+                WHERE id_usuario = ? AND estado = 'aprobado'
+                AND rol IN ('administrador', 'dueno') FOR UPDATE");
+            $cuenta->execute([$idUsuario]);
+            if (!$cuenta->fetchColumn()) {
+                throw new DomainException('Solo administrador y dueño pueden registrar pagos.');
+            }
+
+            $pedido = $this->conexion->prepare(
+                'SELECT estado, estado_pago FROM pedidos WHERE id_pedido = ? FOR UPDATE',
+            );
+            $pedido->execute([$idPedido]);
+            $actual = $pedido->fetch(PDO::FETCH_ASSOC);
+            if ($actual === false) {
+                throw new DomainException('El pedido ya no está disponible. Actualizá el listado.');
+            }
+            $estadoPago = $pagado ? 'pagado' : 'pendiente';
+            if ($actual['estado'] === 'Cancelado' && $pagado) {
+                throw new DomainException('No se puede registrar un pago para un pedido cancelado.');
+            }
+            if ($actual['estado_pago'] === $estadoPago) {
+                $this->conexion->commit();
+                return;
+            }
+
+            if ($pagado) {
+                $guardar = $this->conexion->prepare('UPDATE pedidos SET estado_pago = ?,
+                    pago_confirmado_en = CURRENT_TIMESTAMP, id_usuario_pago = ? WHERE id_pedido = ?');
+                $guardar->execute([$estadoPago, $idUsuario, $idPedido]);
+            } else {
+                $guardar = $this->conexion->prepare('UPDATE pedidos SET estado_pago = ?,
+                    pago_confirmado_en = NULL, id_usuario_pago = NULL WHERE id_pedido = ?');
+                $guardar->execute([$estadoPago, $idPedido]);
+            }
+            $this->conexion->commit();
+        } catch (\Throwable $error) {
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
+            throw $error;
+        }
     }
 
     private static function aCentavos(string $importe): int

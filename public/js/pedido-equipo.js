@@ -12,6 +12,10 @@ function iniciarFormularioPedidoEquipo() {
     const avisoIncompleto = formulario.querySelector('[data-pedido-incompleto]');
     const textoTotal = formulario.querySelector('[data-pedido-total]');
     const textoRetiro = formulario.querySelector('[data-pedido-retiro]');
+    const modalidadEnvio = formulario.querySelector('[data-direccion-envio]');
+    const campoDireccion = formulario.elements.direccion_entrega;
+    const textoFecha = formulario.querySelector('[data-modalidad-fecha]');
+    const textoHora = formulario.querySelector('[data-modalidad-hora]');
     const maximoProductos = Number(formulario.dataset.maximo);
     const maximaCantidad = Number(formulario.dataset.cantidadMaxima);
 
@@ -42,13 +46,19 @@ function iniciarFormularioPedidoEquipo() {
     function actualizarDatosRetiro() {
         const fecha = formulario.elements.fecha_retiro.value;
         const hora = formulario.elements.hora_retiro.value;
+        const modalidad = formulario.querySelector('input[name="modalidad_entrega"]:checked')?.value || 'retiro';
+        const esDomicilio = modalidad === 'domicilio';
         let fechaVisible = 'Elegí una fecha';
 
         if (fecha) {
             fechaVisible = fecha.split('-').reverse().join('/');
         }
 
-        textoRetiro.textContent = `Retiro · ${fechaVisible} · ${hora || 'Elegí una hora'}`;
+        modalidadEnvio.hidden = !esDomicilio;
+        campoDireccion.required = esDomicilio;
+        textoFecha.textContent = esDomicilio ? 'Fecha de entrega' : 'Fecha de retiro';
+        textoHora.textContent = esDomicilio ? 'Hora de entrega' : 'Hora de retiro';
+        textoRetiro.textContent = `${esDomicilio ? 'Envío a domicilio' : 'Retiro'} · ${fechaVisible} · ${hora || 'Elegí una hora'}`;
 
         const campoEstado = formulario.querySelector('[data-pedido-estado]');
 

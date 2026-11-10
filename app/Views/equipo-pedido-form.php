@@ -24,7 +24,7 @@
             <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
             <input type="hidden" name="pedido_token" value="<?= $escapar($token) ?>">
             <section class="tarjeta pila pedido-equipo__datos" aria-labelledby="pedido-cliente">
-                <h2 class="pedido-equipo__titulo" id="pedido-cliente">1. Cliente y retiro</h2>
+                <h2 class="pedido-equipo__titulo" id="pedido-cliente">1. Cliente y entrega</h2>
                 <p class="pedido-equipo__ayuda"> <?= $escapar($descripcionCliente) ?> </p>
                 <label class="campo">
                     <span class="campo-obligatorio__etiqueta">Nombre del cliente <span class="campo-obligatorio"
@@ -38,18 +38,39 @@
                     <input class="campo__entrada" type="tel" name="telefono" maxlength="30" required autocomplete="off"
                         value="<?= $escapar($valores['telefono']) ?>" placeholder="Número de contacto"
                         aria-describedby="pedido-telefono-ayuda">
-                    <span class="campo__ayuda" id="pedido-telefono-ayuda">Para coordinar el retiro.</span>
+                    <span class="campo__ayuda" id="pedido-telefono-ayuda">Para coordinar el retiro o la entrega.</span>
                 </label>
+                <fieldset class="pedido-equipo__modalidad" data-modalidad-entrega>
+                    <legend class="pedido-equipo__leyenda">Modalidad de entrega</legend>
+                    <label class="pedido-equipo__modalidad-opcion">
+                        <input type="radio" name="modalidad_entrega" value="retiro"
+                            <?= ($valores['modalidad_entrega'] ?? 'retiro') === 'retiro' ? 'checked' : '' ?> required>
+                        <span>Retiro en el local</span>
+                    </label>
+                    <label class="pedido-equipo__modalidad-opcion">
+                        <input type="radio" name="modalidad_entrega" value="domicilio"
+                            <?= ($valores['modalidad_entrega'] ?? '') === 'domicilio' ? 'checked' : '' ?> required>
+                        <span>Envío a domicilio</span>
+                    </label>
+                </fieldset>
+                <div class="campo pedido-equipo__direccion" data-direccion-envio
+                    <?= ($valores['modalidad_entrega'] ?? 'retiro') !== 'domicilio' ? 'hidden' : '' ?>>
+                    <label for="direccion-entrega-equipo">Dirección de entrega <span class="campo-obligatorio" aria-hidden="true">*</span></label>
+                    <input class="campo__entrada" id="direccion-entrega-equipo" name="direccion_entrega"
+                        maxlength="250" autocomplete="street-address"
+                        value="<?= $escapar($valores['direccion_entrega'] ?? '') ?>">
+                    <span class="campo__ayuda">Obligatoria cuando el pedido se envía a domicilio.</span>
+                </div>
                 <div class="pedido-equipo__retiro">
                     <label class="campo">
-                        <span class="campo-obligatorio__etiqueta">Fecha de retiro <span class="campo-obligatorio"
+                        <span class="campo-obligatorio__etiqueta"><span data-modalidad-fecha><?= ($valores['modalidad_entrega'] ?? 'retiro') === 'domicilio' ? 'Fecha de entrega' : 'Fecha de retiro' ?></span> <span class="campo-obligatorio"
                                 aria-hidden="true" title="Campo obligatorio">*</span></span>
                         <input class="campo__entrada" type="date" name="fecha_retiro"
                             min="<?= $esEdicion ? '1000-01-01' : $hoy ?>" required
                             value="<?= $escapar($valores['fecha_retiro']) ?>">
                     </label>
                     <label class="campo">
-                        <span class="campo-obligatorio__etiqueta">Hora de retiro <span class="campo-obligatorio"
+                        <span class="campo-obligatorio__etiqueta"><span data-modalidad-hora><?= ($valores['modalidad_entrega'] ?? 'retiro') === 'domicilio' ? 'Hora de entrega' : 'Hora de retiro' ?></span> <span class="campo-obligatorio"
                                 aria-hidden="true" title="Campo obligatorio">*</span></span>
                         <input class="campo__entrada" type="time" name="hora_retiro" required
                             value="<?= $escapar($valores['hora_retiro']) ?>">

@@ -69,6 +69,8 @@
                             <th scope="col">Correo</th>
                             <th scope="col">Rol actual</th>
                             <th scope="col"><?= $puedeEditarRoles ? 'Permisos nuevos' : 'Funciones del rol' ?></th>
+                            <th scope="col">Estado</th>
+                            <?php if ($puedeEditarRoles): ?><th scope="col">Acción</th><?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -80,12 +82,13 @@
                                         class="equipo-personal__insignia"><?= $escapar($usuario['nombre_rol']) ?></span>
                                 </td>
                                 <td>
-                                    <?php if ($puedeEditarRoles): ?>
+                                    <?php if ($puedeEditarRoles && $usuario['estado'] === 'aprobado'): ?>
                                         <form class="equipo-personal__cambio" method="post"
                                             action="<?= $url($rutaPersonal) ?>">
                                             <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                             <input type="hidden" name="id_usuario"
                                                 value="<?= (int) $usuario['id_usuario'] ?>">
+                                            <input type="hidden" name="accion" value="cambiar_rol">
                                             <label class="equipo-personal__campo equipo-personal__campo--cambio">
                                                 <select name="rol"
                                                     aria-label="Nuevo rol para <?= $escapar($usuario['nombre']) ?>">
@@ -101,6 +104,19 @@
                                         <?= $escapar($usuario['funciones']) ?>
                                     <?php endif; ?>
                                 </td>
+                                <td><span class="equipo-personal__estado <?= $usuario['estado'] === 'aprobado' ? 'equipo-personal__estado--activo' : 'equipo-personal__estado--inactivo' ?>"><?= $escapar($usuario['nombre_estado']) ?></span></td>
+                                <?php if ($puedeEditarRoles): ?>
+                                    <td>
+                                        <form method="post" action="<?= $url($rutaPersonal) ?>">
+                                            <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                                            <input type="hidden" name="id_usuario" value="<?= (int) $usuario['id_usuario'] ?>">
+                                            <input type="hidden" name="accion" value="<?= $usuario['estado'] === 'aprobado' ? 'desactivar' : 'reactivar' ?>">
+                                            <button class="boton boton--contorno" type="submit">
+                                                <?= $usuario['estado'] === 'aprobado' ? 'Desactivar' : 'Reactivar' ?>
+                                            </button>
+                                        </form>
+                                    </td>
+                                <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

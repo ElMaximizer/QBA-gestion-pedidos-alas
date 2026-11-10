@@ -191,3 +191,21 @@
         min-width: 700px;
     }
 }
+.equipo-personal__estado {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: .85rem;
+    font-weight: 700;
+}
+
+.equipo-personal__estado--activo {
+    background: #e8f4e9;
+    color: #285d35;
+}
+
+.equipo-personal__estado--inactivo {
+    background: #f2eee8;
+    color: #665c50;
+}
