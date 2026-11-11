@@ -1,5 +1,5 @@
 <main id="contenido" class="contenedor panel pedido-detalle">
-    <a class="enlace-texto" href="<?= $url('equipo-pedidos') ?>">← Volver a pedidos</a>
+    <a class="enlace-texto" href="<?= $url('equipo-pedidos') ?>"> Volver a pedidos</a>
 
     <div class="titulo-pagina">
         <span class="etiqueta">PEDIDO DEL CLIENTE</span>

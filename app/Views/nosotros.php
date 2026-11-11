@@ -16,7 +16,7 @@
                     <a class="boton boton--dorado" href="<?= $url('productos') ?>">Explorar productos</a>
                 </div>
             </div>
-            <a class="enlace-texto nosotros__volver" href="<?= $url('inicio') ?>">← Volver al inicio</a>
+            <a class="enlace-texto nosotros__volver" href="<?= $url('inicio') ?>"> Volver al inicio</a>
         </div>
     </section>
 </main>

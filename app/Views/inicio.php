@@ -1,8 +1,12 @@
+<?php $imagenDestacada = $productosCarrusel[0] ?? ($productosDestacados[0] ?? null); ?>
 <main id="contenido" class="inicio-rustic">
     <section class="inicio-portada" aria-labelledby="inicio-portada-titulo">
-        <img class="inicio-portada__foto" src="<?= $escapar($recurso('images/rustic/pan-trenzado.webp')) ?>"
-            alt="Pan trenzado artesanal de Rustic con semillas, sobre una mesa de madera" width="1080" height="724"
-            fetchpriority="high">
+        <?php if ($imagenDestacada !== null && !empty($imagenDestacada['imagen'])): ?>
+            <img class="inicio-portada__foto" src="<?= $escapar($recurso('images/' . $imagenDestacada['imagen'])) ?>"
+                alt="<?= $escapar($imagenDestacada['nombre']) ?>" width="1080" height="724" fetchpriority="high">
+        <?php else: ?>
+            <div class="inicio-portada__foto inicio-portada__foto--sin-productos" aria-hidden="true"></div>
+        <?php endif; ?>
         <div class="inicio-portada__velo">
         </div>
         <div class="inicio-portada__sello" aria-hidden="true">
@@ -11,11 +15,11 @@
         <div class="inicio-portada__texto">
             <span class="etiqueta-rustic">PANADERÍA ARTESANAL · SALTO, URUGUAY</span>
             <h1 id="inicio-portada-titulo">Las cosas buenas<br>se disfrutan <em>despacio.</em></h1>
-            <p>El aroma del pan. Una mesa compartida.<br>Un pequeño momento que lo cambia todo.</p>
-            <a class="boton-rustic boton-rustic--claro" href="<?= $url('productos') ?>">Descubrí nuestros productos <span aria-hidden="true">↗</span></a>
+
+            <a class="boton-rustic boton-rustic--claro" href="<?= $url('productos') ?>">Descubrí nuestros productos <span aria-hidden="true"></span></a>
         </div>
         <a class="inicio-portada__indicacion" href="#inicio-presentacion">UN POCO MÁS DE RUSTIC <span
-                aria-hidden="true">↓</span></a>
+                aria-hidden="true"></span></a>
     </section>
 
     <section id="inicio-presentacion" class="inicio-presentacion contenedor-rustic"
@@ -25,10 +29,10 @@
             <h2 id="inicio-presentacion-titulo">Lo simple.<br>Lo de siempre.<br><em>Lo que nos reúne.</em></h2>
         </div>
         <div class="inicio-presentacion__detalle">
-            <p>Creemos en esos pequeños rituales que hacen más lindo el día. En el pan para el desayuno, los bizcochos para una charla y una torta para celebrar.</p>
+            <p>Creemos en esos pequeños rituales que hacen más lindo el día: un roll para la merienda, un cup para darte un gusto o algo salado para compartir.</p>
             <p>Por eso hacemos lo que hacemos: para acompañar tus momentos con algo rico, hecho con dedicación.</p>
             <a class="enlace-rustic" href="<?= $url('nosotros') ?>">Conocé nuestra panadería <span
-                    aria-hidden="true">↗</span></a>
+                    aria-hidden="true"></span></a>
         </div>
     </section>
 
@@ -38,13 +42,17 @@
                 <span class="etiqueta-rustic">PARA CADA MOMENTO DEL DÍA</span>
                 <h2 id="inicio-seleccion-titulo">Encontrá tu favorito.</h2>
             </div>
-            <a class="enlace-rustic" href="<?= $url('productos') ?>">Ver todo el catálogo ↗</a>
+            <a class="enlace-rustic" href="<?= $url('productos') ?>">Ver todo el catálogo </a>
         </div>
         <div class="inicio-seleccion__columnas">
-            <a class="inicio-seleccion__imagen" href="<?= $escapar($url('productos', ['categoria' => 'Panes'])) ?>"><img
-                    src="<?= $escapar($recurso('images/rustic/pan-artesanal.webp')) ?>"
-                    alt="Pan artesanal de corteza dorada junto a su cesto de fermentación" width="4928" height="3264"
-                    loading="lazy"><span>El placer de lo recién hecho. <span aria-hidden="true">↗</span></span></a>
+            <a class="inicio-seleccion__imagen"
+                href="<?= $imagenDestacada !== null ? $escapar($url('producto', ['id' => $imagenDestacada['id_producto']])) : $escapar($url('productos')) ?>">
+                <?php if ($imagenDestacada !== null && !empty($imagenDestacada['imagen'])): ?>
+                    <img src="<?= $escapar($recurso('images/' . $imagenDestacada['imagen'])) ?>"
+                        alt="<?= $escapar($imagenDestacada['nombre']) ?>" width="1080" height="724" loading="lazy">
+                <?php endif; ?>
+                <span>Algo rico para cada momento. <span aria-hidden="true"></span></span>
+            </a>
             <div class="inicio-categorias">
                 <?php foreach ($categorias as $indice => $categoria): ?>
                     <a class="inicio-categoria"
@@ -53,7 +61,7 @@
                         <div>
                             <h3><?= $escapar($categoria['nombre']) ?></h3>
                             <p><?= $escapar($categoria['descripcion']) ?></p>
-                        </div><span class="inicio-categoria__flecha" aria-hidden="true">↗</span>
+                        </div><span class="inicio-categoria__flecha" aria-hidden="true"></span>
                     </a>
                 <?php endforeach; ?>
             </div>
@@ -67,7 +75,7 @@
                     <span class="etiqueta-rustic">LA SELECCIÓN DE LA CASA</span>
                     <h2 id="inicio-favoritos-titulo">Para tentarse un poquito.</h2>
                 </div>
-                <a class="enlace-rustic" href="<?= $url('productos') ?>">Explorar productos ↗</a>
+                <a class="enlace-rustic" href="<?= $url('productos') ?>">Explorar productos </a>
             </div>
             <div class="inicio-productos">
                 <?php foreach ($productosDestacados as $producto): ?>
@@ -76,7 +84,7 @@
                             href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>"><img
                                 src="<?= $escapar($recurso('images/' . $producto['imagen'])) ?>"
                                 alt="<?= $escapar($producto['nombre']) ?>" width="400" height="300" loading="lazy"><span
-                                aria-hidden="true">↗</span></a>
+                                aria-hidden="true"></span></a>
                         <div class="inicio-producto__informacion">
                             <span class="etiqueta-rustic"><?= $escapar($producto['categoria']) ?></span>
                             <h3>
@@ -86,7 +94,7 @@
                             <p><?= $escapar($producto['descripcion']) ?></p>
                             <div class="inicio-producto__base">
                                 <span><?= $dinero($producto['precio']) ?> <small>/ <?= $escapar($producto['presentacion']) ?></small></span>
-                                <a href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>">Ver producto →</a>
+                                <a href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>">Ver producto </a>
                             </div>
                         </div>
                     </article>
@@ -97,16 +105,19 @@
 
     <section class="inicio-historia" aria-labelledby="inicio-historia-titulo">
         <div class="inicio-historia__imagen">
-            <img src="<?= $escapar($recurso('images/rustic/pan-horneado.webp')) ?>"
-                alt="Detalle de la corteza de un pan de Rustic sobre una rejilla" width="4928" height="3264"
-                loading="lazy">
+            <?php if ($imagenDestacada !== null && !empty($imagenDestacada['imagen'])): ?>
+                <img src="<?= $escapar($recurso('images/' . $imagenDestacada['imagen'])) ?>"
+                    alt="<?= $escapar($imagenDestacada['nombre']) ?>" width="1080" height="724" loading="lazy">
+            <?php else: ?>
+                <div class="inicio-historia__imagen-vacia" aria-hidden="true"></div>
+            <?php endif; ?>
         </div>
         <div class="inicio-historia__texto">
             <span class="etiqueta-rustic">EL OFICIO. EL CUIDADO. EL SABOR.</span>
             <h2 id="inicio-historia-titulo">Hay cosas que<br>merecen <em>su tiempo.</em></h2>
-            <p>La dedicación se nota en los detalles. En la textura de la corteza, en el aroma de cada preparación y en las ganas de volver a compartir.</p>
+            <p>La dedicación se nota en los detalles: en cada masa, en los rellenos y en las combinaciones que dan ganas de volver a compartir.</p>
             <a class="boton-rustic boton-rustic--oscuro" href="<?= $url('nosotros') ?>">Nuestra historia <span
-                    aria-hidden="true">↗</span></a>
+                    aria-hidden="true"></span></a>
         </div>
     </section>
 
@@ -117,8 +128,8 @@
             <div>
                 <p>Uruguay 1486, Salto, Uruguay<br>Martes a domingo · 15:30 a 19:30</p>
                 <a class="boton-rustic boton-rustic--oscuro" href="<?= $url('productos') ?>">Elegí algo rico <span
-                        aria-hidden="true">↗</span></a>
-                <a class="enlace-rustic inicio-visita__contacto" href="<?= $url('contacto') ?>">Hablemos ↗</a>
+                        aria-hidden="true"></span></a>
+                <a class="enlace-rustic inicio-visita__contacto" href="<?= $url('contacto') ?>">Hablemos </a>
             </div>
         </div>
     </section>

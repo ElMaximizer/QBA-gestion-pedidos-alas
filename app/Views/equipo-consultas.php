@@ -66,5 +66,5 @@
     </section>
     <?php require __DIR__ . '/partials/bandeja-equipo-paginacion.php'; ?>
     <p class="bandeja-equipo__nota">Marcar una consulta como leída actualiza su estado para todo el equipo.</p>
-    <a class="enlace-texto" href="<?= $url('equipo-panel') ?>">← Volver al panel</a>
+    <a class="enlace-texto" href="<?= $url('equipo-panel') ?>"> Volver al panel</a>
 </main>

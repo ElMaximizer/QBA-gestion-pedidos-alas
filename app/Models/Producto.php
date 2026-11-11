@@ -10,7 +10,7 @@ use Throwable;
 
 final class Producto
 {
-    public const CATEGORIAS = ['Panes', 'Bizcochos', 'Tortas', 'Especiales'];
+    public const CATEGORIAS = ['Rolls y cups', 'Hojaldres y medialunas', 'Budines', 'Panes', 'Bizcochos', 'Tortas', 'Especiales'];
 
     private readonly PDO $conexion;
 

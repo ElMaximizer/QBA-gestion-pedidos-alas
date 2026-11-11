@@ -68,9 +68,9 @@
             </div>
             <?php if ($puedeContinuar): ?>
                 <a class="boton boton--dorado carrito-contenido__continuar"
-                    href="<?= $url('realizar-pedido') ?>">Realizar pedido →</a>
+                    href="<?= $url('realizar-pedido') ?>">Realizar pedido </a>
             <?php else: ?>
-                <button class="boton boton--dorado carrito-contenido__continuar" disabled>Realizar pedido →</button>
+                <button class="boton boton--dorado carrito-contenido__continuar" disabled>Realizar pedido </button>
             <?php endif; ?>
             <p class="carrito-contenido__ayuda"> <?= $clienteActual ? 'Completá tus datos para coordinar el retiro. No se realiza ningún cobro en línea.' : 'Para confirmar el pedido, iniciá sesión o creá una cuenta de cliente.' ?> </p>
         </section>

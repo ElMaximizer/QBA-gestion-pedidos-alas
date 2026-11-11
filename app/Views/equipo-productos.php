@@ -51,12 +51,12 @@
         <nav class="paginacion" aria-label="Páginas del catálogo">
             <?php if ($pagina > 1): ?>
                 <a class="boton boton--contorno"
-                    href="<?= $escapar($url('equipo-productos', ['q' => $busqueda, 'estado' => $estado, 'pagina' => $pagina - 1])) ?>">← Anterior</a>
+                    href="<?= $escapar($url('equipo-productos', ['q' => $busqueda, 'estado' => $estado, 'pagina' => $pagina - 1])) ?>"> Anterior</a>
             <?php endif; ?>
             <span>Página <?= $pagina ?> de <?= $paginas ?></span>
             <?php if ($pagina < $paginas): ?>
                 <a class="boton boton--contorno"
-                    href="<?= $escapar($url('equipo-productos', ['q' => $busqueda, 'estado' => $estado, 'pagina' => $pagina + 1])) ?>">Siguiente →</a>
+                    href="<?= $escapar($url('equipo-productos', ['q' => $busqueda, 'estado' => $estado, 'pagina' => $pagina + 1])) ?>">Siguiente </a>
             <?php endif; ?>
         </nav>
     <?php endif; ?>

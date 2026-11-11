@@ -1,5 +1,5 @@
 <main id="contenido" class="contenedor panel mercaderia">
-    <a class="enlace-volver" href="<?= $url('equipo-stock') ?>">← Controlar stock</a>
+    <a class="enlace-volver" href="<?= $url('equipo-stock') ?>"> Controlar stock</a>
     <div class="titulo-pagina">
         <span class="etiqueta">ADMINISTRACIÓN · STOCK</span>
         <h1 class="titulo-pagina__titulo">Entregas de mercadería</h1>
@@ -36,7 +36,7 @@
                         <li class="mercaderia__detalle">
                             <div>
                                 <strong><?= $escapar($detalle['nombre_materia']) ?></strong><span
-                                    class="mercaderia__movimiento">Stock: <?= $escapar(str_replace('.', ',', $detalle['stock_anterior']) . ' → ' . str_replace('.', ',', $detalle['stock_resultante']) . ' ' . $detalle['unidad']) ?></span>
+                                    class="mercaderia__movimiento">Stock: <?= $escapar(str_replace('.', ',', $detalle['stock_anterior']) . '  ' . str_replace('.', ',', $detalle['stock_resultante']) . ' ' . $detalle['unidad']) ?></span>
                             </div>
                             <strong class="mercaderia__recibido">+ <?= $escapar(str_replace('.', ',', $detalle['cantidad']) . ' ' . $detalle['unidad']) ?></strong>
                         </li>
@@ -58,12 +58,12 @@
         <nav class="paginacion" aria-label="Páginas de entregas">
             <?php if ($pagina > 1): ?>
                 <a class="boton boton--contorno"
-                    href="<?= $escapar($url('equipo-mercaderia', ['q' => $busqueda, 'pagina' => $pagina - 1])) ?>">← Anterior</a>
+                    href="<?= $escapar($url('equipo-mercaderia', ['q' => $busqueda, 'pagina' => $pagina - 1])) ?>"> Anterior</a>
             <?php endif; ?>
             <span>Página <?= $pagina ?> de <?= $paginas ?></span>
             <?php if ($pagina < $paginas): ?>
                 <a class="boton boton--contorno"
-                    href="<?= $escapar($url('equipo-mercaderia', ['q' => $busqueda, 'pagina' => $pagina + 1])) ?>">Siguiente →</a>
+                    href="<?= $escapar($url('equipo-mercaderia', ['q' => $busqueda, 'pagina' => $pagina + 1])) ?>">Siguiente </a>
             <?php endif; ?>
         </nav>
     <?php endif; ?>

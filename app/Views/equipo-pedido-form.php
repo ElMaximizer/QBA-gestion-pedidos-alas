@@ -4,7 +4,7 @@
         <h1 class="titulo-pagina__titulo"><?= $esEdicion ? 'Modificar pedido #' . $pedido['id_pedido'] : 'Registrar pedido' ?></h1>
         <p class="titulo-pagina__descripcion"> <?= $esEdicion ? 'Consultá el detalle y corregí la información del pedido. Cada modificación se conserva en el historial.' : 'Completá los datos del cliente y revisá el pedido antes de guardarlo.' ?> </p>
     </div>
-    <a class="enlace-volver" href="<?= $url('equipo-pedidos') ?>">← Volver a pedidos</a>
+    <a class="enlace-volver" href="<?= $url('equipo-pedidos') ?>"> Volver a pedidos</a>
     <?php if ($error !== ''): ?>
         <div class="aviso aviso--error" role="alert" tabindex="-1" data-pedido-error><?= $escapar($error) ?> </div>
     <?php endif; ?>

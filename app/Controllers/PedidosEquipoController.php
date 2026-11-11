@@ -106,6 +106,10 @@ final class PedidosEquipoController
         $busqueda = Http::texto($_GET, 'q');
         $estado = Http::texto($_GET, 'estado');
         $fecha = Http::texto($_GET, 'fecha');
+        $modoVista = Http::texto($_GET, 'vista', 'cuadricula');
+        if (!in_array($modoVista, ['cuadricula', 'lista'], true)) {
+            $modoVista = 'cuadricula';
+        }
         $pagina = filter_var(Http::texto($_GET, 'pagina', '1'), FILTER_VALIDATE_INT, [
             'options' => ['min_range' => 1],
         ]);
@@ -139,10 +143,16 @@ final class PedidosEquipoController
                 'busqueda' => $busqueda,
                 'estado' => $estado,
                 'fecha' => $fecha,
+                'modoVista' => $modoVista,
                 'puedeVerTransferencias' => $puedeVerTransferencias,
                 'puedeRegistrarPagoLocal' => $puedeRegistrarPagoLocal,
                 'puedeDecidirTransferencias' => $puedeDecidirTransferencias,
                 'puedeActualizarEstado' => $puedeActualizarEstado,
+                'puedeVerEstadisticas' => in_array(
+                    $usuario['rol'],
+                    ['administrador', 'dueno'],
+                    true,
+                ),
                 'puedeRegistrarPedido' => in_array(
                     $usuario['rol'],
                     ['empleado', 'administrador', 'dueno'],

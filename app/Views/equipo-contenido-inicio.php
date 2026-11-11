@@ -57,9 +57,9 @@
                 <button class="boton boton--dorado">Guardar selección</button>
                 <a class="boton boton--contorno" href="<?= $url('equipo-contenido-inicio') ?>">Recargar selección</a>
                 <a class="boton boton--contorno" href="<?= $url('inicio') ?>" target="_blank"
-                    rel="noopener noreferrer">Ver sitio ↗</a>
+                    rel="noopener noreferrer">Ver sitio </a>
             </div>
         </form>
     <?php endif; ?>
-    <a class="enlace-volver contenido-inicio__volver" href="<?= $url('equipo-panel') ?>">← Volver al panel</a>
+    <a class="enlace-volver contenido-inicio__volver" href="<?= $url('equipo-panel') ?>"> Volver al panel</a>
 </main>
