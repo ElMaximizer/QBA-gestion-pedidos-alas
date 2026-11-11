@@ -19,6 +19,7 @@ final class PedidosEquipoController
         header('Cache-Control: no-store');
         $usuario = Sesion::requerirEquipo();
         $puedeVerTransferencias = in_array($usuario['rol'] ?? null, ['empleado', 'administrador', 'dueno'], true);
+        $puedeRegistrarPagoLocal = in_array($usuario['rol'] ?? null, ['empleado', 'administrador', 'dueno'], true);
         $puedeDecidirTransferencias = in_array($usuario['rol'] ?? null, ['administrador', 'dueno'], true);
         $puedeCancelar = in_array($usuario['rol'] ?? null, ['administrador', 'dueno'], true);
         $puedeActualizarEstado = in_array($usuario['rol'] ?? null, ['empleado', 'administrador', 'dueno'], true);
@@ -35,7 +36,14 @@ final class PedidosEquipoController
                     throw new DomainException('Seleccioná un pedido válido.');
                 }
 
-                if ($accion === 'revisar_transferencia') {
+                if ($accion === 'registrar_pago_local') {
+                    if (!$puedeRegistrarPagoLocal) {
+                        http_response_code(403);
+                        throw new DomainException('Tu cuenta no puede registrar pagos recibidos en el local.');
+                    }
+                    (new ConsultaPedidos(Conexion::obtener()))->registrarPagoLocal($idPedido, (int) $usuario['id_usuario']);
+                    $_SESSION['qba']['aviso_pedidos'] = 'Se registró el pago en efectivo recibido en el local.';
+                } elseif ($accion === 'revisar_transferencia') {
                     if (!$puedeDecidirTransferencias) {
                         http_response_code(403);
                         throw new DomainException('Solo administrador y dueño pueden revisar transferencias.');
@@ -63,9 +71,7 @@ final class PedidosEquipoController
                         $estadoNuevo,
                         (int) $usuario['id_usuario'],
                     );
-                    $_SESSION['qba']['aviso_pedidos'] = $estadoNuevo === 'Entregado'
-                        ? 'Se registró la entrega del pedido.'
-                        : 'El estado del pedido fue actualizado.';
+                    $_SESSION['qba']['aviso_pedidos'] = 'Se guardó el estado del pedido.';
                 } elseif ($accion === 'cancelar_pedido') {
                     if (!$puedeCancelar) {
                         http_response_code(403);
@@ -117,7 +123,11 @@ final class PedidosEquipoController
             $resultado['pedidos'][$indice] = $pedido + [
                 'puede_modificar' => Pedido::puedeModificar($usuario['rol'], $pedido['estado']),
                 'puede_cancelar' => $puedeCancelar && in_array($pedido['estado'], ['Pendiente', 'En preparación', 'Listo para retirar'], true),
-                'estados_siguientes' => Pedido::siguientesEstados($pedido['estado'], $pedido['modalidad_entrega']),
+                'estados_actualizables' => Pedido::estadosActualizables(
+                    $usuario['rol'],
+                    $pedido['estado'],
+                    $pedido['modalidad_entrega'],
+                ),
             ];
         }
         Vista::mostrar(
@@ -130,6 +140,7 @@ final class PedidosEquipoController
                 'estado' => $estado,
                 'fecha' => $fecha,
                 'puedeVerTransferencias' => $puedeVerTransferencias,
+                'puedeRegistrarPagoLocal' => $puedeRegistrarPagoLocal,
                 'puedeDecidirTransferencias' => $puedeDecidirTransferencias,
                 'puedeActualizarEstado' => $puedeActualizarEstado,
                 'puedeRegistrarPedido' => in_array(

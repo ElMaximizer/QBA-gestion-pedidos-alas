@@ -22,13 +22,7 @@
             <p class="panel-estadistica__detalle">Revisa los horarios de retiro</p>
         </article>
     </div>
-    <div class="acciones">
-        <a class="boton boton--dorado" href="<?= $url('equipo-pedido-registrar') ?>">+ Registrar pedido</a>
-        <a class="boton boton--contorno" href="<?= $url('equipo-pedidos') ?>">Consultar pedidos</a>
-        <?php if (in_array($usuario['rol'], ['administrador', 'dueno'], true)): ?>
-            <a class="boton boton--contorno" href="<?= $url('equipo-ventas') ?>">Consultar ventas</a>
-        <?php endif; ?>
-    </div>
+
     <section class="panel-atencion" aria-labelledby="titulo-productos-solicitados">
         <h2 class="panel-atencion__titulo" id="titulo-productos-solicitados">Productos más solicitados</h2>
         <?php if ($productosMasSolicitados === []): ?>

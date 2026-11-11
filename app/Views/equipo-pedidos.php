@@ -108,6 +108,16 @@
                             <span class="insignia <?= in_array($textoEstadoPago, ['Aprobada', 'Pagado'], true) ? 'insignia--exito' : 'insignia--neutra' ?><?= $textoEstadoPago === 'Rechazada' ? ' equipo-pedido__transferencia-rechazada' : '' ?>">
                                 <?= $escapar($textoEstadoPago) ?>
                             </span>
+                            <?php if (!$esTransferencia && $pedido['estado_pago'] !== 'pagado' && $puedeRegistrarPagoLocal): ?>
+                                <div class="equipo-pedido__transferencia-acciones">
+                                    <form method="post" action="<?= $escapar($url('equipo-pedidos')) ?>">
+                                        <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
+                                        <input type="hidden" name="id_pedido" value="<?= (int) $pedido['id_pedido'] ?>">
+                                        <input type="hidden" name="accion" value="registrar_pago_local">
+                                        <button class="boton boton--dorado" type="submit">Confirmar efectivo recibido</button>
+                                    </form>
+                                </div>
+                            <?php endif; ?>
                             <?php if ($esTransferencia && $puedeVerTransferencias): ?>
                                 <details class="equipo-pedido__transferencia-datos">
                                     <summary>Ver datos de la transferencia</summary>
@@ -170,21 +180,25 @@
                         </div>
                     <?php endif; ?>
                 </dl>
-                <?php if ($puedeActualizarEstado && $pedido['estados_siguientes'] !== []): ?>
-                    <form class="equipo-pedido__estado-form" method="post" action="<?= $escapar($url('equipo-pedidos')) ?>">
+                <?php if ($puedeActualizarEstado && $pedido['estados_actualizables'] !== []): ?>
+                    <form class="equipo-pedido__estado-form" method="post" action="<?= $escapar($url('equipo-pedidos')) ?>"
+                        data-confirmar-estado data-numero-pedido="<?= (int) $pedido['id_pedido'] ?>"
+                        data-estado-actual="<?= $escapar($pedido['estado']) ?>">
                         <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
                         <input type="hidden" name="accion" value="actualizar_estado">
                         <input type="hidden" name="id_pedido" value="<?= $pedido['id_pedido'] ?>">
                         <label class="campo">
-                            <span>Avanzar estado</span>
+                            <span>Estado del pedido</span>
                             <select class="campo__entrada" name="estado_nuevo" required>
-                                <?php foreach ($pedido['estados_siguientes'] as $estadoSiguiente): ?>
-                                    <option value="<?= $escapar($estadoSiguiente) ?>"><?= $escapar($estadoSiguiente) ?></option>
+                                <?php foreach ($pedido['estados_actualizables'] as $estadoOpcion): ?>
+                                    <option value="<?= $escapar($estadoOpcion) ?>" <?= $estadoOpcion === $pedido['estado'] ? 'selected' : '' ?>>
+                                        <?= $escapar($estadoOpcion) ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                         </label>
                         <button class="boton boton--dorado" type="submit">
-                            <?= in_array('Entregado', $pedido['estados_siguientes'], true) ? 'Guardar avance / registrar entrega' : 'Actualizar estado' ?>
+                            Actualizar estado
                         </button>
                     </form>
                 <?php endif; ?>

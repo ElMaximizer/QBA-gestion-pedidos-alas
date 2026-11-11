@@ -34,6 +34,7 @@ final class Pedido
         string $token,
         ?int $idCliente = null,
         ?int $idUsuarioRegistro = null,
+        ?array $comprobanteTransferencia = null,
     ): int {
         self::validar($datos);
         if (!$cantidades || count($cantidades) > self::MAXIMO_PRODUCTOS) {
@@ -142,6 +143,25 @@ final class Pedido
             ]);
             $idPedido = (int) $this->conexion->lastInsertId();
             $this->guardarDetalles($idPedido, $lineas);
+            if ($idUsuarioRegistro !== null && $metodoPago === 'transferencia') {
+                $mime = $comprobanteTransferencia['mime'] ?? '';
+                $contenido = $comprobanteTransferencia['contenido'] ?? '';
+                if (!is_string($mime) || !in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)
+                    || !is_string($contenido) || strlen($contenido) < 1 || strlen($contenido) > 2 * 1024 * 1024) {
+                    throw new DomainException('El comprobante de transferencia no es válido.');
+                }
+                $guardarComprobante = $this->conexion->prepare('INSERT INTO comprobantes_transferencia
+                    (id_pedido, id_cliente, id_usuario_equipo, tipo_mime, contenido, enviado_en, estado_revision)
+                    VALUES (?, NULL, ?, ?, ?, CURRENT_TIMESTAMP, \'pendiente\')');
+                $guardarComprobante->bindValue(1, $idPedido, PDO::PARAM_INT);
+                $guardarComprobante->bindValue(2, $idUsuarioRegistro, PDO::PARAM_INT);
+                $guardarComprobante->bindValue(3, $mime, PDO::PARAM_STR);
+                $guardarComprobante->bindValue(4, $contenido, PDO::PARAM_LOB);
+                $guardarComprobante->execute();
+                $marcarTransferencia = $this->conexion->prepare('UPDATE pedidos
+                    SET transferencia_enviada_en = CURRENT_TIMESTAMP WHERE id_pedido = ?');
+                $marcarTransferencia->execute([$idPedido]);
+            }
             $this->conexion->commit();
             return $idPedido;
         } catch (Throwable $error) {
@@ -342,6 +362,14 @@ final class Pedido
         return [];
     }
 
+    public static function estadosActualizables(string $rol, string $estado, string $modalidadEntrega): array
+    {
+        if (self::puedeModificar($rol, $estado)) {
+            return self::ESTADOS;
+        }
+        return $rol === 'empleado' ? self::siguientesEstados($estado, $modalidadEntrega) : [];
+    }
+
     /** Cancela un pedido desde el listado y registra el cambio en el historial. */
     public function cancelarDesdeEquipo(int $idPedido, int $idUsuario): void
     {
@@ -368,10 +396,6 @@ final class Pedido
                 throw new DomainException('Este pedido ya no se puede cancelar desde el listado.');
             }
 
-            $antes = self::instantanea($pedido);
-            $despues = $antes;
-            $despues['estado'] = 'Cancelado';
-
             $actualizar = $this->conexion->prepare(
                 "UPDATE pedidos SET estado = 'Cancelado' WHERE id_pedido = ? AND estado = ?",
             );
@@ -380,18 +404,13 @@ final class Pedido
                 throw new DomainException('El estado del pedido cambió. Actualizá el listado e intentá nuevamente.');
             }
 
-            $consulta = $this->conexion->prepare('INSERT INTO pedido_cambios
-                (id_pedido, id_usuario, nombre_responsable, motivo, antes, despues, token_formulario)
-                VALUES (?, ?, ?, ?, ?, ?, ?)');
-            $consulta->execute([
-                $idPedido,
+            $this->registrarCambioEstado(
+                $pedido,
+                'Cancelado',
                 $idUsuario,
                 $responsable['nombre'],
                 'Pedido cancelado desde el listado de pedidos.',
-                json_encode($antes, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
-                json_encode($despues, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
-                bin2hex(random_bytes(32)),
-            ]);
+            );
             $this->conexion->commit();
         } catch (Throwable $error) {
             if ($this->conexion->inTransaction()) {
@@ -410,24 +429,27 @@ final class Pedido
 
         $this->conexion->beginTransaction();
         try {
-            $consulta = $this->conexion->prepare("SELECT id_usuario, rol FROM usuarios_equipo
+            $consulta = $this->conexion->prepare("SELECT nombre, rol FROM usuarios_equipo
                 WHERE id_usuario = ? AND estado = 'aprobado'
                 AND rol IN ('empleado', 'administrador', 'dueno') FOR UPDATE");
             $consulta->execute([$idUsuario]);
-            if ($consulta->fetch(PDO::FETCH_ASSOC) === false) {
+            $responsable = $consulta->fetch(PDO::FETCH_ASSOC);
+            if ($responsable === false) {
                 throw new DomainException('Tu cuenta no tiene permiso para actualizar pedidos.');
             }
 
-            $consulta = $this->conexion->prepare(
-                'SELECT estado, modalidad_entrega FROM pedidos WHERE id_pedido = ? FOR UPDATE',
-            );
-            $consulta->execute([$idPedido]);
-            $pedido = $consulta->fetch(PDO::FETCH_ASSOC);
-            if ($pedido === false) {
+            $pedido = $this->buscarGestion($idPedido, true);
+            if ($pedido === null) {
                 throw new DomainException('El pedido ya no está disponible. Actualizá el listado.');
             }
-            if (!in_array($estadoNuevo, self::siguientesEstados($pedido['estado'], $pedido['modalidad_entrega']), true)) {
+            $estados = self::estadosActualizables($responsable['rol'], $pedido['estado'], $pedido['modalidad_entrega']);
+            if (!in_array($estadoNuevo, $estados, true)) {
                 throw new DomainException('Ese cambio de estado no está permitido para el pedido.');
+            }
+
+            if ($estadoNuevo === $pedido['estado']) {
+                $this->conexion->commit();
+                return;
             }
 
             if ($estadoNuevo === 'Entregado') {
@@ -437,11 +459,21 @@ final class Pedido
                 $actualizar->execute([$estadoNuevo, $idUsuario, $idPedido, $pedido['estado']]);
             } else {
                 $actualizar = $this->conexion->prepare('UPDATE pedidos
-                    SET estado = ? WHERE id_pedido = ? AND estado = ?');
+                    SET estado = ?, entregado_en = NULL, id_usuario_entrega = NULL
+                    WHERE id_pedido = ? AND estado = ?');
                 $actualizar->execute([$estadoNuevo, $idPedido, $pedido['estado']]);
             }
             if ($actualizar->rowCount() !== 1) {
                 throw new DomainException('El pedido cambió en otra pantalla. Actualizá el listado.');
+            }
+            if (self::puedeModificar($responsable['rol'], $pedido['estado'])) {
+                $this->registrarCambioEstado(
+                    $pedido,
+                    $estadoNuevo,
+                    $idUsuario,
+                    $responsable['nombre'],
+                    'Estado actualizado desde el listado de pedidos.',
+                );
             }
             $this->conexion->commit();
         } catch (Throwable $error) {
@@ -641,6 +673,29 @@ final class Pedido
             'pagina' => $pagina,
             'paginas' => $paginas,
         ];
+    }
+
+    private function registrarCambioEstado(
+        array $pedido,
+        string $estadoNuevo,
+        int $idUsuario,
+        string $nombreResponsable,
+        string $motivo,
+    ): void {
+        $antes = self::instantanea($pedido);
+        $despues = array_replace($antes, ['estado' => $estadoNuevo]);
+        $consulta = $this->conexion->prepare('INSERT INTO pedido_cambios
+            (id_pedido, id_usuario, nombre_responsable, motivo, antes, despues, token_formulario)
+            VALUES (?, ?, ?, ?, ?, ?, ?)');
+        $consulta->execute([
+            $pedido['id_pedido'],
+            $idUsuario,
+            $nombreResponsable,
+            $motivo,
+            json_encode($antes, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
+            json_encode($despues, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
+            bin2hex(random_bytes(32)),
+        ]);
     }
 
     private static function instantanea(array $pedido): array

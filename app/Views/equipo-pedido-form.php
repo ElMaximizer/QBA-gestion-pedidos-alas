@@ -18,7 +18,7 @@
         <?php if ($esEdicion && in_array($pedido['estado'], ['Entregado', 'Cancelado'], true)): ?>
             <p class="recuadro pedido-equipo__ayuda">Este pedido figura como <strong><?= $escapar($pedido['estado']) ?></strong>. Podés corregirlo como dueño; los datos anteriores quedarán guardados. </p>
         <?php endif; ?>
-        <form class="pedido-equipo__formulario" method="post"
+        <form class="pedido-equipo__formulario" method="post" enctype="multipart/form-data"
             action="<?= $escapar($url($rutaFormulario, $parametrosFormulario)) ?>"
             data-pedido-equipo data-maximo="<?= $maximoProductos ?>" data-cantidad-maxima="<?= $maximaCantidad ?>">
             <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
@@ -76,6 +76,48 @@
                             value="<?= $escapar($valores['hora_retiro']) ?>">
                     </label>
                 </div>
+                <?php if (!$esEdicion): ?>
+                    <fieldset class="pedido-equipo__modalidad" data-metodo-pago>
+                        <legend class="pedido-equipo__leyenda">Forma de pago</legend>
+                        <label class="pedido-equipo__modalidad-opcion">
+                            <input type="radio" name="metodo_pago" value="local"
+                                <?= ($valores['metodo_pago'] ?? 'local') === 'local' ? 'checked' : '' ?> required>
+                            <span>Efectivo en el local</span>
+                        </label>
+                        <label class="pedido-equipo__modalidad-opcion">
+                            <input type="radio" name="metodo_pago" value="transferencia"
+                                <?= ($valores['metodo_pago'] ?? '') === 'transferencia' ? 'checked' : '' ?> required>
+                            <span>Transferencia bancaria</span>
+                        </label>
+                    </fieldset>
+                    <div class="pedido-equipo__comprobante" data-comprobante-equipo
+                        <?= ($valores['metodo_pago'] ?? 'local') !== 'transferencia' ? 'hidden' : '' ?>>
+                        <div class="pedido-equipo__comprobante-intro">
+                            <label class="pedido-equipo__comprobante-titulo" for="comprobante-equipo">
+                                Comprobante de transferencia <span class="campo-obligatorio" aria-hidden="true">*</span>
+                            </label>
+                            <p>Adjuntá la imagen para que el administrador o el dueño revise el pago.</p>
+                        </div>
+                        <input class="pedido-equipo__archivo-input" id="comprobante-equipo" type="file" name="comprobante"
+                            accept="image/jpeg,image/png,image/webp"
+                            <?= ($valores['metodo_pago'] ?? 'local') === 'transferencia' ? 'required' : '' ?>>
+                        <label class="pedido-equipo__archivo-zona" for="comprobante-equipo">
+                            <span class="pedido-equipo__archivo-icono" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" focusable="false">
+                                    <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14.5v4A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5v-4" />
+                                </svg>
+                            </span>
+                            <span class="pedido-equipo__archivo-texto">
+                                <strong data-nombre-comprobante>Elegí la imagen del comprobante</strong>
+                                <small>JPG, PNG o WebP · máximo 2 MB</small>
+                            </span>
+                            <span class="pedido-equipo__archivo-boton">Seleccionar archivo</span>
+                        </label>
+                        <p class="pedido-equipo__comprobante-nota">El pago quedará pendiente hasta que el equipo revise el comprobante.</p>
+                    </div>
+                <?php else: ?>
+                    <p class="pedido-equipo__ayuda">Forma de pago: <strong><?= $valores['metodo_pago'] === 'transferencia' ? 'Transferencia bancaria' : 'Efectivo en el local' ?></strong></p>
+                <?php endif; ?>
                 <hr class="separador pedido-equipo__separador">
                 <h2 class="pedido-equipo__titulo" id="pedido-productos">2. Productos</h2>
                 <p class="pedido-equipo__ayuda">Seleccioná cada producto una sola vez. El precio corresponde a la presentación indicada.</p>

@@ -157,6 +157,46 @@ final class ConsultaPedidos
         $consulta->execute([$recibida ? 1 : 0, $idPedido]);
     }
 
+    public function registrarPagoLocal(int $idPedido, int $idUsuario): void
+    {
+        if ($idPedido < 1 || $idUsuario < 1) {
+            throw new DomainException('Seleccioná un pedido y una cuenta válidos.');
+        }
+        $this->conexion->beginTransaction();
+        try {
+            $cuenta = $this->conexion->prepare("SELECT id_usuario FROM usuarios_equipo
+                WHERE id_usuario = ? AND estado = 'aprobado'
+                    AND rol IN ('empleado', 'administrador', 'dueno') FOR UPDATE");
+            $cuenta->execute([$idUsuario]);
+            if (!$cuenta->fetchColumn()) {
+                throw new DomainException('Tu cuenta no puede registrar pagos recibidos en el local.');
+            }
+            $consulta = $this->conexion->prepare('SELECT estado, estado_pago, metodo_pago
+                FROM pedidos WHERE id_pedido = ? FOR UPDATE');
+            $consulta->execute([$idPedido]);
+            $pedido = $consulta->fetch(PDO::FETCH_ASSOC);
+            if ($pedido === false || $pedido['metodo_pago'] !== 'local') {
+                throw new DomainException('Solo se puede registrar efectivo para pedidos con pago en el local.');
+            }
+            if ($pedido['estado'] === 'Cancelado') {
+                throw new DomainException('No se puede registrar un pago para un pedido cancelado.');
+            }
+            if ($pedido['estado_pago'] === 'pagado') {
+                $this->conexion->commit();
+                return;
+            }
+            $guardar = $this->conexion->prepare("UPDATE pedidos SET estado_pago = 'pagado',
+                pago_confirmado_en = CURRENT_TIMESTAMP, id_usuario_pago = ? WHERE id_pedido = ?");
+            $guardar->execute([$idUsuario, $idPedido]);
+            $this->conexion->commit();
+        } catch (\Throwable $error) {
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
+            throw $error;
+        }
+    }
+
     public function revisarTransferencia(int $idPedido, bool $aprobada, int $idUsuario): void
     {
         if ($idPedido < 1 || $idUsuario < 1) {

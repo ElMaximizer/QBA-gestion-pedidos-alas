@@ -61,6 +61,20 @@ try {
     $conexion->exec(file_get_contents(__DIR__ . '/acceso-clientes.sql'));
     $conexion->exec(file_get_contents(__DIR__ . '/equipo.sql'));
     $conexion->exec(file_get_contents(__DIR__ . '/comprobantes-transferencia.sql'));
+    $columnaClienteComprobante = $conexion->query("SHOW COLUMNS FROM comprobantes_transferencia LIKE 'id_cliente'")->fetch(PDO::FETCH_ASSOC);
+    if ($columnaClienteComprobante !== false && ($columnaClienteComprobante['Null'] ?? '') !== 'YES') {
+        $conexion->exec('ALTER TABLE comprobantes_transferencia MODIFY id_cliente INT UNSIGNED NULL');
+    }
+    if ($conexion->query("SHOW COLUMNS FROM comprobantes_transferencia LIKE 'id_usuario_equipo'")->fetch() === false) {
+        $conexion->exec('ALTER TABLE comprobantes_transferencia ADD COLUMN id_usuario_equipo INT UNSIGNED NULL AFTER id_cliente');
+    }
+    $foraneaComprobanteEquipo = $conexion->prepare('SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND CONSTRAINT_NAME = ?');
+    $foraneaComprobanteEquipo->execute(['comprobantes_transferencia', 'fk_comprobante_transferencia_usuario_equipo']);
+    if ((int) $foraneaComprobanteEquipo->fetchColumn() === 0) {
+        $conexion->exec('ALTER TABLE comprobantes_transferencia ADD CONSTRAINT fk_comprobante_transferencia_usuario_equipo
+            FOREIGN KEY (id_usuario_equipo) REFERENCES usuarios_equipo (id_usuario) ON DELETE SET NULL');
+    }
     $estadoEquipo = $conexion->query("SHOW COLUMNS FROM usuarios_equipo LIKE 'estado'")->fetch(PDO::FETCH_ASSOC);
     if ($estadoEquipo !== false && !str_contains((string) $estadoEquipo['Type'], 'desactivado')) {
         $conexion->exec("ALTER TABLE usuarios_equipo MODIFY estado ENUM('pendiente', 'aprobado', 'rechazado', 'desactivado') NOT NULL DEFAULT 'pendiente'");
