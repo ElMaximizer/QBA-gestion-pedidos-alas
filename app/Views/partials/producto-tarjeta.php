@@ -12,5 +12,5 @@
     <div class="producto__precio"> <?= $dinero($producto['precio']) ?> <small class="producto__presentacion">/ <?= $escapar($producto['presentacion']) ?></small>
     </div>
     <a class="boton boton--contorno producto__boton"
-        href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>">Ver producto →</a>
+        href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>">Ver producto </a>
 </article>

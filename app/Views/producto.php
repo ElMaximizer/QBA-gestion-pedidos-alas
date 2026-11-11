@@ -1,5 +1,5 @@
 <main id="contenido" class="contenedor pagina-pedidos">
-    <a class="enlace-volver" href="<?= $url('productos') ?>">← Volver a productos</a>
+    <a class="enlace-volver" href="<?= $url('productos') ?>"> Volver a productos</a>
     <?php if (!$producto): ?>
         <section class="tarjeta vacio">
             <h1 class="vacio__titulo">Producto no disponible</h1>
@@ -34,7 +34,7 @@
                     </label>
                     <button class="boton boton--dorado">Agregar al carrito</button>
                 </form>
-                <a class="enlace-texto" role="link" aria-disabled="true">Consultar disponibilidad →</a>
+                <a class="enlace-texto" role="link" aria-disabled="true">Consultar disponibilidad </a>
                 <p class="texto-pequeno">Te confirmaremos disponibilidad y forma de retiro.</p>
             </section>
         </div>

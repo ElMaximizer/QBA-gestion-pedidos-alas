@@ -13,13 +13,13 @@
                 continue;
             }
             ?>
-            <link rel="stylesheet" href="<?= $escapar($recurso($estilo)) ?>">
+            <link rel="stylesheet" href="<?= $escapar($recurso($estilo) . ($estilo === 'css/equipo-pedidos.css' ? '?v=20261111-6' : '')) ?>">
         <?php endforeach; ?>
         <?php foreach ($scripts as $script): ?>
             <script src="<?= $escapar($recurso($script)) ?>" defer></script>
         <?php endforeach; ?>
         <?php if (!$esPanel): ?>
-            <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-nuevo.css')) ?>?v=20261031-3">
+            <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-nuevo.css')) ?>?v=20261111-5">
         <?php endif; ?>
         <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-identidad.css')) ?>?v=2">
         <link rel="stylesheet" href="<?= $escapar($recurso('css/campos-obligatorios.css')) ?>?v=1">
@@ -29,7 +29,7 @@
         <?php if ($esPanel): ?>
             <?php require __DIR__ . '/equipo-encabezado.php'; ?>
         <?php else: ?>
-            <header class="encabezado encabezado--publico" data-menu-encabezado>
+            <header class="encabezado encabezado--publico<?= $vista === 'inicio' ? ' encabezado--inicio' : '' ?>" data-menu-encabezado>
                 <div class="contenedor encabezado__contenido">
                     <a class="marca" href="<?= $url('inicio') ?>">
                         <span class="marca__logo-marco"><img class="marca__logo"
@@ -80,7 +80,7 @@
                                 </details>
                             </div>
                         <?php else: ?>
-                            <a class="boton boton--dorado encabezado__acceso" href="<?= $url('cliente-login') ?>">Mi cuenta ↗</a>
+                            <a class="boton boton--dorado encabezado__acceso" href="<?= $url('cliente-login') ?>">Mi cuenta </a>
                         <?php endif; ?>
                     </div>
                 </div>

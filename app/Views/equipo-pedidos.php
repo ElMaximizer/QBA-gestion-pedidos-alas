@@ -5,11 +5,14 @@
         <h1 class="titulo-pagina__titulo">Consultar pedidos</h1>
         <p class="titulo-pagina__descripcion">Buscá pedidos y revisá los datos del cliente, la entrega, los productos y el estado.</p>
     </div>
-    <?php if ($puedeRegistrarPedido): ?>
-        <div class="acciones">
-            <a class="boton boton--dorado" href="<?= $url('equipo-pedido-registrar') ?>">+ Nuevo pedido</a>
-        </div>
-    <?php endif; ?>
+    <div class="acciones equipo-pedidos__acciones">
+        <?php if ($puedeRegistrarPedido): ?>
+            <a class="boton boton--dorado" href="<?= $url('equipo-pedido-registrar') ?>">Nuevo pedido</a>
+        <?php endif; ?>
+        <?php if ($puedeVerEstadisticas): ?>
+            <a class="boton boton--contorno" href="<?= $url('equipo-estadisticas') ?>">Estad&#xED;sticas</a>
+        <?php endif; ?>
+    </div>
 
     <?php if ($aviso !== ''): ?>
         <p class="equipo-pedidos__mensaje equipo-pedidos__mensaje--exito" role="status"><?= $escapar($aviso) ?></p>
@@ -38,9 +41,15 @@
         <button class="boton boton--contorno equipo-pedidos__buscar">Aplicar filtros</button>
     </form>
 
-    <p class="equipo-pedidos__cantidad"><?= $total ?> <?= $total === 1 ? 'pedido encontrado' : 'pedidos encontrados' ?></p>
+    <div class="equipo-pedidos__barra-listado">
+        <p class="equipo-pedidos__cantidad"><?= $total ?> <?= $total === 1 ? 'pedido encontrado' : 'pedidos encontrados' ?></p>
+        <nav class="equipo-pedidos__selector-vista" aria-label="Modo de visualizacion de pedidos">
+            <a href="<?= $escapar($url('equipo-pedidos', ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha, 'vista' => 'cuadricula'])) ?>" <?= $modoVista === 'cuadricula' ? 'aria-current="page"' : '' ?>>Cuadr&#xED;cula</a>
+            <a href="<?= $escapar($url('equipo-pedidos', ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha, 'vista' => 'lista'])) ?>" <?= $modoVista === 'lista' ? 'aria-current="page"' : '' ?>>Lista</a>
+        </nav>
+    </div>
 
-    <div class="pila">
+    <div class="pila equipo-pedidos__resultados <?= $modoVista === 'lista' ? 'equipo-pedidos__resultados--lista' : 'equipo-pedidos__resultados--cuadricula' ?>">
         <?php foreach ($pedidos as $pedido): ?>
             <?php
             $claseEstado = 'insignia--neutra';
@@ -235,12 +244,12 @@
         <nav class="paginacion" aria-label="Páginas de pedidos">
             <?php if ($pagina > 1): ?>
                 <a class="boton boton--contorno"
-                    href="<?= $escapar($url('equipo-pedidos', ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha, 'pagina' => $pagina - 1])) ?>">← Anterior</a>
+                    href="<?= $escapar($url('equipo-pedidos', ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha, 'pagina' => $pagina - 1])) ?>"> Anterior</a>
             <?php endif; ?>
             <span>Página <?= $pagina ?> de <?= $paginas ?></span>
             <?php if ($pagina < $paginas): ?>
                 <a class="boton boton--contorno"
-                    href="<?= $escapar($url('equipo-pedidos', ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha, 'pagina' => $pagina + 1])) ?>">Siguiente →</a>
+                    href="<?= $escapar($url('equipo-pedidos', ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha, 'pagina' => $pagina + 1])) ?>">Siguiente </a>
             <?php endif; ?>
         </nav>
     <?php endif; ?>

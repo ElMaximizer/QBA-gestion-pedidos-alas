@@ -7,7 +7,7 @@
     <?php if ($error): ?>
         <div class="aviso aviso--error" role="alert"><?= $escapar($error) ?> </div>
     <?php endif; ?>
-    <a class="enlace-volver" href="<?= $url('equipo-productos') ?>">← Volver a productos</a>
+    <a class="enlace-volver" href="<?= $url('equipo-productos') ?>"> Volver a productos</a>
     <form class="producto-formulario" method="post" enctype="multipart/form-data"
         action="<?= $escapar($url($esEdicion ? 'producto-editar' : 'producto-agregar', $esEdicion ? ['id' => $id] : [])) ?>">
         <input type="hidden" name="csrf" value="<?= $csrf ?>">

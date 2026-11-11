@@ -125,5 +125,5 @@
         <?php endif; ?>
     </section>
 
-    <a class="enlace-texto" href="<?= $url('equipo-panel') ?>">← Volver al panel</a>
+    <a class="enlace-texto" href="<?= $url('equipo-panel') ?>"> Volver al panel</a>
 </main>

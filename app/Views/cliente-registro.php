@@ -1,5 +1,5 @@
 <main id="contenido" class="contenedor registro-pagina">
-    <a class="enlace-volver" href="<?= $url('inicio') ?>">← Volver al sitio</a>
+    <a class="enlace-volver" href="<?= $url('inicio') ?>"> Volver al sitio</a>
     <div class="registro">
         <section class="registro__historia">
             <span class="etiqueta">PANADERÍA RUSTIC</span>

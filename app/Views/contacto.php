@@ -52,10 +52,10 @@
                         <li>Pedidos para reuniones</li>
                         <li>Tortas y celebraciones</li>
                     </ul>
-                    <a class="enlace-texto" href="<?= $url('productos') ?>">Explorar productos →</a>
+                    <a class="enlace-texto" href="<?= $url('productos') ?>">Explorar productos </a>
                 </aside>
             </div>
-            <a class="enlace-texto contacto__volver" href="<?= $url('inicio') ?>">← Volver al inicio</a>
+            <a class="enlace-texto contacto__volver" href="<?= $url('inicio') ?>"> Volver al inicio</a>
         </div>
     </section>
 </main>

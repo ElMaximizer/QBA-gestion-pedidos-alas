@@ -23,6 +23,7 @@ try {
     );
     $conexion->exec("USE `{$configuracion['database']}`");
     $conexion->exec(file_get_contents(__DIR__ . '/estructura.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/catalogo-categorias.sql'));
     $columnaModalidad = $conexion->query("SHOW COLUMNS FROM pedidos LIKE 'modalidad_entrega'")->fetch();
     if ($columnaModalidad === false) {
         $conexion->exec(

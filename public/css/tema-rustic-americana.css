@@ -652,3 +652,17 @@ body.pagina {
         animation-duration: 0.01ms !important;
     }
 }
+
+/* En Inicio, la navegación queda centrada en el encabezado de escritorio. */
+@media (min-width: 1001px) {
+    .encabezado--inicio .encabezado__contenido {
+        position: relative;
+    }
+
+    .encabezado--inicio .navegacion {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}

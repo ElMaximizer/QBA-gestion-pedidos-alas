@@ -37,10 +37,11 @@ final class ConsultaPedidos
     public function productosMasSolicitados(int $limite = 5): array
     {
         $limite = max(1, min($limite, 10));
-        $consulta = $this->conexion->query("SELECT d.nombre_producto, SUM(d.cantidad) AS unidades,
+        $consulta = $this->conexion->query("SELECT d.nombre_producto, MAX(NULLIF(pr.imagen, '')) AS imagen, SUM(d.cantidad) AS unidades,
             COUNT(DISTINCT d.id_pedido) AS pedidos
             FROM pedido_detalles d
             INNER JOIN pedidos p ON p.id_pedido = d.id_pedido
+            LEFT JOIN productos pr ON pr.id_producto = d.id_producto
             WHERE p.estado <> 'Cancelado'
             GROUP BY d.nombre_producto
             ORDER BY unidades DESC, d.nombre_producto ASC

@@ -56,12 +56,12 @@
         <nav class="acciones" aria-label="Páginas del historial">
             <?php if ($historial['pagina'] > 1): ?>
                 <a class="boton boton--contorno"
-                    href="<?= $escapar($url('equipo-pedido-editar', ['id' => $pedido['id_pedido'], 'historial_pagina' => $historial['pagina'] - 1])) ?>#historial-pedido">← Anterior</a>
+                    href="<?= $escapar($url('equipo-pedido-editar', ['id' => $pedido['id_pedido'], 'historial_pagina' => $historial['pagina'] - 1])) ?>#historial-pedido"> Anterior</a>
             <?php endif; ?>
             <span>Página <?= $historial['pagina'] ?> de <?= $historial['paginas'] ?></span>
             <?php if ($historial['pagina'] < $historial['paginas']): ?>
                 <a class="boton boton--contorno"
-                    href="<?= $escapar($url('equipo-pedido-editar', ['id' => $pedido['id_pedido'], 'historial_pagina' => $historial['pagina'] + 1])) ?>#historial-pedido">Siguiente →</a>
+                    href="<?= $escapar($url('equipo-pedido-editar', ['id' => $pedido['id_pedido'], 'historial_pagina' => $historial['pagina'] + 1])) ?>#historial-pedido">Siguiente </a>
             <?php endif; ?>
         </nav>
     <?php endif; ?>

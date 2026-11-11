@@ -61,5 +61,5 @@
         </section>
     <?php endif; ?>
 
-    <a class="enlace-texto" href="<?= $escapar($url('equipo-panel')) ?>">← Volver al panel</a>
+    <a class="enlace-texto" href="<?= $escapar($url('equipo-panel')) ?>"> Volver al panel</a>
 </main>

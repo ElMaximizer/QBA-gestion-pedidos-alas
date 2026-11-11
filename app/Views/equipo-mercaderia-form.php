@@ -1,5 +1,5 @@
 <main id="contenido" class="contenedor panel mercaderia">
-    <a class="enlace-volver" href="<?= $url('equipo-mercaderia') ?>">← Entregas de mercadería</a>
+    <a class="enlace-volver" href="<?= $url('equipo-mercaderia') ?>"> Entregas de mercadería</a>
     <div class="titulo-pagina">
         <span class="etiqueta">ADMINISTRACIÓN · STOCK</span>
         <h1 class="titulo-pagina__titulo">Registrar mercadería</h1>

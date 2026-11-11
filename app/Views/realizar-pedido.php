@@ -1,5 +1,5 @@
 <main id="contenido" class="contenedor pagina-pedidos">
-    <a class="enlace-volver" href="<?= $url('carrito') ?>">← Volver al carrito</a>
+    <a class="enlace-volver" href="<?= $url('carrito') ?>"> Volver al carrito</a>
     <div class="titulo-pagina">
         <h1 class="titulo-pagina__titulo">Realizar pedido</h1>
         <p class="titulo-pagina__descripcion">Completá tus datos y elegí cómo querés recibir tu pedido.</p>

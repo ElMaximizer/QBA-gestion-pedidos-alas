@@ -12,19 +12,19 @@ final class InicioController
     {
         $categorias = [
             [
-                'nombre' => 'Panes',
-                'etiqueta' => '01 / PANADERÍA',
-                'descripcion' => 'Integral, centeno y los clásicos de cada mesa.',
+                'nombre' => 'Rolls y cups',
+                'etiqueta' => '01 / DULCES',
+                'descripcion' => 'Rolls de canela, dulce de leche y chocolate; cups para cada antojo.',
             ],
             [
-                'nombre' => 'Bizcochos',
-                'etiqueta' => '02 / DULCERÍA',
-                'descripcion' => 'Para el desayuno, la merienda y el antojo.',
+                'nombre' => 'Hojaldres y medialunas',
+                'etiqueta' => '02 / SALADOS',
+                'descripcion' => 'Opciones rellenas y recién horneadas para compartir.',
             ],
             [
-                'nombre' => 'Tortas',
-                'etiqueta' => '03 / CELEBRACIONES',
-                'descripcion' => 'El detalle especial para compartir.',
+                'nombre' => 'Budines',
+                'etiqueta' => '03 / MERIENDAS',
+                'descripcion' => 'Frutos secos, limón y naranja para acompañar el día.',
             ],
         ];
 

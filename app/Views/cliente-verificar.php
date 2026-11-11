@@ -1,5 +1,5 @@
 <main id="contenido" class="contenedor registro-pagina">
-    <a class="enlace-volver" href="<?= $url('registro') ?>">← Volver al registro de clientes</a>
+    <a class="enlace-volver" href="<?= $url('registro') ?>"> Volver al registro de clientes</a>
     <div class="registro">
         <section class="registro__historia">
             <span class="etiqueta">ACTIVACIÓN DE CUENTA</span>

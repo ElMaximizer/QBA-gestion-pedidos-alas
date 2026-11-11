@@ -64,5 +64,5 @@
     </section>
     <?php require __DIR__ . '/partials/bandeja-equipo-paginacion.php'; ?>
     <p class="bandeja-equipo__nota">Solo se muestran las solicitudes que todavía necesitan una decisión. Podés consultar las cuentas aprobadas y cambiar sus roles en <a class="enlace-texto" href="<?= $url('equipo-permisos') ?>">Administrar personal</a>. </p>
-    <a class="enlace-texto" href="<?= $url('equipo-panel') ?>">← Volver al panel</a>
+    <a class="enlace-texto" href="<?= $url('equipo-panel') ?>"> Volver al panel</a>
 </main>

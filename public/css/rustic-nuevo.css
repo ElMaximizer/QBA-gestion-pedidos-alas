@@ -1273,3 +1273,40 @@ body.pagina:not(.pagina--equipo) {
 .pagina:not(.pagina--equipo) .contacto__panel .enlace-texto {
     color: var(--rustic-texto-claro, #fff8ed);
 }
+
+.inicio-portada__foto--sin-productos {
+    background: radial-gradient(ellipse at 70% 40%, #9a684d 0, #6a4633 42%, #3f2b22 100%);
+}
+.inicio-historia__imagen-vacia {
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    background: radial-gradient(ellipse at 70% 40%, #9a684d 0, #6a4633 42%, #3f2b22 100%);
+}
+
+/* Sitio pÃºblico: navegaciÃ³n centrada con la cuenta en el extremo derecho. */
+@media (min-width: 1001px) {
+    .encabezado--publico .encabezado__contenido {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        align-items: center;
+    }
+
+    .encabezado--publico .encabezado__menu {
+        display: contents;
+    }
+
+    .encabezado--publico .navegacion {
+        grid-column: 2;
+        justify-self: center;
+        position: static;
+        inset: auto;
+        transform: none;
+    }
+
+    .encabezado--publico .cuenta,
+    .encabezado--publico .encabezado__acceso {
+        grid-column: 3;
+        justify-self: end;
+    }
+}

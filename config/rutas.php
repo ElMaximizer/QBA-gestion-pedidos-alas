@@ -13,6 +13,7 @@ use App\Controllers\InformacionController;
 use App\Controllers\NosotrosController;
 use App\Controllers\GestionProductoController;
 use App\Controllers\PanelEquipoController;
+use App\Controllers\EstadisticasEquipoController;
 use App\Controllers\PedidosEquipoController;
 use App\Controllers\PedidoController;
 use App\Controllers\PedidosClienteController;
@@ -102,6 +103,7 @@ return [
         ['GET', 'HEAD', 'POST'],
     ],
     'equipo-panel' => ['equipo/panel', PanelEquipoController::class, 'index', ['GET', 'HEAD']],
+    'equipo-estadisticas' => ['equipo/estadisticas', EstadisticasEquipoController::class, 'index', ['GET', 'HEAD']],
     'equipo-ventas' => ['equipo/ventas', VentasEquipoController::class, 'index', ['GET', 'HEAD']],
     'equipo-consultas' => [
         'equipo/consultas',
