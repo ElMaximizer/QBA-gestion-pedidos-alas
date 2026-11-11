@@ -1,9 +1,14 @@
 let formularioParaCancelar = null;
 
 document.addEventListener('submit', (evento) => {
-    const formulario = evento.target.closest('form[data-confirmar-cancelacion]');
+    const formulario = evento.target.closest('form[data-confirmar-cancelacion], form[data-confirmar-estado]');
 
     if (!formulario) {
+        return;
+    }
+
+    if (formulario.hasAttribute('data-confirmar-estado') &&
+        (formulario.elements.estado_nuevo.value !== 'Cancelado' || formulario.dataset.estadoActual === 'Cancelado')) {
         return;
     }
 
@@ -59,6 +64,9 @@ function iniciarFormularioPedidoEquipo() {
     const textoRetiro = formulario.querySelector('[data-pedido-retiro]');
     const modalidadEnvio = formulario.querySelector('[data-direccion-envio]');
     const campoDireccion = formulario.elements.direccion_entrega;
+    const bloqueComprobante = formulario.querySelector('[data-comprobante-equipo]');
+    const campoComprobante = formulario.elements.comprobante;
+    const nombreComprobante = formulario.querySelector('[data-nombre-comprobante]');
     const textoFecha = formulario.querySelector('[data-modalidad-fecha]');
     const textoHora = formulario.querySelector('[data-modalidad-hora]');
     const maximoProductos = Number(formulario.dataset.maximo);
@@ -87,6 +95,24 @@ function iniciarFormularioPedidoEquipo() {
         articulo.append(nombre, importe);
         listaResumen.append(articulo);
     }
+
+    function actualizarMetodoPago() {
+        if (!bloqueComprobante || !campoComprobante) return;
+        const metodo = formulario.querySelector('input[name="metodo_pago"]:checked')?.value || 'local';
+        const requiereComprobante = metodo === 'transferencia';
+        bloqueComprobante.hidden = !requiereComprobante;
+        campoComprobante.required = requiereComprobante;
+        if (!requiereComprobante) campoComprobante.value = '';
+        if (nombreComprobante && !requiereComprobante) {
+            nombreComprobante.textContent = 'Elegí la imagen del comprobante';
+        }
+    }
+
+    campoComprobante?.addEventListener('change', function () {
+        if (nombreComprobante) {
+            nombreComprobante.textContent = campoComprobante.files[0]?.name || 'Elegí la imagen del comprobante';
+        }
+    });
 
     function actualizarDatosRetiro() {
         const fecha = formulario.elements.fecha_retiro.value;
@@ -178,6 +204,7 @@ function iniciarFormularioPedidoEquipo() {
         avisoIncompleto.hidden = pedidoCompleto;
         textoTotal.textContent = pedidoCompleto ? formatearDinero(totalCentavos) : '—';
         actualizarDatosRetiro();
+        actualizarMetodoPago();
     }
 
     botonAgregar.addEventListener('click', function (evento) {
