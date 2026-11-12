@@ -5,6 +5,48 @@
     margin-block: 28px;
 }
 
+.whitelist-equipo {
+    margin-bottom: 32px;
+}
+
+.whitelist-equipo__formulario {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-block: 24px;
+}
+
+.whitelist-equipo__formulario .campo {
+    width: 100%;
+    max-width: 320px;
+}
+
+.whitelist-equipo__formulario > .boton {
+    align-self: center;
+}
+
+.whitelist-equipo__lista {
+    display: grid;
+    gap: 0;
+    padding: 0;
+    margin-block: 24px;
+    list-style: none;
+}
+
+.whitelist-equipo__fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding-block: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.whitelist-equipo__fila > span {
+    font-variant-numeric: tabular-nums;
+}
+
 .bandeja-equipo__cantidad {
     min-width: 24px;
     padding: 3px 8px;

@@ -37,7 +37,8 @@ sus contadores reales. No se agregan enlaces a la navegación superior.
 - **Consultas recibidas**: disponible para cualquier integrante aprobado del equipo.
   Muestra remitente, correo, motivo, fecha y texto completo; filtra nuevas/leídas
   y permite marcar como leída mediante POST y CSRF. El estado es compartido.
-- **Solicitudes de acceso**: exclusiva del dueño. Muestra las solicitudes pendientes
+- **Solicitudes de acceso**: administradores y dueños gestionan allí la whitelist.
+  Solo el dueño ve y resuelve las solicitudes pendientes
   del registro del equipo y permite aprobarlas como empleado o rechazarlas.
   La decisión conserva la cuenta y su contraseña; no se puede sobrescribir una
   solicitud ya resuelta con un formulario anterior. Los roles de administrador
@@ -48,10 +49,43 @@ Usan las tablas existentes `mensajes_contacto` y `usuarios_equipo`, sin otra
 migración. La primera se crea con `database/contacto.sql` o el instalador sin
 `--demo`. Las pruebas de `tests/panel-atencion.php` usan una base temporal separada.
 
+## Whitelist de cédulas del equipo
+
+En **Panel → Atención del equipo → Solicitudes de acceso**, administradores y
+dueños pueden habilitar o quitar cédulas. Los empleados y visitantes no pueden
+leer ni modificar la lista; las modificaciones requieren POST y CSRF. La
+aprobación o rechazo de solicitudes sigue reservada al dueño.
+
+La whitelist se guarda como JSON en `storage/equipo/whitelist.local.json`, fuera
+de `public/`, excluido de Git y protegido por `.htaccess` para Apache. Un archivo
+ausente o una lista vacía impide todas las nuevas solicitudes. Un JSON ilegible
+o malformado también las bloquea. Las cédulas se normalizan con las mismas reglas
+del equipo, por lo que los ceros iniciales no crean identidades diferentes.
+Habilitar no crea ni aprueba cuentas; quitar no borra solicitudes ni desactiva
+usuarios existentes. Los cambios se guardan bajo bloqueo y mediante reemplazo
+atómico, y la solicitud mantiene el bloqueo de lectura hasta crear su registro.
+
+No requiere SQL. La lista empieza vacía y se crea al habilitar la primera cédula.
+Para otro entorno, se puede definir `QBA_EQUIPO_WHITELIST` con la ruta absoluta de
+un JSON privado y persistente. El usuario de PHP necesita escribir tanto el
+archivo como su directorio y el archivo de bloqueo. Mantener esa ruta fuera de
+la raíz pública, respaldarla y conservarla entre despliegues; si se usan
+contenedores, ubicarla en almacenamiento persistente. No publicar cédulas en Git.
+`config/whitelist-equipo.example.json` muestra el formato inicial vacío:
+
+```json
+{ "cedulas": [] }
+```
+
+`php tests/whitelist-equipo.php` verifica permisos, CSRF, normalización, JSON
+inválido, registros permitidos/rechazados y escrituras concurrentes en un archivo
+y una base temporales. `php tests/equipo.php` usa su propia lista de pruebas.
+
 ## Registro del equipo
 
 Desde **Acceso al equipo → Solicitar usuario**, en el pie del sitio, se puede solicitar un usuario
-con nombre, cédula, correo y contraseña. Se conserva el formulario del proyecto
+con nombre, cédula, correo y contraseña, si la cédula fue habilitada previamente
+en la whitelist. Se conserva el formulario del proyecto
 anterior y el flujo de solicitud pendiente de aprobación del dueño.
 
 La solicitud se guarda en **usuarios_equipo**, con rol empleado y estado

@@ -136,17 +136,18 @@ try {
             'El ' . $rol . ' puede consultar mensajes',
         );
         comprobar(
-            $solicitar('/equipo/solicitudes')[0] === 403 &&
+            $solicitar('/equipo/solicitudes')[0] === ($rol === 'administrador' ? 200 : 403) &&
                 $solicitar('/equipo/solicitudes', [
                     'id_usuario' => $pendientes[1],
+                    'csrf' => oculto($solicitar('/equipo/panel')[1], 'csrf'),
                     'accion' => 'aprobar',
                 ])[0] === 403,
-            'El ' . $rol . ' no puede leer ni resolver solicitudes',
+            'El administrador accede a la whitelist y el empleado no; ninguno resuelve solicitudes',
         );
         [, $panel] = $solicitar('/equipo/panel');
         comprobar(
-            !str_contains($panel, 'href="/equipo/solicitudes"'),
-            'Las solicitudes no se ofrecen a ' . $rol,
+            str_contains($panel, 'href="/equipo/solicitudes"') === ($rol === 'administrador'),
+            'El acceso a la whitelist se ofrece solo al administrador dentro de estos roles',
         );
     }
     $identificar($usuarios['dueno']);
