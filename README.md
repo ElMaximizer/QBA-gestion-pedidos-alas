@@ -455,7 +455,9 @@ conservan la sección de la operación.
 El teléfono del perfil es opcional: admite entre 6 y 15 dígitos, con prefijo
 internacional, espacios, paréntesis y guiones (hasta 30 caracteres). Se precarga
 al confirmar un pedido y se puede cambiar para esa compra sin modificar el
-perfil. El pedido sigue exigiendo un teléfono de contacto. Eliminar la cuenta
+perfil. El teléfono es opcional para los pedidos web: se puede borrar el
+valor precargado sin modificar la cuenta, tanto para retiro como para domicilio.
+Si se completa, se valida el formato. Eliminar la cuenta
 borra el teléfono del perfil, conservando los contactos históricos de pedidos.
 
 **Mis direcciones** permite agregar, editar y eliminar direcciones con un
@@ -809,8 +811,8 @@ redirige con 303 para evitar repetirla al recargar.
 ## Reglas del pedido
 
 - Entre 1 y 99 unidades por producto y hasta 50 productos distintos.
-- Nombre, teléfono y fecha/hora futura de retiro obligatorios, según la zona
-  America/Montevideo; notas opcionales de hasta 2000 caracteres.
+- Nombre y fecha/hora futura de retiro obligatorios, según la zona
+  America/Montevideo; teléfono y notas opcionales (notas hasta 2000 caracteres).
 - Los precios, el total y el estado los determina el servidor. Los importes se
   calculan en centavos enteros y se guardan como DECIMAL.
 - Los productos del carrito se consultan juntos. Antes de guardar se bloquean

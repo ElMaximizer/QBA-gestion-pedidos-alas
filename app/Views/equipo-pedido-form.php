@@ -1,3 +1,4 @@
+<?php $telefonoOpcional = $esEdicion && $pedido['id_cliente'] !== null; ?>
 <main id="contenido" class="contenedor panel pedido-equipo">
     <div class="titulo-pagina">
         <span class="etiqueta">ADMINISTRACIÓN · PEDIDOS</span>
@@ -33,9 +34,10 @@
                         value="<?= $escapar($valores['cliente_nombre']) ?>" placeholder="Nombre y apellido">
                 </label>
                 <label class="campo">
-                    <span class="campo-obligatorio__etiqueta">Teléfono <span class="campo-obligatorio"
-                            aria-hidden="true" title="Campo obligatorio">*</span></span>
-                    <input class="campo__entrada" type="tel" name="telefono" maxlength="30" required autocomplete="off"
+                    <span class="campo-obligatorio__etiqueta">Teléfono<?= $telefonoOpcional ? ' (opcional)' : '' ?>
+                        <?php if (!$telefonoOpcional): ?><span class="campo-obligatorio" aria-hidden="true" title="Campo obligatorio">*</span><?php endif; ?>
+                    </span>
+                    <input class="campo__entrada" type="tel" name="telefono" maxlength="30" <?= $telefonoOpcional ? '' : 'required' ?> autocomplete="off"
                         value="<?= $escapar($valores['telefono']) ?>" placeholder="Número de contacto"
                         aria-describedby="pedido-telefono-ayuda">
                     <span class="campo__ayuda" id="pedido-telefono-ayuda">Para coordinar el retiro o la entrega.</span>

@@ -19,10 +19,9 @@
                     maxlength="120" required autocomplete="name">
             </label>
             <label class="campo">
-                <span class="campo-obligatorio__etiqueta">Teléfono <span class="campo-obligatorio" aria-hidden="true"
-                        title="Campo obligatorio">*</span></span>
+                <span>Teléfono (opcional)</span>
                 <input class="campo__entrada" type="tel" name="telefono" value="<?= $escapar($datos['telefono']) ?>"
-                    maxlength="30" required autocomplete="tel">
+                    maxlength="30" autocomplete="tel">
             </label>
             <fieldset class="entrega-opciones">
                 <legend class="entrega-opciones__titulo">¿Cómo querés recibir tu pedido?</legend>

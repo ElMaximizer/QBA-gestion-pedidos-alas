@@ -36,6 +36,16 @@ try {
         'metodo_pago' => 'local',
         'notas' => 'Prueba automatizada',
     ];
+    Pedido::validar(array_replace($datos, ['telefono' => '']), true, true);
+    comprobar(true, 'El teléfono puede quedar vacío para pedidos de cliente');
+    rechaza(
+        fn() => Pedido::validar(array_replace($datos, ['telefono' => ''])),
+        'El registro interno conserva el teléfono obligatorio',
+    );
+    rechaza(
+        fn() => Pedido::validar(array_replace($datos, ['telefono' => 'abc']), true, true),
+        'Un teléfono opcional igualmente exige formato válido cuando se completa',
+    );
 
     rechaza(fn() => $carrito->actualizar('agregar', '1', '0'), 'Rechaza cantidad cero');
     rechaza(fn() => $carrito->actualizar('agregar', '1', '1.5'), 'Rechaza cantidad fraccionaria');

@@ -21,6 +21,7 @@ $correcto = true;
 try {
     $entorno = new EntornoPruebas('hu23');
     $db = $entorno->db;
+    $db->exec(file_get_contents(dirname(__DIR__) . '/database/comprobantes-transferencia.sql'));
     $modelo = new Pedido($db);
     $productos = new Producto($db);
     $password = 'GestionPedidoPrueba23!';
@@ -84,6 +85,17 @@ try {
         bin2hex(random_bytes(32)),
         $cliente['id_cliente'],
     );
+    $pedidoWeb = $modelo->buscarGestion($idWeb);
+    $modelo->modificar(
+        $idWeb,
+        array_replace($datos, ['telefono' => '', 'estado' => 'Pendiente']),
+        [3 => 1],
+        $firma([3 => 1], [3 => 120000]),
+        Pedido::version($pedidoWeb),
+        bin2hex(random_bytes(32)),
+        $admin,
+    );
+    comprobar($modelo->buscarGestion($idWeb)['telefono'] === '', 'El equipo puede corregir pedidos web sin exigir teléfono');
     $idAdmin = $modelo->crear(
         $datos,
         [1 => 1],
@@ -403,6 +415,8 @@ try {
                 'telefono',
                 'fecha_retiro',
                 'hora_retiro',
+                'modalidad_entrega',
+                'direccion_entrega',
                 'notas',
                 'estado',
             ]),
