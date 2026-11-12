@@ -25,9 +25,9 @@ final class Http
         return $valor;
     }
 
-    public static function redirigir(string $ruta): never
+    public static function redirigir(string $ruta, array $parametros = []): never
     {
-        header('Location: ' . Rutas::url($ruta), true, 303);
+        header('Location: ' . Rutas::url($ruta, $parametros), true, 303);
         exit();
     }
 }

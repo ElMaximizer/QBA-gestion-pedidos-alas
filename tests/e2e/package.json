@@ -1,0 +1,12 @@
+{
+  "name": "qba-e2e",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:list": "playwright test --list",
+    "test:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0"
+  }
+}

@@ -226,6 +226,28 @@ final class Producto
         }
     }
 
+    public function cambiarEstado(int $id, string $activo, string $version): void
+    {
+        if (!in_array($activo, ['0', '1'], true)) {
+            throw new DomainException('Seleccioná un estado válido para el producto.');
+        }
+
+        $this->conexion->beginTransaction();
+        try {
+            $this->exigirVersion($id, $version);
+            $consulta = $this->conexion->prepare(
+                'UPDATE productos SET activo = ? WHERE id_producto = ?',
+            );
+            $consulta->execute([(int) $activo, $id]);
+            $this->conexion->commit();
+        } catch (Throwable $error) {
+            if ($this->conexion->inTransaction()) {
+                $this->conexion->rollBack();
+            }
+            throw $error;
+        }
+    }
+
     public function archivar(int $id, string $version): string
     {
         $this->conexion->beginTransaction();

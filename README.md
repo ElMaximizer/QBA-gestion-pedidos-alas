@@ -203,6 +203,11 @@ texto, no cambian los valores que decide el servidor. El id a editar o eliminar
 sale de la URL; la imagen se obtiene exclusivamente de la subida del archivo.
 
 **Inactivo** oculta temporalmente el producto y permite editarlo o reactivarlo.
+El botón **Estado**, junto a Editar y Eliminar, permite elegir Activo o Inactivo
+y guardar desde el listado, incluso sin JavaScript. Conserva la búsqueda, el
+filtro y la página; si el producto deja de coincidir con el filtro, sale del
+listado. El cambio exige permisos, POST, CSRF y la versión vigente del producto,
+sin modificar sus otros datos. Se verifica con `php tests/productos-estado.php`.
 **Eliminar** primero muestra una confirmación y después requiere POST y CSRF.
 Hace una baja lógica: marca activo=0 y eliminado_en en UTC, conservando la fila
 y la referencia de los pedidos. Los detalles del pedido mantienen sus nombres y

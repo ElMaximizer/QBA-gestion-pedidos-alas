@@ -7,6 +7,9 @@
     <?php if ($aviso): ?>
         <div class="aviso aviso--exito" role="status"><?= $escapar($aviso) ?> </div>
     <?php endif; ?>
+    <?php if ($error): ?>
+        <div class="aviso aviso--error" role="alert"><?= $escapar($error) ?></div>
+    <?php endif; ?>
     <a class="boton boton--dorado" href="<?= $url('producto-agregar') ?>">+ Agregar producto</a>
     <form class="gestion-busqueda" method="get" action="<?= $url('equipo-productos') ?>">
         <label class="campo gestion-busqueda__nombre">Buscar <input class="campo__entrada" name="q" value="<?= $escapar($busqueda) ?>"
@@ -35,6 +38,21 @@
                         class="insignia <?= $producto['activo'] ? 'insignia--exito' : 'insignia--neutra' ?>"><?= $producto['activo'] ? 'Activo' : 'Inactivo' ?></span></span>
                 <a class="boton boton--contorno gestion-producto__boton"
                     href="<?= $escapar($url('producto-editar', ['id' => $producto['id_producto']])) ?>">Editar</a>
+                <details class="gestion-producto__cambio-estado">
+                    <summary class="boton boton--contorno gestion-producto__boton"
+                        aria-label="Cambiar estado de <?= $escapar($producto['nombre']) ?>">Estado</summary>
+                    <form class="gestion-producto__formulario-estado" method="post"
+                        action="<?= $escapar($url('producto-estado', ['id' => $producto['id_producto'], 'q' => $busqueda, 'estado' => $estado, 'pagina' => $pagina])) ?>">
+                        <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                        <input type="hidden" name="version" value="<?= \App\Models\Producto::version($producto) ?>">
+                        <label class="campo" for="estado-producto-<?= $producto['id_producto'] ?>">Estado del producto</label>
+                        <select class="campo__entrada" id="estado-producto-<?= $producto['id_producto'] ?>" name="activo">
+                            <option value="1" <?= $producto['activo'] ? 'selected' : '' ?>>Activo</option>
+                            <option value="0" <?= !$producto['activo'] ? 'selected' : '' ?>>Inactivo</option>
+                        </select>
+                        <button class="boton boton--dorado">Guardar estado</button>
+                    </form>
+                </details>
                 <a class="boton boton--rojo gestion-producto__boton"
                     href="<?= $escapar($url('producto-eliminar', ['id' => $producto['id_producto']])) ?>">Eliminar</a>
             </article>

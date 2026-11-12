@@ -9,3 +9,16 @@
 .prettierignore
 package.json
 package-lock.json
+AGENTS.MD
+SKILL.md
+qba-frontend-reviewer.toml
+qba-php-reviewer.toml
+asistentes.md
+
+# Herramientas de navegador aisladas de los manifiestos locales de formato.
+!/tests/e2e/package.json
+!/tests/e2e/package-lock.json
+/tests/e2e/node_modules/
+/tests/e2e/test-results/
+/tests/e2e/playwright-report/
+/tests/e2e/.php-sessions/
