@@ -15,10 +15,10 @@
     </div>
 
     <?php if ($aviso !== ''): ?>
-        <p class="equipo-pedidos__mensaje equipo-pedidos__mensaje--exito" role="status"><?= $escapar($aviso) ?></p>
+        <p class="equipo-pedidos__mensaje equipo-pedidos__mensaje--exito" role="status" tabindex="-1" data-resultado-pedidos><?= $escapar($aviso) ?></p>
     <?php endif; ?>
     <?php if ($error !== ''): ?>
-        <p class="equipo-pedidos__mensaje equipo-pedidos__mensaje--error" role="alert"><?= $escapar($error) ?></p>
+        <p class="equipo-pedidos__mensaje equipo-pedidos__mensaje--error" role="alert" tabindex="-1" data-resultado-pedidos><?= $escapar($error) ?></p>
     <?php endif; ?>
 
     <form class="equipo-pedidos__filtros" method="get" action="<?= $escapar($url('equipo-pedidos')) ?>">
@@ -190,25 +190,41 @@
                     <?php endif; ?>
                 </dl>
                 <?php if ($puedeActualizarEstado && $pedido['estados_actualizables'] !== []): ?>
+                    <?php
+                    $estadosDisponibles = array_values(array_diff($pedido['estados_actualizables'], [$pedido['estado']]));
+                    $estadoSeleccionado = count($estadosDisponibles) === 1 ? $estadosDisponibles[0] : '';
+                    $errorEstado = $idEstadoEnviado === $pedido['id_pedido'] ? $error : '';
+                    if ($errorEstado !== '' && in_array($estadoEnviado, $estadosDisponibles, true)) {
+                        $estadoSeleccionado = $estadoEnviado;
+                    }
+                    $idControlEstado = 'pedido-estado-' . $pedido['id_pedido'];
+                    ?>
                     <form class="equipo-pedido__estado-form" method="post" action="<?= $escapar($url('equipo-pedidos')) ?>"
                         data-confirmar-estado data-numero-pedido="<?= (int) $pedido['id_pedido'] ?>"
-                        data-estado-actual="<?= $escapar($pedido['estado']) ?>">
+                        data-estado-actual="<?= $escapar($pedido['estado']) ?>" aria-label="Cambiar estado del pedido #<?= (int) $pedido['id_pedido'] ?>">
                         <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
                         <input type="hidden" name="accion" value="actualizar_estado">
                         <input type="hidden" name="id_pedido" value="<?= $pedido['id_pedido'] ?>">
-                        <label class="campo">
-                            <span>Estado del pedido</span>
-                            <select class="campo__entrada" name="estado_nuevo" required>
-                                <?php foreach ($pedido['estados_actualizables'] as $estadoOpcion): ?>
-                                    <option value="<?= $escapar($estadoOpcion) ?>" <?= $estadoOpcion === $pedido['estado'] ? 'selected' : '' ?>>
+                        <p class="equipo-pedido__estado-contexto" id="<?= $idControlEstado ?>-actual">Estado actual: <strong><?= $escapar($pedido['estado']) ?></strong></p>
+                        <label class="campo" for="<?= $idControlEstado ?>">
+                            <span>Nuevo estado <span class="solo-lectores">del pedido #<?= (int) $pedido['id_pedido'] ?></span></span>
+                            <select class="campo__entrada" name="estado_nuevo" required id="<?= $idControlEstado ?>"
+                                aria-describedby="<?= $idControlEstado ?>-actual<?= $errorEstado !== '' ? ' ' . $idControlEstado . '-error' : '' ?>"
+                                <?= $errorEstado !== '' ? 'aria-invalid="true"' : '' ?>>
+                                <option value="" <?= $estadoSeleccionado === '' ? 'selected' : '' ?> disabled>Elegí un nuevo estado</option>
+                                <?php foreach ($estadosDisponibles as $estadoOpcion): ?>
+                                    <option value="<?= $escapar($estadoOpcion) ?>" <?= $estadoOpcion === $estadoSeleccionado ? 'selected' : '' ?>>
                                         <?= $escapar($estadoOpcion) ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
                         </label>
-                        <button class="boton boton--dorado" type="submit">
-                            Actualizar estado
+                        <button class="boton boton--dorado" type="submit" data-guardar-estado>
+                            <?= $estadoSeleccionado !== '' ? 'Cambiar a ' . $escapar($estadoSeleccionado) : 'Guardar nuevo estado' ?>
                         </button>
+                        <?php if ($errorEstado !== ''): ?>
+                            <p class="equipo-pedido__estado-error" id="<?= $idControlEstado ?>-error"><?= $escapar($errorEstado) ?></p>
+                        <?php endif; ?>
                     </form>
                 <?php endif; ?>
                 <div class="equipo-pedido__acciones">

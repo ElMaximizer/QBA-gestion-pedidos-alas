@@ -24,6 +24,8 @@ final class PedidosEquipoController
         $puedeCancelar = in_array($usuario['rol'] ?? null, ['administrador', 'dueno'], true);
         $puedeActualizarEstado = in_array($usuario['rol'] ?? null, ['empleado', 'administrador', 'dueno'], true);
         $error = '';
+        $idEstadoEnviado = null;
+        $estadoEnviado = '';
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
@@ -61,17 +63,20 @@ final class PedidosEquipoController
                         ? 'La transferencia fue aprobada y el pago quedó confirmado.'
                         : 'El comprobante fue rechazado. El cliente puede volver a enviarlo.';
                 } elseif ($accion === 'actualizar_estado') {
+                    $idEstadoEnviado = $idPedido;
                     if (!$puedeActualizarEstado) {
                         http_response_code(403);
                         throw new DomainException('Tu cuenta no puede actualizar estados de pedidos.');
                     }
                     $estadoNuevo = Http::texto($_POST, 'estado_nuevo');
+                    $estadoEnviado = $estadoNuevo;
                     (new Pedido(Conexion::obtener()))->actualizarEstadoEquipo(
                         $idPedido,
                         $estadoNuevo,
                         (int) $usuario['id_usuario'],
                     );
-                    $_SESSION['qba']['aviso_pedidos'] = 'Se guardó el estado del pedido.';
+                    $_SESSION['qba']['aviso_pedidos'] =
+                        'Pedido #' . $idPedido . ': estado guardado como «' . $estadoNuevo . '».';
                 } elseif ($accion === 'cancelar_pedido') {
                     if (!$puedeCancelar) {
                         http_response_code(403);
@@ -161,6 +166,8 @@ final class PedidosEquipoController
                 'estados' => Pedido::ESTADOS,
                 'aviso' => $aviso,
                 'error' => $error,
+                'idEstadoEnviado' => $idEstadoEnviado,
+                'estadoEnviado' => $estadoEnviado,
             ],
         );
     }
