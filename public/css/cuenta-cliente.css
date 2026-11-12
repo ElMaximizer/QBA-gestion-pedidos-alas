@@ -252,8 +252,50 @@
     height: 18px;
 }
 
-.cuenta-ajustes--confirmacion {
+.pagina:not(.pagina--equipo) .cuenta-ajustes.cuenta-ajustes--confirmacion {
     max-width: 760px;
+}
+
+.cuenta-ajustes--confirmacion > .enlace-volver {
+    margin-bottom: 28px;
+}
+
+.cuenta-ajustes__eliminacion {
+    padding: 32px;
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--red);
+}
+
+.cuenta-ajustes__advertencia p {
+    margin: 16px 0 0;
+    line-height: 1.7;
+}
+
+.cuenta-ajustes__eliminacion > .aviso {
+    margin-top: 24px;
+}
+
+.cuenta-ajustes__formulario-eliminar {
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+}
+
+.cuenta-ajustes__formulario-eliminar .cuenta-ajustes__confirmar {
+    line-height: 1.6;
+}
+
+.cuenta-ajustes__acciones-eliminar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.cuenta-ajustes__acciones-eliminar .boton {
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
 }
 
 @media (max-width: 760px) {
@@ -295,5 +337,10 @@
 
     .cuenta-direccion {
         padding: 16px;
+    }
+
+    .cuenta-ajustes__acciones-eliminar {
+        flex-direction: column;
+        align-items: stretch;
     }
 }

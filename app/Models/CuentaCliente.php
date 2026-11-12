@@ -315,11 +315,70 @@ final class CuentaCliente
         });
     }
 
-    public function eliminar(int $id, string $version, string $password): void
+    public function solicitarCodigoEliminacion(int $id, string $version, string $password): array
+    {
+        $codigo = (string) random_int(100000, 999999);
+        $hash = password_hash($codigo, PASSWORD_DEFAULT);
+        return $this->conPassword($id, $version, $password, function (array $cuenta) use ($id, $version, $codigo, $hash): array {
+            $consulta = $this->conexion->prepare('SELECT enviado_en > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 1 MINUTE)
+                FROM codigos_eliminacion_cliente WHERE id_cliente = ? FOR UPDATE');
+            $consulta->execute([$id]);
+            if ($consulta->fetchColumn()) {
+                throw new DomainException('Esperá un minuto antes de pedir otro código.');
+            }
+            $consulta = $this->conexion->prepare('INSERT INTO codigos_eliminacion_cliente
+                (id_cliente, version_acceso, codigo_hash, vence_en, enviado_en)
+                VALUES (?, ?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 10 MINUTE), UTC_TIMESTAMP())
+                ON DUPLICATE KEY UPDATE version_acceso = VALUES(version_acceso), codigo_hash = VALUES(codigo_hash),
+                    vence_en = VALUES(vence_en), enviado_en = VALUES(enviado_en), intentos = 0');
+            $consulta->execute([$id, $version, $hash]);
+            return ['email' => $cuenta['email'], 'nombre' => $cuenta['nombre'], 'codigo' => $codigo];
+        });
+    }
+
+    public function eliminacionPendiente(int $id, string $version): bool
+    {
+        $consulta = $this->conexion->prepare('SELECT version_acceso FROM codigos_eliminacion_cliente
+            WHERE id_cliente = ? AND codigo_hash IS NOT NULL');
+        $consulta->execute([$id]);
+        $guardada = $consulta->fetchColumn();
+        return is_string($guardada) && hash_equals($guardada, $version);
+    }
+
+    public function cancelarEliminacion(int $id, string $version): void
+    {
+        $this->modificar($id, $version, function () use ($id): void {
+            $this->quitarCodigoEliminacion($id);
+        });
+    }
+
+    private function quitarCodigoEliminacion(int $id): void
+    {
+        $consulta = $this->conexion->prepare('UPDATE codigos_eliminacion_cliente SET codigo_hash = NULL,
+            vence_en = NULL WHERE id_cliente = ?');
+        $consulta->execute([$id]);
+    }
+
+    public function eliminar(int $id, string $version, string $codigo): void
     {
         $hash = password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT);
         $email = 'eliminada-' . $id . '-' . bin2hex(random_bytes(12)) . '@cuentas.invalid';
-        $this->conPassword($id, $version, $password, function () use ($id, $hash, $email): array {
+        $resultado = $this->modificar($id, $version, function () use ($id, $hash, $email, $version, $codigo): array {
+            $consulta = $this->conexion->prepare('SELECT codigo_hash, intentos, version_acceso,
+                vence_en > UTC_TIMESTAMP() AS vigente FROM codigos_eliminacion_cliente WHERE id_cliente = ? FOR UPDATE');
+            $consulta->execute([$id]);
+            $pendiente = $consulta->fetch();
+            if (!$pendiente || !$pendiente['codigo_hash'] || !$pendiente['vigente'] ||
+                (int) $pendiente['intentos'] >= 5 || !hash_equals($pendiente['version_acceso'], $version)
+            ) {
+                return ['error' => 'Pedí un código vigente a tu correo antes de eliminar la cuenta.'];
+            }
+            if (!preg_match('/^[0-9]{6}$/D', $codigo) || !password_verify($codigo, $pendiente['codigo_hash'])) {
+                $consulta = $this->conexion->prepare('UPDATE codigos_eliminacion_cliente SET intentos = intentos + 1
+                    WHERE id_cliente = ?');
+                $consulta->execute([$id]);
+                return ['error' => 'El código no coincide. Revisalo; admite hasta cinco intentos.'];
+            }
             // Conservar la fila evita perder los pedidos y comprobantes asociados por claves foráneas.
             $consulta = $this->conexion->prepare("UPDATE clientes SET nombre = 'Cuenta eliminada',
                 email = ?, password_hash = ?, telefono = '', verificado = 0, codigo_verificacion_hash = NULL,
@@ -328,10 +387,14 @@ final class CuentaCliente
             $consulta->execute([$email, $hash, $id]);
             $this->quitarCorreoPendiente($id);
             $this->quitarCodigoPassword($id);
+            $this->quitarCodigoEliminacion($id);
             $consulta = $this->conexion->prepare('DELETE FROM direcciones_cliente WHERE id_cliente = ?');
             $consulta->execute([$id]);
             return [];
         });
+        if (isset($resultado['error'])) {
+            throw new DomainException($resultado['error']);
+        }
     }
 
     private function conPassword(int $id, string $version, string $password, callable $operacion): array

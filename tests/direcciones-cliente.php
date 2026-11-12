@@ -175,7 +175,8 @@ try {
     $cuentas->actualizarPerfil($id, $version, 'Cliente de prueba', '');
     comprobar($cuentas->datos($id)['telefono'] === '', 'Permite retirar el teléfono opcional del perfil');
     $cuentas->actualizarPerfil($id, $version, 'Cliente de prueba', '098123456');
-    $cuentas->eliminar($id, $version, $password);
+    $codigoEliminar = $cuentas->solicitarCodigoEliminacion($id, $version, $password)['codigo'];
+    $cuentas->eliminar($id, $version, $codigoEliminar);
     comprobar($db->query('SELECT telefono FROM clientes WHERE id_cliente = ' . $id)->fetchColumn() === '', 'La eliminación de la cuenta retira el teléfono del perfil');
     comprobar(
         $cuentas->direcciones($id) === [] && count($cuentas->direcciones($otro['id_cliente'])) === 1 &&

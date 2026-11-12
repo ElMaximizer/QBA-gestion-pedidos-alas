@@ -84,6 +84,7 @@ final class EntornoPruebas
                     'direcciones-clientes.sql',
                     'contacto-clientes.sql',
                     'codigo-password-clientes.sql',
+                    'codigo-eliminacion-clientes.sql',
                     'acceso-clientes.sql',
                     'equipo.sql',
                     'pedidos-equipo.sql',

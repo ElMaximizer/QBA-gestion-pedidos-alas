@@ -19,11 +19,18 @@ final class RegistroController
         $nombre = '';
         $email = '';
         $error = '';
+        $aceptaciones = ['acepta_terminos' => false, 'acepta_privacidad' => false];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 Sesion::validarCsrf($_POST['csrf'] ?? null);
                 $nombre = Http::texto($_POST, 'nombre');
                 $email = Http::texto($_POST, 'email');
+                foreach ($aceptaciones as $campo => $aceptada) {
+                    $aceptaciones[$campo] = Http::cadena($_POST, $campo) === '1';
+                }
+                if (in_array(false, $aceptaciones, true)) {
+                    throw new DomainException('Para crear tu cuenta, aceptá los Términos y condiciones y la Política de privacidad.');
+                }
                 $cliente = (new RegistroCliente(Conexion::obtener()))->registrar(
                     $nombre,
                     $email,
@@ -50,6 +57,7 @@ final class RegistroController
             'nombre' => $nombre,
             'email' => $email,
             'error' => $error,
+            'aceptaciones' => $aceptaciones,
         ]);
     }
 

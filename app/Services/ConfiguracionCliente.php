@@ -34,6 +34,24 @@ final class ConfiguracionCliente
         }
     }
 
+    public function solicitarCodigoEliminacion(int $id, string $version, string $password): bool
+    {
+        $cambio = (new CuentaCliente($this->conexion))->solicitarCodigoEliminacion($id, $version, $password);
+        try {
+            (new Correo($this->conexion))->enviar(
+                $cambio['email'],
+                $cambio['nombre'],
+                'Confirmá la eliminación de tu cuenta · Panadería Rustic',
+                "Hola {$cambio['nombre']},\n\nTu código para eliminar tu cuenta es: {$cambio['codigo']}\n\n" .
+                    'Vence en 10 minutos. Tu cuenta seguirá activa hasta que confirmes. Si no solicitaste este cambio, no compartas el código.',
+            );
+            return true;
+        } catch (Throwable $error) {
+            error_log('Cuenta cliente: falló el envío del código de eliminación (' . $error::class . ').');
+            return false;
+        }
+    }
+
     public function solicitarCorreo(int $id, string $version, string $password, string $email): bool
     {
         $cambio = (new CuentaCliente($this->conexion))->solicitarCorreo($id, $version, $password, $email);

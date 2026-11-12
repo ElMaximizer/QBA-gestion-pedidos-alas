@@ -164,17 +164,34 @@ final class CuentaClienteController
     {
         $cliente = $this->requerirCliente();
         $error = '';
+        $id = (int) $cliente['id_cliente'];
+        $version = $_SESSION['qba']['cliente_version'];
+        $cuentas = new CuentaCliente(Conexion::obtener());
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 Sesion::validarCsrf($_POST['csrf'] ?? null);
+                $accion = Http::texto($_POST, 'accion');
+                if ($accion === 'enviar-codigo') {
+                    $enviado = (new ConfiguracionCliente(Conexion::obtener()))->solicitarCodigoEliminacion(
+                        $id, $version, Http::cadena($_POST, 'password'),
+                    );
+                    if (!$enviado) {
+                        throw new DomainException('No pudimos enviar el código. Tu cuenta sigue activa; esperá un minuto y volvé a solicitarlo.');
+                    }
+                    $_SESSION['qba']['aviso_eliminacion'] = 'Enviamos un código a tu correo actual. Vence en 10 minutos y admite cinco intentos.';
+                    Http::redirigir('cliente-cuenta-eliminar');
+                }
+                if ($accion === 'cancelar') {
+                    $cuentas->cancelarEliminacion($id, $version);
+                    Http::redirigir('cliente-cuenta');
+                }
+                if ($accion !== 'eliminar') {
+                    throw new DomainException('Seleccioná una acción válida.');
+                }
                 if (Http::texto($_POST, 'confirmar') !== '1') {
                     throw new DomainException('Confirmá que querés eliminar tu cuenta.');
                 }
-                (new CuentaCliente(Conexion::obtener()))->eliminar(
-                    (int) $cliente['id_cliente'],
-                    $_SESSION['qba']['cliente_version'],
-                    Http::cadena($_POST, 'password'),
-                );
+$cuentas->eliminar($id, $version, Http::texto($_POST, 'codigo'));
                 Sesion::cerrarCliente();
                 $_SESSION['qba']['aviso_cuenta'] = 'Tu cuenta fue eliminada y se cerraron sus sesiones.';
                 Http::redirigir('cliente-login');
@@ -187,9 +204,14 @@ final class CuentaClienteController
                 $error = 'No pudimos eliminar tu cuenta en este momento. Intentá nuevamente.';
             }
         }
+        $aviso = $_SESSION['qba']['aviso_eliminacion'] ?? '';
+        unset($_SESSION['qba']['aviso_eliminacion']);
         Vista::mostrar('cliente-cuenta-eliminar', [
             'tituloPagina' => 'Eliminar mi cuenta | Panadería Rustic',
             'error' => $error,
+            'aviso' => $aviso,
+            'emailCuenta' => $cliente['email'],
+            'eliminacionPendiente' => $cuentas->eliminacionPendiente($id, $version),
         ]);
     }
 

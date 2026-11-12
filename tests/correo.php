@@ -80,6 +80,8 @@ try {
         'email' => 'smtp@example.test',
         'password' => 'ClaveSegura16!',
         'confirm_password' => 'ClaveSegura16!',
+        'acepta_terminos' => '1',
+        'acepta_privacidad' => '1',
     ];
     comprobar(
         $solicitar('/clientes/registro', $campos)[0] === 303,
