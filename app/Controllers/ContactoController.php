@@ -15,7 +15,13 @@ final class ContactoController
 {
     public function index(): void
     {
+        header('Cache-Control: no-store');
         $datos = ['nombre' => '', 'email' => '', 'motivo' => '', 'mensaje' => ''];
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $cliente = Sesion::cliente();
+            $datos['nombre'] = $cliente['nombre'] ?? '';
+            $datos['email'] = $cliente['email'] ?? '';
+        }
         $error = '';
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
