@@ -70,6 +70,9 @@ final class PedidosEquipoController
                     }
                     $estadoNuevo = Http::texto($_POST, 'estado_nuevo');
                     $estadoEnviado = $estadoNuevo;
+                    if ($estadoNuevo === 'Cancelado' && $this->pedirConfirmacionCancelacion($idPedido, $accion, $usuario['rol'])) {
+                        return;
+                    }
                     (new Pedido(Conexion::obtener()))->actualizarEstadoEquipo(
                         $idPedido,
                         $estadoNuevo,
@@ -82,11 +85,14 @@ final class PedidosEquipoController
                         http_response_code(403);
                         throw new DomainException('Solo administrador y dueño pueden cancelar pedidos.');
                     }
+                    if ($this->pedirConfirmacionCancelacion($idPedido, $accion, $usuario['rol'])) {
+                        return;
+                    }
                     (new Pedido(Conexion::obtener()))->cancelarDesdeEquipo(
                         $idPedido,
                         (int) $usuario['id_usuario'],
                     );
-                    $_SESSION['qba']['aviso_pedidos'] = 'El pedido fue cancelado y quedó registrado en el historial.';
+                    $_SESSION['qba']['aviso_pedidos'] = 'Pedido #' . $idPedido . ' cancelado. Sus datos y su historial se conservan.';
                 } else {
                     throw new DomainException('Seleccioná una acción válida.');
                 }
@@ -170,6 +176,31 @@ final class PedidosEquipoController
                 'estadoEnviado' => $estadoEnviado,
             ],
         );
+    }
+
+    private function pedirConfirmacionCancelacion(int $idPedido, string $accion, string $rol): bool
+    {
+        if (Http::texto($_POST, 'confirmar_cancelacion') === '1') {
+            return false;
+        }
+        $pedido = (new Pedido(Conexion::obtener()))->buscarGestion($idPedido);
+        if ($pedido === null) {
+            throw new DomainException('El pedido ya no está disponible. Actualizá el listado.');
+        }
+        $permitida = $accion === 'cancelar_pedido'
+            ? in_array($pedido['estado'], ['Pendiente', 'En preparación', 'Listo para retirar'], true)
+            : in_array('Cancelado', Pedido::estadosActualizables($rol, $pedido['estado'], $pedido['modalidad_entrega']), true);
+        if (!$permitida) {
+            throw new DomainException('Este pedido no se puede cancelar con tu cuenta y su estado actual.');
+        }
+        Vista::mostrar('equipo-pedido-cancelacion', [
+            'tituloPagina' => 'Cancelar pedido #' . $idPedido . ' | Panadería Rustic',
+            'seccionActiva' => 'pedidos',
+            'layoutEquipo' => true,
+            'pedido' => $pedido,
+            'accion' => $accion,
+        ]);
+        return true;
     }
 
     public function detalle(): void

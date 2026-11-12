@@ -340,13 +340,28 @@
 
 .confirmacion-cancelacion {
     width: min(100% - 32px, 480px);
+    max-height: calc(100dvh - 32px);
     padding: 0;
-    overflow: visible;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
     border: 1px solid var(--border, #e5d9c9);
     border-radius: 20px;
     color: var(--ink, #382b23);
     background: var(--white, #fffdfa);
     box-shadow: 0 24px 70px rgb(42 31 22 / 22%);
+}
+
+.confirmacion-cancelacion--pagina {
+    margin: 24px auto;
+    max-height: none;
+}
+
+.confirmacion-cancelacion__cliente {
+    margin: 0 0 12px;
+    color: var(--ink, #382b23);
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
 }
 
 .confirmacion-cancelacion::backdrop {
@@ -398,7 +413,7 @@
 
 .confirmacion-cancelacion__confirmar:focus-visible,
 .confirmacion-cancelacion__acciones .boton:focus-visible {
-    outline: 3px solid #d89a90;
+    outline: 3px solid #7e2525;
     outline-offset: 3px;
 }
 

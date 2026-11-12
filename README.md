@@ -608,6 +608,18 @@ cancelación existente.
 `php tests/estado-pedidos.php` verifica guardado, errores, historial y permisos
 con cuentas y pedidos ficticios en una base temporal.
 
+## HU03 — Cancelar un pedido
+
+El botón **Cancelar pedido** y el selector de estado solicitan confirmación antes
+de cancelar. Se muestran el número, el cliente y el estado actual del pedido, y
+se aclara que sus datos e historial se conservan. El diálogo pone el foco en
+**Volver** y lo devuelve al control de origen al cerrar con Volver o Escape.
+Sin JavaScript, PHP presenta una página de confirmación antes de guardar.
+
+Los permisos y el estado se comprueban nuevamente al guardar. La confirmación
+de la interfaz no reemplaza estos controles. `php tests/cancelacion-pedidos.php`
+verifica el flujo, los permisos y la conservación de datos en una base temporal.
+
 ## HU23 — Administrar pedidos como dueño
 
 Administrador y dueño consultan el listado de HU04 y acceden a **Ver / modificar pedido**.

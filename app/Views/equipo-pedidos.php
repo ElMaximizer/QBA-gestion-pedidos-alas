@@ -201,6 +201,7 @@
                     ?>
                     <form class="equipo-pedido__estado-form" method="post" action="<?= $escapar($url('equipo-pedidos')) ?>"
                         data-confirmar-estado data-numero-pedido="<?= (int) $pedido['id_pedido'] ?>"
+                        data-cliente-pedido="<?= $escapar($pedido['cliente_nombre']) ?>"
                         data-estado-actual="<?= $escapar($pedido['estado']) ?>" aria-label="Cambiar estado del pedido #<?= (int) $pedido['id_pedido'] ?>">
                         <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
                         <input type="hidden" name="accion" value="actualizar_estado">
@@ -233,11 +234,12 @@
                     <?php if ($pedido['puede_cancelar']): ?>
                         <form class="equipo-pedido__cancelar-form" method="post"
                             action="<?= $escapar($url('equipo-pedidos')) ?>"
-                            data-confirmar-cancelacion data-numero-pedido="<?= (int) $pedido['id_pedido'] ?>">
+                            data-confirmar-cancelacion data-numero-pedido="<?= (int) $pedido['id_pedido'] ?>"
+                            data-cliente-pedido="<?= $escapar($pedido['cliente_nombre']) ?>" data-estado-actual="<?= $escapar($pedido['estado']) ?>">
                             <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
                             <input type="hidden" name="accion" value="cancelar_pedido">
                             <input type="hidden" name="id_pedido" value="<?= (int) $pedido['id_pedido'] ?>">
-                            <button class="boton equipo-pedido__cancelar" type="submit">Cancelar pedido</button>
+                            <button class="boton equipo-pedido__cancelar" type="submit" aria-label="Cancelar pedido #<?= (int) $pedido['id_pedido'] ?>">Cancelar pedido</button>
                         </form>
                     <?php endif; ?>
                 <?php if ($pedido['puede_modificar']): ?>
@@ -270,13 +272,15 @@
         </nav>
     <?php endif; ?>
 
-    <dialog class="confirmacion-cancelacion" data-dialogo-cancelacion aria-labelledby="confirmacion-cancelacion-titulo">
+    <dialog class="confirmacion-cancelacion" data-dialogo-cancelacion aria-labelledby="confirmacion-cancelacion-titulo"
+        aria-describedby="confirmacion-cancelacion-cliente confirmacion-cancelacion-mensaje">
         <section class="confirmacion-cancelacion__contenido">
             <span class="etiqueta">CANCELAR PEDIDO</span>
-            <h2 class="confirmacion-cancelacion__titulo" id="confirmacion-cancelacion-titulo">¿Estás seguro que quieres cancelar?</h2>
-            <p class="confirmacion-cancelacion__mensaje" data-mensaje-cancelacion></p>
+            <h2 class="confirmacion-cancelacion__titulo" id="confirmacion-cancelacion-titulo">¿Cancelar el pedido?</h2>
+            <p class="confirmacion-cancelacion__cliente" id="confirmacion-cancelacion-cliente" data-cliente-cancelacion></p>
+            <p class="confirmacion-cancelacion__mensaje" id="confirmacion-cancelacion-mensaje" data-mensaje-cancelacion>El pedido quedará como Cancelado. Sus datos y su historial se conservan.</p>
             <div class="confirmacion-cancelacion__acciones">
-                <button class="boton boton--contorno" type="button" data-cerrar-cancelacion>Volver</button>
+                <button class="boton boton--contorno" type="button" data-cerrar-cancelacion autofocus>Volver</button>
                 <button class="boton confirmacion-cancelacion__confirmar" type="button" data-aceptar-cancelacion>Sí, cancelar pedido</button>
             </div>
         </section>
