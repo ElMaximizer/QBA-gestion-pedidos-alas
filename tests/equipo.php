@@ -17,7 +17,11 @@ $comprobaciones = 0;
 $correcto = true;
 
 try {
-    $entorno = new EntornoPruebas('equipo');
+    $archivoWhitelist = tempnam(sys_get_temp_dir(), 'qba-whitelist-equipo-');
+    file_put_contents($archivoWhitelist, json_encode(['cedulas' => ['8765432', '76543210', '65432109', '54321098', '43210987', '32109876']]));
+    $whitelistAnterior = getenv('QBA_EQUIPO_WHITELIST');
+    putenv('QBA_EQUIPO_WHITELIST=' . $archivoWhitelist);
+    $entorno = new EntornoPruebas('equipo', ['QBA_EQUIPO_WHITELIST' => $archivoWhitelist]);
     $db = $entorno->db;
     $registro = new RegistroEquipo($db, new Correo($db, ['transport' => 'local']));
     $password = ' ClaveEquipo17! ';
@@ -346,5 +350,10 @@ try {
     fwrite(STDERR, $entorno?->errores() ?? '');
 } finally {
     $entorno?->cerrar();
+    if (isset($archivoWhitelist)) {
+        @unlink($archivoWhitelist);
+        @unlink($archivoWhitelist . '.lock');
+        putenv($whitelistAnterior === false ? 'QBA_EQUIPO_WHITELIST' : 'QBA_EQUIPO_WHITELIST=' . $whitelistAnterior);
+    }
 }
 exit($correcto ? 0 : 1);

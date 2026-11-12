@@ -135,7 +135,11 @@ final class EntornoPruebas
             dirname(__DIR__),
             array_replace(
                 getenv(),
-                ['QBA_DB_NAME' => $this->base, 'QBA_MAIL_TRANSPORT' => 'local'],
+                [
+                    'QBA_DB_NAME' => $this->base,
+                    'QBA_MAIL_TRANSPORT' => 'local',
+                    'QBA_EQUIPO_WHITELIST' => $this->directorio . '/whitelist.json',
+                ],
                 $this->correo,
             ),
             ['bypass_shell' => true],

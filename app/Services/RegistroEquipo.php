@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\UsuarioEquipo;
+use App\Models\WhitelistEquipo;
 use PDO;
 use Throwable;
 
@@ -25,7 +26,10 @@ final class RegistroEquipo
         string $password,
         string $confirmacion,
     ): array {
-        $usuario = $this->usuarios->solicitar($nombre, $cedula, $email, $password, $confirmacion);
+        $usuario = (new WhitelistEquipo())->conCedulaHabilitada(
+            $cedula,
+            fn(): array => $this->usuarios->solicitar($nombre, $cedula, $email, $password, $confirmacion),
+        );
         try {
             $this->correo->enviar(
                 $usuario['email'],

@@ -1,5 +1,8 @@
 /config/correo.local.php
 /config/transferencia.local.php
+/storage/equipo/*
+!/storage/equipo/whitelist-equipo.example.json
+!/storage/equipo/.htaccess
 /public/images/productos/*
 !/public/images/productos/.htaccess
 /node_modules/
