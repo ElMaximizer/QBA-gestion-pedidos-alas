@@ -171,9 +171,30 @@ try {
     comprobar($solicitar('/pedidos/realizar', $campos)[0] === 422, 'Una dirección borrada se rechaza al confirmar');
     $campos['id_direccion'] = '';
     $campos['direccion_entrega'] = 'Dirección manual 456, Salto';
+    $campos['telefono'] = '';
     comprobar($solicitar('/pedidos/realizar', $campos)[0] === 303, 'Conserva la opción de escribir una dirección manual');
+    comprobar(
+        $db->query('SELECT telefono FROM pedidos ORDER BY id_pedido DESC LIMIT 1')->fetchColumn() === '' &&
+            $cuentas->datos($id)['telefono'] === '+598 98 123 456',
+        'Permite quitar el teléfono para el pedido sin alterar el perfil',
+    );
+    $agregarCarrito();
+    [, $pedido] = $solicitar('/pedidos/realizar');
+    $campos['pedido_token'] = oculto($pedido, 'pedido_token');
+    $campos['modalidad_entrega'] = 'retiro';
+    comprobar($solicitar('/pedidos/realizar', $campos)[0] === 303, 'Permite retiro sin teléfono');
     $cuentas->actualizarPerfil($id, $version, 'Cliente de prueba', '');
     comprobar($cuentas->datos($id)['telefono'] === '', 'Permite retirar el teléfono opcional del perfil');
+    $cuentas->eliminarDireccion($id, $version, $casa);
+    $agregarCarrito();
+    [, $pedido] = $solicitar('/pedidos/realizar');
+    comprobar(
+        oculto($pedido, 'telefono') === '' && !str_contains($pedido, 'name="id_direccion"'),
+        'Sin datos guardados, deja vacío el teléfono y conserva la dirección manual',
+    );
+    $campos['pedido_token'] = oculto($pedido, 'pedido_token');
+    unset($campos['telefono']);
+    comprobar($solicitar('/pedidos/realizar', $campos)[0] === 303, 'El teléfono ausente también es opcional en el servidor');
     $cuentas->actualizarPerfil($id, $version, 'Cliente de prueba', '098123456');
     $codigoEliminar = $cuentas->solicitarCodigoEliminacion($id, $version, $password)['codigo'];
     $cuentas->eliminar($id, $version, $codigoEliminar);

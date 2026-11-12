@@ -36,7 +36,7 @@ final class Pedido
         ?int $idUsuarioRegistro = null,
         ?array $comprobanteTransferencia = null,
     ): int {
-        self::validar($datos);
+        self::validar($datos, true, $idCliente !== null && $idUsuarioRegistro === null);
         if (!$cantidades || count($cantidades) > self::MAXIMO_PRODUCTOS) {
             throw new DomainException(
                 'Agregá entre 1 y 50 productos antes de confirmar el pedido.',
@@ -214,7 +214,7 @@ final class Pedido
         return $cantidades;
     }
 
-    public static function validar(array $datos, bool $exigirRetiroFuturo = true): void
+    public static function validar(array $datos, bool $exigirRetiroFuturo = true, bool $telefonoOpcional = false): void
     {
         $modalidadEntrega = $datos['modalidad_entrega'] ?? 'retiro';
         $direccionEntrega = $datos['direccion_entrega'] ?? '';
@@ -250,7 +250,7 @@ final class Pedido
                 !is_string($texto) ||
                 !mb_check_encoding($texto, 'UTF-8') ||
                 mb_strlen($texto) > $maximo ||
-                ($campo !== 'notas' && trim($texto) === '')
+                ($campo !== 'notas' && !($campo === 'telefono' && $telefonoOpcional) && trim($texto) === '')
             ) {
                 throw new DomainException(
                     'Completá los campos obligatorios y respetá sus longitudes máximas.',
@@ -259,11 +259,11 @@ final class Pedido
         }
         $telefono = $datos['telefono'];
         $digitos = preg_replace('/\D/', '', $telefono);
-        if (
+        if (trim($telefono) !== '' && (
             !preg_match('/^\+?[\d\s()\-]+$/', $telefono) ||
             strlen($digitos) < 6 ||
             strlen($digitos) > 15
-        ) {
+        )) {
             throw new DomainException('Ingresá un teléfono de contacto válido.');
         }
         $fechaHora = $datos['fecha_retiro'] . ' ' . $datos['hora_retiro'];
@@ -494,7 +494,6 @@ final class Pedido
         int $idResponsable,
         string $motivo = '',
     ): void {
-        self::validar($datos, false);
         if (
             !in_array($datos['estado'] ?? null, self::ESTADOS, true) ||
             !mb_check_encoding($motivo, 'UTF-8') ||
@@ -537,6 +536,7 @@ final class Pedido
             if ($pedido === null) {
                 throw new DomainException('El pedido ya no está disponible.');
             }
+            self::validar($datos, false, $pedido['id_cliente'] !== null);
             if (!self::puedeModificar($responsable['rol'], $pedido['estado'])) {
                 throw new DomainException(
                     'Solo el dueño puede corregir pedidos entregados o cancelados.',
