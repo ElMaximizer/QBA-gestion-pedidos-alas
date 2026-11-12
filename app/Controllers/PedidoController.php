@@ -9,6 +9,7 @@ use App\Core\Sesion;
 use App\Core\Transferencia;
 use App\Core\Vista;
 use App\Models\Carrito;
+use App\Models\CuentaCliente;
 use App\Models\Pedido;
 use App\Models\Producto;
 use DomainException;
@@ -37,6 +38,14 @@ final class PedidoController
             'metodo_pago' => 'local',
             'notas' => '',
         ];
+        $cuentas = new CuentaCliente(Conexion::obtener());
+        $datos['telefono'] = $cuentas->datos((int) $cliente['id_cliente'])['telefono'];
+        $direcciones = $cuentas->direcciones((int) $cliente['id_cliente']);
+        $direccionSeleccionada = '';
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $direcciones) {
+            $direccionSeleccionada = (string) $direcciones[0]['id_direccion'];
+            $datos['direccion_entrega'] = CuentaCliente::direccionEntrega($direcciones[0]);
+        }
         $error = '';
         $token = '';
         $puedeConfirmar = false;
@@ -59,6 +68,19 @@ final class PedidoController
                 $puedeConfirmar = true;
                 foreach (array_keys($datos) as $campo) {
                     $datos[$campo] = Http::texto($_POST, $campo);
+                }
+                $direccionSeleccionada = Http::texto($_POST, 'id_direccion');
+                if ($datos['modalidad_entrega'] === 'domicilio' && $direccionSeleccionada !== '') {
+                    $idDireccion = filter_var($direccionSeleccionada, FILTER_VALIDATE_INT, [
+                        'options' => ['min_range' => 1],
+                    ]);
+                    $guardada = $idDireccion === false
+                        ? null
+                        : $cuentas->buscarDireccion((int) $cliente['id_cliente'], $idDireccion);
+                    if ($guardada === null) {
+                        throw new DomainException('La dirección seleccionada no está disponible. Elegí otra dirección o escribila nuevamente.');
+                    }
+                    $datos['direccion_entrega'] = CuentaCliente::direccionEntrega($guardada);
                 }
                 $id = (new Pedido(Conexion::obtener()))->crear(
                     $datos,
@@ -101,6 +123,8 @@ final class PedidoController
             'error' => $error,
             'token' => $token,
             'puedeConfirmar' => $puedeConfirmar,
+            'direccionesGuardadas' => $direcciones,
+            'direccionSeleccionada' => $direccionSeleccionada,
         ]);
     }
 

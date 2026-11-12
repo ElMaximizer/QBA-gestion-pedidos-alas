@@ -31,6 +31,9 @@ try {
         'telefono' => '099123456',
         'fecha_retiro' => date('Y-m-d', strtotime('+2 days')),
         'hora_retiro' => '10:00',
+        'modalidad_entrega' => 'retiro',
+        'direccion_entrega' => '',
+        'metodo_pago' => 'local',
         'notas' => 'Prueba automatizada',
     ];
 

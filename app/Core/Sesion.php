@@ -82,18 +82,29 @@ final class Sesion
         self::$clienteActual = (new AccesoCliente(Conexion::obtener()))->buscarVerificado(
             $idCliente,
         );
-        if (self::$clienteActual === null) {
+        $version = $_SESSION['qba']['cliente_version'] ?? null;
+        if (
+            self::$clienteActual === null ||
+            !is_string($version) ||
+            !hash_equals(self::$clienteActual['version_acceso'], $version)
+        ) {
             self::cerrarCliente();
             return null;
         }
+        unset(self::$clienteActual['version_acceso']);
         $_SESSION['qba']['cliente_ultimo_acceso'] = time();
         return self::$clienteActual;
     }
 
-    public static function iniciarCliente(int $idCliente): void
+    public static function iniciarCliente(int $idCliente, string $version): void
     {
+        $cliente = (new AccesoCliente(Conexion::obtener()))->buscarVerificado($idCliente);
+        if ($cliente === null || !hash_equals($cliente['version_acceso'], $version)) {
+            throw new DomainException('Tu cuenta cambió. Volvé a iniciar sesión para continuar.');
+        }
         self::renovarIdentidad();
         $_SESSION['qba']['cliente_id'] = $idCliente;
+        $_SESSION['qba']['cliente_version'] = $cliente['version_acceso'];
         $_SESSION['qba']['cliente_ultimo_acceso'] = time();
     }
 

@@ -25,6 +25,10 @@ final class AccesoController
         }
         $email = '';
         $error = '';
+        $aviso = $_SESSION['qba']['aviso_cuenta'] ?? '';
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            unset($_SESSION['qba']['aviso_cuenta']);
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 Sesion::validarCsrf($_POST['csrf'] ?? null);
@@ -39,7 +43,7 @@ final class AccesoController
                         'Tu correo todavía no está verificado. Ingresá el código para activar la cuenta.',
                     );
                 }
-                Sesion::iniciarCliente((int) $cliente['id_cliente']);
+                Sesion::iniciarCliente((int) $cliente['id_cliente'], $cliente['version_acceso']);
                 Http::redirigir($destino);
             } catch (DomainException $excepcion) {
                 http_response_code(422);
@@ -54,6 +58,7 @@ final class AccesoController
             'tituloPagina' => 'Acceso para clientes | Panadería Rustic',
             'email' => $email,
             'error' => $error,
+            'aviso' => $aviso,
             'continuarPedido' => $continuarPedido,
         ]);
     }

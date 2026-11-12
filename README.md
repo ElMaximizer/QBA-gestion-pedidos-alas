@@ -399,6 +399,102 @@ cambia la identidad asociada. Un id_cliente enviado desde el navegador se ignora
 Los pedidos anteriores conservan su asociación original, incluidos los de
 invitados con NULL. La consulta del historial se implementará en HU20.
 
+## Configuración de la cuenta de cliente
+
+El menú **Hola, nombre**, junto a **Mis pedidos** y **Cerrar sesión**, incluye
+**Configurar mi cuenta** (`/clientes/cuenta`). Es exclusivo para clientes y
+permite actualizar el nombre y teléfono de contacto, cambiar contraseña, verificar un nuevo correo y
+acceder a la confirmación de eliminación. Las cuentas del equipo conservan su
+gestión independiente. Los formularios funcionan sin JavaScript.
+
+La configuración se organiza con un menú lateral en escritorio y navegación
+adaptada al celular: datos personales, direcciones, contraseña, correo y
+eliminación. Se muestra una sección por vez; las redirecciones y errores
+conservan la sección de la operación.
+
+El teléfono del perfil es opcional: admite entre 6 y 15 dígitos, con prefijo
+internacional, espacios, paréntesis y guiones (hasta 30 caracteres). Se precarga
+al confirmar un pedido y se puede cambiar para esa compra sin modificar el
+perfil. El pedido sigue exigiendo un teléfono de contacto. Eliminar la cuenta
+borra el teléfono del perfil, conservando los contactos históricos de pedidos.
+
+**Mis direcciones** permite agregar, editar y eliminar direcciones con un
+nombre de hasta 50 caracteres y una dirección completa de hasta 250. La primera
+es principal; se puede elegir otra y, al eliminar la principal, se selecciona
+una de las restantes. Cada operación comprueba la propiedad en el servidor.
+Cada dirección admite referencias opcionales (piso, apartamento o entrecalles)
+de hasta 120 caracteres. Se copian junto con la dirección al pedido; el conjunto
+con el rótulo «Referencias» admite hasta 250 caracteres para conservar el formato
+de las entregas actuales. Se valida antes de guardar y no se trunca el texto.
+Al elegir envío a domicilio, el pedido ofrece las direcciones de la cuenta y
+permite escribir una dirección distinta. El servidor obtiene el texto de la
+dirección seleccionada y lo copia al pedido: editar o eliminar la libreta no
+cambia las entregas ya registradas. Eliminar la cuenta retira también sus
+direcciones guardadas.
+
+La contraseña actual se exige para cambiar la contraseña, solicitar un nuevo
+correo o eliminar la cuenta. Se conservan sus espacios y las reglas de longitud
+del registro; seis intentos incorrectos bloquean esas operaciones durante un
+minuto. Las modificaciones requieren POST, CSRF e identidad revalidada, sin
+aceptar un ID de cliente ni permisos enviados por el navegador.
+
+El cambio de contraseña usa el mismo flujo que el correo: primero se ingresan
+la contraseña actual, la nueva y su confirmación para enviar un código al
+correo vigente. Luego un formulario independiente pide solo el código.
+La nueva contraseña se guarda pendiente únicamente como hash; no se aplica
+hasta confirmar y nunca se devuelve al navegador ni se guarda en sesión.
+Se puede cancelar el cambio sin afectar la contraseña actual. Reenviar exige
+volver a completar las contraseñas y esperar un minuto, incluso al cancelar.
+El código dura 10 minutos, admite cinco intentos y se consume al confirmar.
+Cambiar el correo también invalida los códigos de contraseña anteriores.
+El envío y la confirmación funcionan igual con o sin JavaScript.
+
+El correo vigente sigue funcionando mientras el nuevo está pendiente. El código
+se envía con la configuración existente de PHPMailer o la bandeja local, vence
+en diez minutos y admite cinco errores. Solicitar otro requiere esperar un
+minuto, incluso si se cancela la solicitud anterior. Si falla el envío, se
+conserva la solicitud y el acceso actual. El correo solo se cambia al confirmar
+el código; un correo ocupado en ese momento no reemplaza el anterior.
+
+Cambiar contraseña o confirmar correo renueva cookie y CSRF, mantiene el carrito
+y revoca las demás sesiones. La contraseña nueva también cancela cambios de
+correo pendientes. La versión persistente evita que volver a un correo anterior
+reactive sesiones revocadas. Al incorporar esta funcionalidad, las sesiones de
+cliente anteriores deben iniciar sesión nuevamente; las del equipo no cambian.
+
+Eliminar exige una página de confirmación, contraseña actual y casilla de
+aceptación. Se anonimizan el nombre y el correo del perfil, se invalida la
+contraseña y se retira la verificación. La fila se conserva para mantener las
+referencias de pedidos y comprobantes; no se cancelan ni se borran pedidos,
+pagos, datos históricos de entrega o comprobantes. El correo liberado puede
+registrarse de nuevo como otra identidad, sin acceso a los pedidos antiguos.
+
+Para una base existente, aplicar **`database/cuenta-clientes.sql`** y
+**`database/direcciones-clientes.sql`** sobre la base configurada, después de
+`clientes.sql`, con respaldo previo y antes de desplegar el PHP actualizado.
+Agregan `clientes.version_sesion`, `cambios_correo_cliente` y
+`direcciones_cliente`; son repetibles y no reemplazan cuentas ni pedidos.
+Si la configuración de cuenta ya estaba instalada, solo falta el SQL de
+direcciones. El instalador incorpora ambos cambios para nuevas instalaciones.
+Cada entorno debe aplicar sus propias migraciones.
+Después de esos SQL, aplicar **`database/contacto-clientes.sql`** para incorporar
+`clientes.telefono` y `direcciones_cliente.referencias`, vacíos por defecto.
+Es repetible, conserva los datos y no modifica pedidos históricos.
+Aplicar también **`database/codigo-password-clientes.sql`** antes de desplegar
+el flujo de contraseña con código. Agrega `codigos_password_cliente` sin
+modificar cuentas ni pedidos existentes; el instalador también la incorpora.
+Si ya se aplicó la versión anterior, repetir el SQL agrega
+`password_pendiente_hash`; los códigos antiguos sin una contraseña pendiente
+no pueden confirmar cambios.
+
+`php tests/cuenta-cliente.php` verifica migración, perfil, permisos, contraseñas,
+códigos, errores de envío, sesiones simultáneas y conservación del historial en
+una base temporal. No utiliza cuentas reales ni envía correos externos.
+`php tests/direcciones-cliente.php` comprueba la libreta, propiedad, CSRF,
+dirección principal, integración con pedidos y conservación del historial.
+`php tests/codigo-password-cliente.php` verifica caducidad, consumo, límites,
+identidad, cambio de correo y errores de envío del código de contraseña.
+
 ## HU01 — Registrar un pedido desde el equipo
 
 Administrador y dueño acceden desde **Nuevo pedido**, en el panel o en el

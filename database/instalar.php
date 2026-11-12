@@ -59,6 +59,10 @@ try {
         );
     }
     $conexion->exec(file_get_contents(__DIR__ . '/clientes.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/cuenta-clientes.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/direcciones-clientes.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/contacto-clientes.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/codigo-password-clientes.sql'));
     $conexion->exec(file_get_contents(__DIR__ . '/acceso-clientes.sql'));
     $conexion->exec(file_get_contents(__DIR__ . '/equipo.sql'));
     $conexion->exec(file_get_contents(__DIR__ . '/comprobantes-transferencia.sql'));

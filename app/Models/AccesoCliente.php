@@ -23,7 +23,7 @@ final class AccesoCliente
             'Revisá tu correo y contraseña e intentá nuevamente.',
             function () use ($email, $password): ?array {
                 $consulta = $this->conexion
-                    ->prepare('SELECT id_cliente, nombre, email, password_hash, verificado
+                    ->prepare('SELECT id_cliente, nombre, email, password_hash, version_sesion, verificado
                     FROM clientes WHERE email = ? FOR UPDATE');
                 $consulta->execute([$email]);
                 $cliente = $consulta->fetch();
@@ -41,12 +41,12 @@ final class AccesoCliente
                     $consulta = $this->conexion->prepare(
                         'UPDATE clientes SET password_hash = ? WHERE id_cliente = ?',
                     );
-                    $consulta->execute([
-                        password_hash($password, PASSWORD_DEFAULT),
-                        $cliente['id_cliente'],
-                    ]);
+                    $cliente['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+                    $consulta->execute([$cliente['password_hash'], $cliente['id_cliente']]);
                 }
+                $cliente['version_acceso'] = self::version($cliente);
                 unset($cliente['password_hash']);
+                unset($cliente['version_sesion']);
                 return $cliente;
             },
         );
@@ -54,9 +54,25 @@ final class AccesoCliente
 
     public function buscarVerificado(int $idCliente): ?array
     {
-        $consulta = $this->conexion->prepare('SELECT id_cliente, nombre, email FROM clientes
+        $consulta = $this->conexion->prepare('SELECT id_cliente, nombre, email, password_hash, version_sesion FROM clientes
             WHERE id_cliente = ? AND verificado = 1');
         $consulta->execute([$idCliente]);
-        return $consulta->fetch() ?: null;
+        $cliente = $consulta->fetch();
+        if (!$cliente) {
+            return null;
+        }
+        $cliente['version_acceso'] = self::version($cliente);
+        unset($cliente['password_hash']);
+        unset($cliente['version_sesion']);
+        return $cliente;
+    }
+
+    /** Invalida sesiones anteriores al cambiar la contraseña o el correo de acceso. */
+    public static function version(array $cliente): string
+    {
+        return hash(
+            'sha256',
+            $cliente['password_hash'] . "\0" . $cliente['email'] . "\0" . $cliente['version_sesion'],
+        );
     }
 }

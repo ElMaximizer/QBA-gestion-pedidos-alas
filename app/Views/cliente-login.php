@@ -11,6 +11,9 @@
         <section class="tarjeta registro__tarjeta">
             <span class="etiqueta registro__etiqueta">CUENTA DE CLIENTE</span>
             <h1 class="registro__titulo">Acceso para clientes</h1>
+            <?php if ($aviso): ?>
+                <div class="aviso aviso--exito" role="status"><?= $escapar($aviso) ?></div>
+            <?php endif; ?>
             <?php if ($continuarPedido): ?>
                 <p class="registro__descripcion">Iniciá sesión para confirmar tu pedido. Tus productos siguen en el carrito.</p>
             <?php endif; ?>
