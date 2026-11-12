@@ -48,6 +48,42 @@ document.querySelector('[data-aceptar-cancelacion]')?.addEventListener('click', 
     formulario.requestSubmit();
 });
 
+function iniciarCambioEstadoPedidos() {
+    const formularios = document.querySelectorAll('[data-confirmar-estado]');
+    if (!formularios.length) return;
+
+    for (const formulario of formularios) {
+        const campo = formulario.elements.estado_nuevo;
+        const boton = formulario.querySelector('[data-guardar-estado]');
+        function actualizarAccion() {
+            boton.disabled = campo.value === '';
+            boton.textContent = campo.value ? `Cambiar a ${campo.value}` : 'Guardar nuevo estado';
+            delete formulario.dataset.enviandoEstado;
+        }
+        campo.addEventListener('change', function () {
+            campo.removeAttribute('aria-invalid');
+            const error = document.getElementById(`${campo.id}-error`);
+            if (error) {
+                error.hidden = true;
+                campo.setAttribute('aria-describedby', `${campo.id}-actual`);
+            }
+            actualizarAccion();
+        });
+        document.addEventListener('submit', function (evento) {
+            if (evento.target !== formulario || evento.defaultPrevented) return;
+            if (formulario.dataset.enviandoEstado === 'true') {
+                evento.preventDefault();
+                return;
+            }
+            formulario.dataset.enviandoEstado = 'true';
+            boton.disabled = true;
+            boton.textContent = 'Guardando estado…';
+        });
+        window.addEventListener('pageshow', actualizarAccion);
+        actualizarAccion();
+    }
+}
+
 function iniciarFormularioPedidoEquipo() {
     const formulario = document.querySelector('[data-pedido-equipo]');
 
@@ -357,3 +393,7 @@ function iniciarFormularioPedidoEquipo() {
 }
 
 iniciarFormularioPedidoEquipo();
+iniciarCambioEstadoPedidos();
+const resultadoPedidos = document.querySelector('[data-resultado-pedidos][role="alert"]')
+    || document.querySelector('[data-resultado-pedidos][role="status"]');
+resultadoPedidos?.focus();

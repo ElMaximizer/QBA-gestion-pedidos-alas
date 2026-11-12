@@ -596,6 +596,18 @@ del proyecto, después de `estructura.sql` y `equipo.sql`. Agrega la columna del
 responsable y su clave foránea sin modificar los pedidos existentes y admite
 ejecuciones repetidas. No se necesita cargar nuevamente los datos de demostración.
 
+## HU02 — Cambiar el estado de un pedido
+
+En el listado del equipo, cada pedido muestra su estado actual y un selector de
+nuevo estado con las opciones autorizadas para la cuenta. El botón indica el
+estado que se guardará. Si ocurre un error, se conserva la selección válida y se
+asocia el mensaje al control. La confirmación identifica el pedido y su estado.
+El flujo funciona sin JavaScript. Con JavaScript se conserva la confirmación de
+cancelación existente.
+
+`php tests/estado-pedidos.php` verifica guardado, errores, historial y permisos
+con cuentas y pedidos ficticios en una base temporal.
+
 ## HU23 — Administrar pedidos como dueño
 
 Administrador y dueño consultan el listado de HU04 y acceden a **Ver / modificar pedido**.
