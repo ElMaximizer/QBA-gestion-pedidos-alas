@@ -71,6 +71,67 @@ function iniciarFormularioPedidoEquipo() {
     const textoHora = formulario.querySelector('[data-modalidad-hora]');
     const maximoProductos = Number(formulario.dataset.maximo);
     const maximaCantidad = Number(formulario.dataset.cantidadMaxima);
+    const avisoError = document.querySelector('[data-pedido-error]');
+    const listaErrores = avisoError.querySelector('[data-pedido-errores-lista]');
+
+    function actualizarErrores() {
+        listaErrores.replaceChildren();
+        for (const mensaje of formulario.querySelectorAll('[data-error-campo]:not([hidden])')) {
+            const campo = formulario.querySelector(
+                `[data-pedido-campo="${mensaje.dataset.errorCampo}"]`,
+            );
+            if (!campo || campo.closest('[hidden]')) continue;
+            const item = document.createElement('li');
+            const enlace = document.createElement('a');
+            enlace.href = `#${campo.id}`;
+            enlace.textContent = mensaje.textContent;
+            item.append(enlace);
+            listaErrores.append(item);
+        }
+        const hayErrores = listaErrores.children.length > 0;
+        listaErrores.hidden = !hayErrores;
+        avisoError.hidden = !hayErrores && avisoError.dataset.errorGeneral !== 'true';
+        if (
+            hayErrores &&
+            !avisoError.querySelector('[data-pedido-error-texto]').textContent.trim()
+        ) {
+            avisoError.querySelector('[data-pedido-error-texto]').textContent =
+                'Revisá los campos indicados antes de guardar el pedido.';
+        }
+    }
+
+    function limpiarError(campo) {
+        campo.removeAttribute('aria-invalid');
+        const mensaje = document.getElementById(`${campo.id}-error`);
+        if (mensaje) {
+            mensaje.hidden = true;
+            mensaje.textContent = '';
+        }
+    }
+
+    formulario.addEventListener(
+        'invalid',
+        function (evento) {
+            const campo = evento.target;
+            const mensaje = document.getElementById(`${campo.id}-error`);
+            if (!mensaje) return;
+            mensaje.textContent = campo.validationMessage;
+            mensaje.hidden = false;
+            campo.setAttribute('aria-invalid', 'true');
+            actualizarErrores();
+        },
+        true,
+    );
+
+    avisoError.addEventListener('click', function (evento) {
+        const enlace = evento.target.closest('a');
+        if (!enlace) return;
+        const campo = document.getElementById(enlace.hash.slice(1));
+        if (campo) {
+            evento.preventDefault();
+            campo.focus();
+        }
+    });
 
     function formatearDinero(centavos) {
         const pesos = centavos / 100;
@@ -98,7 +159,8 @@ function iniciarFormularioPedidoEquipo() {
 
     function actualizarMetodoPago() {
         if (!bloqueComprobante || !campoComprobante) return;
-        const metodo = formulario.querySelector('input[name="metodo_pago"]:checked')?.value || 'local';
+        const metodo =
+            formulario.querySelector('input[name="metodo_pago"]:checked')?.value || 'local';
         const requiereComprobante = metodo === 'transferencia';
         bloqueComprobante.hidden = !requiereComprobante;
         campoComprobante.required = requiereComprobante;
@@ -110,14 +172,16 @@ function iniciarFormularioPedidoEquipo() {
 
     campoComprobante?.addEventListener('change', function () {
         if (nombreComprobante) {
-            nombreComprobante.textContent = campoComprobante.files[0]?.name || 'Elegí la imagen del comprobante';
+            nombreComprobante.textContent =
+                campoComprobante.files[0]?.name || 'Elegí la imagen del comprobante';
         }
     });
 
     function actualizarDatosRetiro() {
         const fecha = formulario.elements.fecha_retiro.value;
         const hora = formulario.elements.hora_retiro.value;
-        const modalidad = formulario.querySelector('input[name="modalidad_entrega"]:checked')?.value || 'retiro';
+        const modalidad =
+            formulario.querySelector('input[name="modalidad_entrega"]:checked')?.value || 'retiro';
         const esDomicilio = modalidad === 'domicilio';
         let fechaVisible = 'Elegí una fecha';
 
@@ -125,7 +189,7 @@ function iniciarFormularioPedidoEquipo() {
             fechaVisible = fecha.split('-').reverse().join('/');
         }
 
-        modalidadEnvio.hidden = !esDomicilio;
+        modalidadEnvio.hidden = !esDomicilio && campoDireccion.getAttribute('aria-invalid') !== 'true';
         campoDireccion.required = esDomicilio;
         textoFecha.textContent = esDomicilio ? 'Fecha de entrega' : 'Fecha de retiro';
         textoHora.textContent = esDomicilio ? 'Hora de entrega' : 'Hora de retiro';
@@ -163,17 +227,34 @@ function iniciarFormularioPedidoEquipo() {
             fila.querySelector('legend').textContent = `Producto ${indice + 1}`;
             selectorProducto.name = `lineas[${indice}][id_producto]`;
             campoCantidad.name = `lineas[${indice}][cantidad]`;
+            for (const [campo, nombre] of [
+                [selectorProducto, 'id_producto'],
+                [campoCantidad, 'cantidad'],
+            ]) {
+                const mensaje = campo.closest('label').querySelector('[data-error-campo]');
+                campo.dataset.pedidoCampo = `lineas-${indice}-${nombre}`;
+                campo.id = `pedido-campo-${campo.dataset.pedidoCampo}`;
+                mensaje.dataset.errorCampo = campo.dataset.pedidoCampo;
+                mensaje.id = `${campo.id}-error`;
+                campo.setAttribute('aria-describedby', mensaje.id);
+            }
             botonQuitar.value = String(indice);
             botonQuitar.disabled = filas.length === 1;
             botonQuitar.setAttribute('aria-label', `Quitar producto ${indice + 1}`);
 
             const idProducto = selectorProducto.value;
             const productoRepetido = idProducto !== '' && vecesSeleccionado[idProducto] > 1;
+            if (selectorProducto.dataset.productoRepetido === 'true' && !productoRepetido) {
+                limpiarError(selectorProducto);
+            }
+            selectorProducto.dataset.productoRepetido = String(productoRepetido);
             let errorProducto = '';
 
             if (productoRepetido) {
                 errorProducto =
                     'Este producto está repetido. Ajustá su cantidad en una sola línea.';
+            } else if (idProducto && !selectorProducto.selectedOptions[0]?.dataset.precio) {
+                errorProducto = 'Seleccioná un producto disponible.';
             }
 
             selectorProducto.setCustomValidity(errorProducto);
@@ -205,6 +286,7 @@ function iniciarFormularioPedidoEquipo() {
         textoTotal.textContent = pedidoCompleto ? formatearDinero(totalCentavos) : '—';
         actualizarDatosRetiro();
         actualizarMetodoPago();
+        actualizarErrores();
     }
 
     botonAgregar.addEventListener('click', function (evento) {
@@ -217,6 +299,13 @@ function iniciarFormularioPedidoEquipo() {
         const nuevaFila = contenedorLineas.firstElementChild.cloneNode(true);
         nuevaFila.querySelector('select').value = '';
         nuevaFila.querySelector('input').value = '1';
+        for (const campo of nuevaFila.querySelectorAll('[data-pedido-campo]')) {
+            campo.removeAttribute('aria-invalid');
+        }
+        for (const mensaje of nuevaFila.querySelectorAll('[data-error-campo]')) {
+            mensaje.hidden = true;
+            mensaje.textContent = '';
+        }
         contenedorLineas.append(nuevaFila);
 
         actualizarPedido();
@@ -241,8 +330,17 @@ function iniciarFormularioPedidoEquipo() {
         botonAgregar.focus();
     });
 
-    formulario.addEventListener('input', actualizarPedido);
-    formulario.addEventListener('change', actualizarPedido);
+    function cambiarCampo(evento) {
+        const campo = evento.target.closest('[data-pedido-campo]');
+        if (campo) limpiarError(campo);
+        if (evento.target.name === 'fecha_retiro' || evento.target.name === 'hora_retiro') {
+            limpiarError(formulario.elements.fecha_retiro);
+            limpiarError(formulario.elements.hora_retiro);
+        }
+        actualizarPedido();
+    }
+    formulario.addEventListener('input', cambiarCampo);
+    formulario.addEventListener('change', cambiarCampo);
     formulario.addEventListener('keydown', function (evento) {
         // Enter registra el pedido; los botones para agregar o quitar requieren un clic.
         if (evento.key === 'Enter' && evento.target.matches('input')) {
@@ -253,9 +351,7 @@ function iniciarFormularioPedidoEquipo() {
 
     actualizarPedido();
 
-    const avisoError = document.querySelector('[data-pedido-error]');
-
-    if (avisoError) {
+    if (!avisoError.hidden) {
         avisoError.focus();
     }
 }

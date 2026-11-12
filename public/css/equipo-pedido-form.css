@@ -3,6 +3,45 @@
     min-width: 0;
 }
 
+.pedido-equipo .pedido-equipo__error-campo {
+    color: #8f2924;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.pedido-equipo__error-campo[hidden],
+.pedido-equipo__errores[hidden] {
+    display: none !important;
+}
+
+.pedido-equipo__modalidad > .pedido-equipo__error-campo {
+    flex-basis: 100%;
+}
+
+.pedido-equipo [aria-invalid='true'],
+.pedido-equipo__archivo-input[aria-invalid='true'] + .pedido-equipo__archivo-zona {
+    border: 2px solid #8f2924;
+}
+
+.pedido-equipo__errores p {
+    margin: 0;
+}
+
+.pedido-equipo__errores ul {
+    margin: 12px 0 0;
+    padding-left: 24px;
+}
+
+.pedido-equipo .pedido-equipo__errores a {
+    display: inline-block;
+    padding-block: 8px;
+    color: inherit;
+    text-decoration: underline;
+    overflow-wrap: anywhere;
+}
+
 .pedido-equipo__formulario {
     display: grid;
     grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);

@@ -1,4 +1,23 @@
-<?php $telefonoOpcional = $esEdicion && $pedido['id_cliente'] !== null; ?>
+<?php
+$telefonoOpcional = $esEdicion && $pedido['id_cliente'] !== null;
+$idCampo = static fn(string $campo): string => match ($campo) {
+    'direccion_entrega' => 'direccion-entrega-equipo',
+    'comprobante' => 'comprobante-equipo',
+    default => 'pedido-campo-' . $campo,
+};
+$atributosCampo = static function (string $campo, string $ayuda = '') use ($erroresCampos, $idCampo, $escapar): string {
+    $descripcion = trim($ayuda . ' ' . $idCampo($campo) . '-error');
+    return 'id="' . $escapar($idCampo($campo)) . '" data-pedido-campo="' . $escapar($campo)
+        . '" aria-describedby="' . $escapar($descripcion) . '"'
+        . (isset($erroresCampos[$campo]) ? ' aria-invalid="true"' : '');
+};
+$errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $escapar): string {
+    return '<span class="pedido-equipo__error-campo" id="' . $escapar($idCampo($campo))
+        . '-error" data-error-campo="' . $escapar($campo) . '"'
+        . (isset($erroresCampos[$campo]) ? '' : ' hidden') . '>'
+        . $escapar($erroresCampos[$campo] ?? '') . '</span>';
+};
+?>
 <main id="contenido" class="contenedor panel pedido-equipo">
     <div class="titulo-pagina">
         <span class="etiqueta">ADMINISTRACIÓN · PEDIDOS</span>
@@ -6,9 +25,15 @@
         <p class="titulo-pagina__descripcion"> <?= $esEdicion ? 'Consultá el detalle y corregí la información del pedido. Cada modificación se conserva en el historial.' : 'Completá los datos del cliente y revisá el pedido antes de guardarlo.' ?> </p>
     </div>
     <a class="enlace-volver" href="<?= $url('equipo-pedidos') ?>"> Volver a pedidos</a>
-    <?php if ($error !== ''): ?>
-        <div class="aviso aviso--error" role="alert" tabindex="-1" data-pedido-error><?= $escapar($error) ?> </div>
-    <?php endif; ?>
+    <div class="aviso aviso--error pedido-equipo__errores" role="alert" tabindex="-1" data-pedido-error
+        data-error-general="<?= $errorGeneral ? 'true' : 'false' ?>" <?= $error === '' ? 'hidden' : '' ?>>
+        <p data-pedido-error-texto><?= $escapar($error) ?></p>
+        <ul data-pedido-errores-lista <?= !$erroresCampos ? 'hidden' : '' ?>>
+            <?php foreach ($erroresCampos as $campo => $mensaje): ?>
+                <li><a href="#<?= $escapar($idCampo($campo)) ?>"><?= $escapar($mensaje) ?></a></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
     <?php if (!$productos): ?>
         <section class="tarjeta vacio pedido-equipo__vacio">
             <h2 class="vacio__titulo">No hay productos disponibles</h2>
@@ -30,8 +55,9 @@
                 <label class="campo">
                     <span class="campo-obligatorio__etiqueta">Nombre del cliente <span class="campo-obligatorio"
                             aria-hidden="true" title="Campo obligatorio">*</span></span>
-                    <input class="campo__entrada" name="cliente_nombre" maxlength="120" required autocomplete="off"
+                    <input class="campo__entrada" name="cliente_nombre" maxlength="120" required autocomplete="off" <?= $atributosCampo('cliente_nombre') ?>
                         value="<?= $escapar($valores['cliente_nombre']) ?>" placeholder="Nombre y apellido">
+                    <?= $errorCampo('cliente_nombre') ?>
                 </label>
                 <label class="campo">
                     <span class="campo-obligatorio__etiqueta">Teléfono<?= $telefonoOpcional ? ' (opcional)' : '' ?>
@@ -39,10 +65,11 @@
                     </span>
                     <input class="campo__entrada" type="tel" name="telefono" maxlength="30" <?= $telefonoOpcional ? '' : 'required' ?> autocomplete="off"
                         value="<?= $escapar($valores['telefono']) ?>" placeholder="Número de contacto"
-                        aria-describedby="pedido-telefono-ayuda">
+                        <?= $atributosCampo('telefono', 'pedido-telefono-ayuda') ?>>
                     <span class="campo__ayuda" id="pedido-telefono-ayuda">Para coordinar el retiro o la entrega.</span>
+                    <?= $errorCampo('telefono') ?>
                 </label>
-                <fieldset class="pedido-equipo__modalidad" data-modalidad-entrega>
+                <fieldset class="pedido-equipo__modalidad" data-modalidad-entrega tabindex="-1" <?= $atributosCampo('modalidad_entrega') ?>>
                     <legend class="pedido-equipo__leyenda">Modalidad de entrega</legend>
                     <label class="pedido-equipo__modalidad-opcion">
                         <input type="radio" name="modalidad_entrega" value="retiro"
@@ -54,32 +81,36 @@
                             <?= ($valores['modalidad_entrega'] ?? '') === 'domicilio' ? 'checked' : '' ?> required>
                         <span>Envío a domicilio</span>
                     </label>
+                    <?= $errorCampo('modalidad_entrega') ?>
                 </fieldset>
                 <div class="campo pedido-equipo__direccion" data-direccion-envio
-                    <?= ($valores['modalidad_entrega'] ?? 'retiro') !== 'domicilio' ? 'hidden' : '' ?>>
+                    <?= ($valores['modalidad_entrega'] ?? 'retiro') !== 'domicilio' && !isset($erroresCampos['direccion_entrega']) ? 'hidden' : '' ?>>
                     <label for="direccion-entrega-equipo">Dirección de entrega <span class="campo-obligatorio" aria-hidden="true">*</span></label>
-                    <input class="campo__entrada" id="direccion-entrega-equipo" name="direccion_entrega"
+                    <input class="campo__entrada" name="direccion_entrega" <?= $atributosCampo('direccion_entrega') ?>
                         maxlength="250" autocomplete="street-address"
                         value="<?= $escapar($valores['direccion_entrega'] ?? '') ?>">
                     <span class="campo__ayuda">Obligatoria cuando el pedido se envía a domicilio.</span>
+                    <?= $errorCampo('direccion_entrega') ?>
                 </div>
                 <div class="pedido-equipo__retiro">
                     <label class="campo">
                         <span class="campo-obligatorio__etiqueta"><span data-modalidad-fecha><?= ($valores['modalidad_entrega'] ?? 'retiro') === 'domicilio' ? 'Fecha de entrega' : 'Fecha de retiro' ?></span> <span class="campo-obligatorio"
                                 aria-hidden="true" title="Campo obligatorio">*</span></span>
-                        <input class="campo__entrada" type="date" name="fecha_retiro"
+                        <input class="campo__entrada" type="date" name="fecha_retiro" <?= $atributosCampo('fecha_retiro') ?>
                             min="<?= $esEdicion ? '1000-01-01' : $hoy ?>" required
                             value="<?= $escapar($valores['fecha_retiro']) ?>">
+                        <?= $errorCampo('fecha_retiro') ?>
                     </label>
                     <label class="campo">
                         <span class="campo-obligatorio__etiqueta"><span data-modalidad-hora><?= ($valores['modalidad_entrega'] ?? 'retiro') === 'domicilio' ? 'Hora de entrega' : 'Hora de retiro' ?></span> <span class="campo-obligatorio"
                                 aria-hidden="true" title="Campo obligatorio">*</span></span>
-                        <input class="campo__entrada" type="time" name="hora_retiro" required
+                        <input class="campo__entrada" type="time" name="hora_retiro" required <?= $atributosCampo('hora_retiro') ?>
                             value="<?= $escapar($valores['hora_retiro']) ?>">
+                        <?= $errorCampo('hora_retiro') ?>
                     </label>
                 </div>
                 <?php if (!$esEdicion): ?>
-                    <fieldset class="pedido-equipo__modalidad" data-metodo-pago>
+                    <fieldset class="pedido-equipo__modalidad" data-metodo-pago tabindex="-1" <?= $atributosCampo('metodo_pago') ?>>
                         <legend class="pedido-equipo__leyenda">Forma de pago</legend>
                         <label class="pedido-equipo__modalidad-opcion">
                             <input type="radio" name="metodo_pago" value="local"
@@ -91,6 +122,7 @@
                                 <?= ($valores['metodo_pago'] ?? '') === 'transferencia' ? 'checked' : '' ?> required>
                             <span>Transferencia bancaria</span>
                         </label>
+                        <?= $errorCampo('metodo_pago') ?>
                     </fieldset>
                     <div class="pedido-equipo__comprobante" data-comprobante-equipo
                         <?= ($valores['metodo_pago'] ?? 'local') !== 'transferencia' ? 'hidden' : '' ?>>
@@ -100,7 +132,7 @@
                             </label>
                             <p>Adjuntá la imagen para que el administrador o el dueño revise el pago.</p>
                         </div>
-                        <input class="pedido-equipo__archivo-input" id="comprobante-equipo" type="file" name="comprobante"
+                        <input class="pedido-equipo__archivo-input" type="file" name="comprobante" <?= $atributosCampo('comprobante') ?>
                             accept="image/jpeg,image/png,image/webp"
                             <?= ($valores['metodo_pago'] ?? 'local') === 'transferencia' ? 'required' : '' ?>>
                         <label class="pedido-equipo__archivo-zona" for="comprobante-equipo">
@@ -115,6 +147,7 @@
                             </span>
                             <span class="pedido-equipo__archivo-boton">Seleccionar archivo</span>
                         </label>
+                        <?= $errorCampo('comprobante') ?>
                         <p class="pedido-equipo__comprobante-nota">El pago quedará pendiente hasta que el equipo revise el comprobante.</p>
                     </div>
                 <?php else: ?>
@@ -134,7 +167,7 @@
                                 <span class="campo-obligatorio__etiqueta">Producto <span class="campo-obligatorio"
                                         aria-hidden="true" title="Campo obligatorio">*</span></span>
                                 <select class="campo__entrada" name="lineas[<?= $indice ?>][id_producto]" required
-                                    data-pedido-producto>
+                                    data-pedido-producto <?= $atributosCampo('lineas-' . $indice . '-id_producto') ?>>
                                     <option value="">Seleccioná un producto</option>
                                     <?php if ($linea['id_producto'] !== '' && !isset($precios[$linea['id_producto']])): ?>
                                         <option value="<?= $escapar($linea['id_producto']) ?>" selected>Producto no disponible · elegí otro</option>
@@ -143,13 +176,15 @@
                                         <option value="<?= $escapar($producto['id_producto']) ?>" data-precio="<?= $producto['precio'] ?>" data-nombre="<?= $escapar($producto['nombre']) ?>" <?= (string) $producto['id_producto'] === $linea['id_producto'] ? 'selected' : '' ?>> <?= $escapar($producto['nombre'] . ' · ' . $producto['presentacion']) ?> · <?= $dinero($producto['precio']) ?></option>
                                     <?php endforeach; ?>
                                 </select>
+                                <?= $errorCampo('lineas-' . $indice . '-id_producto') ?>
                             </label>
                             <label class="campo">
                                 <span class="campo-obligatorio__etiqueta">Cantidad <span class="campo-obligatorio"
                                         aria-hidden="true" title="Campo obligatorio">*</span></span>
                                 <input class="campo__entrada" type="number" inputmode="numeric"
                                     name="lineas[<?= $indice ?>][cantidad]" min="1" max="<?= $maximaCantidad ?>"
-                                    step="1" required value="<?= $escapar($linea['cantidad']) ?>" data-pedido-cantidad>
+                                    step="1" required value="<?= $escapar($linea['cantidad']) ?>" data-pedido-cantidad <?= $atributosCampo('lineas-' . $indice . '-cantidad') ?>>
+                                <?= $errorCampo('lineas-' . $indice . '-cantidad') ?>
                             </label>
                             <button class="boton-texto boton-texto--rojo pedido-equipo__quitar" type="submit"
                                 name="quitar_linea" value="<?= $indice ?>" formnovalidate
@@ -160,8 +195,9 @@
                 </div>
                 <button class="boton boton--contorno" type="submit" name="accion" value="agregar-linea" formnovalidate
                     <?= count($valores['lineas']) >= $maximoProductos || !$puedeConfirmar ? 'disabled' : '' ?>>+ Agregar otra línea</button>
-                <label class="campo">Notas del pedido (opcional) <textarea class="campo__entrada campo__entrada--multilinea" name="notas" rows="4" maxlength="2000"
+                <label class="campo">Notas del pedido (opcional) <textarea class="campo__entrada campo__entrada--multilinea" name="notas" rows="4" maxlength="2000" <?= $atributosCampo('notas') ?>
                         placeholder="Indicaciones para preparar el pedido"><?= $escapar($valores['notas']) ?></textarea>
+                    <?= $errorCampo('notas') ?>
                 </label>
                 <?php if ($esEdicion): ?>
                     <label class="campo">

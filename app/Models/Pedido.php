@@ -214,16 +214,32 @@ final class Pedido
         return $cantidades;
     }
 
-    public static function validar(array $datos, bool $exigirRetiroFuturo = true, bool $telefonoOpcional = false): void
-    {
+    public static function validar(
+        array $datos,
+        bool $exigirRetiroFuturo = true,
+        bool $telefonoOpcional = false,
+    ): void {
+        $errores = self::erroresValidacion($datos, $exigirRetiroFuturo, $telefonoOpcional);
+        if ($errores) {
+            throw new DomainException(reset($errores));
+        }
+    }
+
+    /** Comparte las reglas del pedido con la presentación de errores por campo. */
+    public static function erroresValidacion(
+        array $datos,
+        bool $exigirRetiroFuturo = true,
+        bool $telefonoOpcional = false,
+    ): array {
+        $errores = [];
         $modalidadEntrega = $datos['modalidad_entrega'] ?? 'retiro';
         $direccionEntrega = $datos['direccion_entrega'] ?? '';
         $metodoPago = $datos['metodo_pago'] ?? 'local';
         if (!in_array($modalidadEntrega, ['retiro', 'domicilio'], true)) {
-            throw new DomainException('Elegí retiro en el local o envío a domicilio.');
+            $errores['modalidad_entrega'] = 'Elegí retiro en el local o envío a domicilio.';
         }
         if (!in_array($metodoPago, ['transferencia', 'local'], true)) {
-            throw new DomainException('Elegí transferencia total o pago en el local.');
+            $errores['metodo_pago'] = 'Elegí transferencia total o pago en el local.';
         }
         if (
             !is_string($direccionEntrega) ||
@@ -231,10 +247,16 @@ final class Pedido
             mb_strlen($direccionEntrega) > 250 ||
             ($modalidadEntrega === 'domicilio' && trim($direccionEntrega) === '')
         ) {
-            throw new DomainException(
-                'Ingresá una dirección válida de hasta 250 caracteres para el envío a domicilio.',
-            );
+            $errores['direccion_entrega'] =
+                'Ingresá una dirección válida de hasta 250 caracteres para el envío a domicilio.';
         }
+        $mensajes = [
+            'cliente_nombre' => 'Ingresá el nombre del cliente (hasta 120 caracteres).',
+            'telefono' => 'Ingresá un teléfono de contacto válido (hasta 30 caracteres).',
+            'fecha_retiro' => 'Ingresá una fecha válida.',
+            'hora_retiro' => 'Ingresá una hora válida.',
+            'notas' => 'Las notas admiten hasta 2000 caracteres.',
+        ];
         foreach (
             [
                 'cliente_nombre' => 120,
@@ -250,21 +272,26 @@ final class Pedido
                 !is_string($texto) ||
                 !mb_check_encoding($texto, 'UTF-8') ||
                 mb_strlen($texto) > $maximo ||
-                ($campo !== 'notas' && !($campo === 'telefono' && $telefonoOpcional) && trim($texto) === '')
+                ($campo !== 'notas' &&
+                    !($campo === 'telefono' && $telefonoOpcional) &&
+                    trim($texto) === '')
             ) {
-                throw new DomainException(
-                    'Completá los campos obligatorios y respetá sus longitudes máximas.',
-                );
+                $errores[$campo] = $mensajes[$campo];
             }
         }
-        $telefono = $datos['telefono'];
+        $telefono = isset($errores['telefono']) ? '' : $datos['telefono'];
         $digitos = preg_replace('/\D/', '', $telefono);
-        if (trim($telefono) !== '' && (
-            !preg_match('/^\+?[\d\s()\-]+$/', $telefono) ||
-            strlen($digitos) < 6 ||
-            strlen($digitos) > 15
-        )) {
-            throw new DomainException('Ingresá un teléfono de contacto válido.');
+        if (
+            trim($telefono) !== '' &&
+            (!preg_match('/^\+?[\d\s()\-]+$/', $telefono) ||
+                strlen($digitos) < 6 ||
+                strlen($digitos) > 15)
+        ) {
+            $errores['telefono'] =
+                'Ingresá un teléfono de contacto válido, con entre 6 y 15 dígitos.';
+        }
+        if (isset($errores['fecha_retiro']) || isset($errores['hora_retiro'])) {
+            return $errores;
         }
         $fechaHora = $datos['fecha_retiro'] . ' ' . $datos['hora_retiro'];
         $retiro = DateTimeImmutable::createFromFormat('!Y-m-d H:i', $fechaHora);
@@ -273,11 +300,14 @@ final class Pedido
             $retiro->format('Y-m-d H:i') !== $fechaHora ||
             (int) $retiro->format('Y') < 1000
         ) {
-            throw new DomainException('Ingresá una fecha y hora de retiro válidas.');
+            $errores['fecha_retiro'] = 'Revisá la fecha y la hora: deben formar una fecha válida.';
+            $errores['hora_retiro'] = $errores['fecha_retiro'];
+        } elseif ($exigirRetiroFuturo && $retiro <= new DateTimeImmutable()) {
+            $errores['fecha_retiro'] =
+                'Elegí una fecha y hora futuras para el retiro o la entrega.';
+            $errores['hora_retiro'] = $errores['fecha_retiro'];
         }
-        if ($exigirRetiroFuturo && $retiro <= new DateTimeImmutable()) {
-            throw new DomainException('Ingresá una fecha y hora de retiro futuras y válidas.');
-        }
+        return $errores;
     }
 
     public function buscarGestion(int $id, bool $bloquear = false): ?array
