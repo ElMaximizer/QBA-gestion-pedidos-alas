@@ -37,6 +37,17 @@
                     href="<?= $url('equipo-stock') ?>"
                     <?= $seccionActiva === 'stock' ? 'aria-current="page"' : '' ?>>Stock</a>
             <?php endif; ?>
+            <?php if (in_array($equipoActual['rol'] ?? '', ['administrador', 'dueno'], true)): ?>
+                <?php
+                    $esDueno = ($equipoActual['rol'] ?? '') === 'dueno';
+                    $rutaPersonal = $esDueno ? 'equipo-permisos' : 'equipo-personal';
+                    $seccionPersonal = $esDueno ? 'permisos' : 'personal';
+                    $etiquetaPersonal = $esDueno ? 'Personal y permisos' : 'Personal';
+                ?>
+                <a class="boton <?= $seccionActiva === $seccionPersonal ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace"
+                    href="<?= $url($rutaPersonal) ?>"
+                    <?= $seccionActiva === $seccionPersonal ? 'aria-current="page"' : '' ?>><?= $etiquetaPersonal ?></a>
+            <?php endif; ?>
         </div>
     </nav>
 </header>

@@ -2,7 +2,11 @@
     <div class="titulo-pagina">
         <span class="etiqueta"><?= $puedeEditarRoles ? 'SOLO DUEÑO' : 'EQUIPO' ?></span>
         <h1 class="titulo-pagina__titulo"><?= $puedeEditarRoles ? 'Administrar personal' : 'Personal del equipo' ?></h1>
-        <p class="titulo-pagina__descripcion"> <?= $puedeEditarRoles ? 'Consultá el equipo y asigná a cada cuenta aprobada el rol de empleado o administrador.' : 'Consultá las cuentas aprobadas y las responsabilidades definidas para cada rol.' ?> </p>
+        <p class="titulo-pagina__descripcion">
+            <?= $puedeEditarRoles
+                ? 'Consultá el equipo y asigná a cada cuenta aprobada el rol de empleado o administrador.'
+                : 'Consultá las cuentas aprobadas, sus responsabilidades y la actividad registrada en el sistema.' ?>
+        </p>
     </div>
 
     <?php if ($aviso !== ''): ?>
@@ -26,9 +30,11 @@
             </article>
         </section>
 
-        <p class="equipo-personal__nota"> Solo se muestran cuentas aprobadas. Revisá las cuentas pendientes en <a class="enlace-texto" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso</a>. </p>
+        <p class="equipo-personal__nota">
+            Solo se muestran cuentas aprobadas. Revisá las cuentas pendientes en
+            <a class="enlace-texto" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso</a>.
+        </p>
     <?php else: ?>
-        <p class="equipo-personal__nota">Esta consulta no modifica cuentas, estados ni permisos.</p>
     <?php endif; ?>
 
     <form class="equipo-personal__filtros" method="get" action="<?= $url($rutaPersonal) ?>">
@@ -41,7 +47,7 @@
             <select name="rol">
                 <option value="" <?= $rol === '' ? 'selected' : '' ?>>Todos los roles</option>
                 <?php foreach (\App\Models\PersonalEquipo::ROLES as $clave => $nombre): ?>
-                    <option value="<?= $escapar($clave) ?>" <?= $rol === $clave ? 'selected' : '' ?>> <?= $escapar($nombre) ?></option>
+                    <option value="<?= $escapar($clave) ?>" <?= $rol === $clave ? 'selected' : '' ?>><?= $escapar($nombre) ?></option>
                 <?php endforeach; ?>
             </select>
         </label>
@@ -68,7 +74,8 @@
                             <th scope="col">Nombre</th>
                             <th scope="col">Correo</th>
                             <th scope="col">Rol actual</th>
-                            <th scope="col"><?= $puedeEditarRoles ? 'Permisos nuevos' : 'Funciones del rol' ?></th>
+                            <th scope="col"><?= $puedeEditarRoles ? 'Permisos nuevos' : 'Responsabilidades del rol' ?></th>
+                            <th scope="col">Actividad registrada</th>
                             <th scope="col">Estado</th>
                             <?php if ($puedeEditarRoles): ?><th scope="col">Acción</th><?php endif; ?>
                         </tr>
@@ -78,33 +85,40 @@
                             <tr>
                                 <td><?= $escapar($usuario['nombre']) ?></td>
                                 <td><?= $escapar($usuario['email']) ?></td>
-                                <td><span
-                                        class="equipo-personal__insignia"><?= $escapar($usuario['nombre_rol']) ?></span>
-                                </td>
+                                <td><span class="equipo-personal__insignia"><?= $escapar($usuario['nombre_rol']) ?></span></td>
                                 <td>
                                     <?php if ($puedeEditarRoles && $usuario['estado'] === 'aprobado'): ?>
-                                        <form class="equipo-personal__cambio" method="post"
-                                            action="<?= $url($rutaPersonal) ?>">
+                                        <form class="equipo-personal__cambio" method="post" action="<?= $url($rutaPersonal) ?>">
                                             <input type="hidden" name="csrf" value="<?= $csrf ?>">
-                                            <input type="hidden" name="id_usuario"
-                                                value="<?= (int) $usuario['id_usuario'] ?>">
+                                            <input type="hidden" name="id_usuario" value="<?= (int) $usuario['id_usuario'] ?>">
                                             <input type="hidden" name="accion" value="cambiar_rol">
                                             <label class="equipo-personal__campo equipo-personal__campo--cambio">
-                                                <select name="rol"
-                                                    aria-label="Nuevo rol para <?= $escapar($usuario['nombre']) ?>">
+                                                <select name="rol" aria-label="Nuevo rol para <?= $escapar($usuario['nombre']) ?>">
                                                     <?php foreach (\App\Models\PersonalEquipo::ROLES as $clave => $nombre): ?>
-                                                        <option value="<?= $escapar($clave) ?>" <?= $usuario['rol'] === $clave ? 'selected' : '' ?>> <?= $escapar($nombre) ?></option>
+                                                        <option value="<?= $escapar($clave) ?>" <?= $usuario['rol'] === $clave ? 'selected' : '' ?>><?= $escapar($nombre) ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </label>
-                                            <button class="boton boton--contorno" type="submit"
-                                                aria-label="Guardar permisos de <?= $escapar($usuario['nombre']) ?>">Guardar</button>
+                                            <button class="boton boton--contorno" type="submit" aria-label="Guardar permisos de <?= $escapar($usuario['nombre']) ?>">Guardar</button>
                                         </form>
                                     <?php else: ?>
                                         <?= $escapar($usuario['funciones']) ?>
                                     <?php endif; ?>
                                 </td>
-                                <td><span class="equipo-personal__estado <?= $usuario['estado'] === 'aprobado' ? 'equipo-personal__estado--activo' : 'equipo-personal__estado--inactivo' ?>"><?= $escapar($usuario['nombre_estado']) ?></span></td>
+                                <td>
+                                    <ul class="equipo-personal__actividad" aria-label="Tareas realizadas por <?= $escapar($usuario['nombre']) ?>">
+                                        <li><span>Pedidos registrados</span><strong><?= (int) $usuario['pedidos_registrados'] ?></strong></li>
+                                        <li><span>Pedidos actualizados</span><strong><?= (int) $usuario['pedidos_actualizados'] ?></strong></li>
+                                        <li><span>Pedidos entregados</span><strong><?= (int) $usuario['pedidos_entregados'] ?></strong></li>
+                                        <li><span>Mercadería recibida</span><strong><?= (int) $usuario['mercaderia_registrada'] ?></strong></li>
+                                        <li><span>Pagos confirmados</span><strong><?= (int) $usuario['pagos_confirmados'] ?></strong></li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <span class="equipo-personal__estado <?= $usuario['estado'] === 'aprobado' ? 'equipo-personal__estado--activo' : 'equipo-personal__estado--inactivo' ?>">
+                                        <?= $escapar($usuario['nombre_estado']) ?>
+                                    </span>
+                                </td>
                                 <?php if ($puedeEditarRoles): ?>
                                     <td>
                                         <form method="post" action="<?= $url($rutaPersonal) ?>">
@@ -125,5 +139,5 @@
         <?php endif; ?>
     </section>
 
-    <a class="enlace-texto" href="<?= $url('equipo-panel') ?>"> Volver al panel</a>
+    <a class="enlace-texto" href="<?= $url('equipo-panel') ?>">Volver al panel</a>
 </main>
