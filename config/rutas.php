@@ -196,6 +196,12 @@ return [
         'editar',
         ['GET', 'HEAD', 'POST'],
     ],
+    'producto-estado' => [
+        'equipo/productos/estado',
+        GestionProductoController::class,
+        'estado',
+        ['POST'],
+    ],
     'producto-eliminar' => [
         'equipo/productos/eliminar',
         GestionProductoController::class,

@@ -14,7 +14,7 @@ use Throwable;
 
 final class GestionProductoController
 {
-    public function index(): void
+    public function index(string $error = ''): void
     {
         if (!$this->autorizar()) {
             return;
@@ -40,6 +40,7 @@ final class GestionProductoController
                 'busqueda' => $busqueda,
                 'estado' => $estado,
                 'aviso' => $aviso,
+                'error' => $error,
             ],
         );
     }
@@ -142,6 +143,39 @@ final class GestionProductoController
             'imagen' => Producto::imagen($valores),
             'categorias' => Producto::CATEGORIAS,
         ]);
+    }
+
+    public function estado(): void
+    {
+        if (!$this->autorizar() || ($producto = $this->buscar()) === null) {
+            return;
+        }
+        $filtros = [
+            'q' => Http::texto($_GET, 'q'),
+            'estado' => Http::texto($_GET, 'estado', '1'),
+            'pagina' => Http::texto($_GET, 'pagina', '1'),
+        ];
+        try {
+            Sesion::validarCsrf($_POST['csrf'] ?? null);
+            $activo = Http::texto($_POST, 'activo');
+            Producto::catalogo()->cambiarEstado(
+                $producto['id_producto'],
+                $activo,
+                Http::texto($_POST, 'version'),
+            );
+            $_SESSION['qba']['aviso_productos'] = $activo === '1'
+                ? 'Producto activado correctamente. Ya está disponible en el catálogo.'
+                : 'Producto desactivado correctamente. Podés consultarlo con el filtro Inactivos.';
+            Http::redirigir('equipo-productos', $filtros);
+        } catch (DomainException $excepcion) {
+            http_response_code(422);
+            $error = $excepcion->getMessage();
+        } catch (Throwable $excepcion) {
+            error_log('HU06: falló el cambio de estado del producto (' . $excepcion::class . ').');
+            http_response_code(503);
+            $error = 'No pudimos cambiar el estado del producto en este momento. Intentá nuevamente.';
+        }
+        $this->index($error);
     }
 
     public function eliminar(): void
