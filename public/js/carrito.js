@@ -19,7 +19,9 @@ function iniciarPanelCarrito() {
             return;
         }
 
-        elementoOrigen = document.activeElement;
+        elementoOrigen = document.activeElement === document.body
+            ? document.querySelector('[data-carrito-abrir]')
+            : document.activeElement;
         panel.showModal();
         document.body.classList.add('pagina--carrito-abierto');
     }
@@ -164,6 +166,11 @@ function iniciarPanelCarrito() {
         enlace.setAttribute('aria-controls', panel.id);
     }
 
+    // Sin JavaScript se conserva el carrito completo como alternativa accesible.
+    for (const enlace of document.querySelectorAll('[data-carrito-volver]')) {
+        enlace.href = enlace.dataset.carritoInicio;
+    }
+
     document.addEventListener('click', function (evento) {
         const enlace = evento.target.closest('[data-carrito-abrir]');
         const usaModificador = evento.ctrlKey || evento.metaKey || evento.shiftKey || evento.altKey;
@@ -228,10 +235,27 @@ function iniciarPanelCarrito() {
             destinoFoco = elementoOrigen;
         }
 
+        if (destinoFoco && destinoFoco.getClientRects().length === 0) {
+            destinoFoco = document.querySelector('[data-menu-boton]');
+        }
+
         if (destinoFoco) {
             destinoFoco.focus();
         }
     });
+
+    const direccionActual = new URL(window.location.href);
+    if (direccionActual.searchParams.get('carrito') === 'abierto') {
+        abrirPanel();
+        cargarCarrito();
+        // La indicación es de una sola apertura: recargar o volver no reabre el panel.
+        direccionActual.searchParams.delete('carrito');
+        window.history.replaceState(
+            window.history.state,
+            '',
+            direccionActual.pathname + direccionActual.search + direccionActual.hash,
+        );
+    }
 }
 
 iniciarPanelCarrito();

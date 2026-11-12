@@ -1,5 +1,6 @@
 <main id="contenido" class="contenedor pagina-pedidos">
-    <a class="enlace-volver" href="<?= $url('carrito') ?>"> Volver al carrito</a>
+    <a class="enlace-volver" href="<?= $url('carrito') ?>" data-carrito-volver
+        data-carrito-inicio="<?= $escapar($url('inicio', ['carrito' => 'abierto'])) ?>"> Volver al carrito</a>
     <div class="titulo-pagina">
         <h1 class="titulo-pagina__titulo">Realizar pedido</h1>
         <p class="titulo-pagina__descripcion">Completá tus datos y elegí cómo querés recibir tu pedido.</p>
@@ -100,7 +101,8 @@
             <?php if ($puedeConfirmar): ?>
                 <button class="boton boton--dorado boton--completo">Confirmar pedido</button>
             <?php else: ?>
-                <a class="boton boton--dorado boton--completo" href="<?= $url('carrito') ?>">Revisar carrito</a>
+                <a class="boton boton--dorado boton--completo" href="<?= $url('carrito') ?>" data-carrito-volver
+                    data-carrito-inicio="<?= $escapar($url('inicio', ['carrito' => 'abierto'])) ?>">Revisar carrito</a>
             <?php endif; ?>
             <p class="texto-pequeno resumen__texto">El envío a domicilio es gratuito. Si elegís transferencia, el pedido quedará pendiente hasta que el equipo confirme la recepción.</p>
         </aside>
