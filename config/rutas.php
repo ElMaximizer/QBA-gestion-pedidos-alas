@@ -6,6 +6,7 @@ use App\Controllers\AccesoEquipoController;
 use App\Controllers\CarritoController;
 use App\Controllers\ComprobanteTransferenciaController;
 use App\Controllers\ContactoController;
+use App\Controllers\CuentaClienteController;
 use App\Controllers\ConsultasEquipoController;
 use App\Controllers\ContenidoInicioController;
 use App\Controllers\InicioController;
@@ -57,6 +58,8 @@ return [
         ['GET', 'HEAD'],
     ],
     'cliente-pedidos' => ['clientes/pedidos', PedidosClienteController::class, 'index', ['GET', 'HEAD']],
+    'cliente-cuenta' => ['clientes/cuenta', CuentaClienteController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'cliente-cuenta-eliminar' => ['clientes/cuenta/eliminar', CuentaClienteController::class, 'eliminar', ['GET', 'HEAD', 'POST']],
     'cliente-transferencia-enviada' => ['clientes/pedidos/transferencia-enviada', PedidosClienteController::class, 'informarTransferencia', ['POST']],
     'equipo-comprobante-transferencia' => ['equipo/pedidos/comprobante', ComprobanteTransferenciaController::class, 'ver', ['GET', 'HEAD']],
     'registro' => [

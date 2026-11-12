@@ -43,6 +43,12 @@
     font-size: 0.9rem;
 }
 
+.entrega-direccion {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+}
+
 [data-direccion-entrega][hidden] {
     display: none;
 }

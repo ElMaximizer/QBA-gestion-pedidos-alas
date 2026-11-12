@@ -55,7 +55,7 @@ final class Vista
         if (
             in_array(
                 $vista,
-                ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login'],
+                ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login', 'cliente-cuenta', 'cliente-cuenta-eliminar'],
                 true,
             )
         ) {
@@ -63,6 +63,9 @@ final class Vista
         }
 
         $estilos[] = 'css/navegacion.css';
+        if (in_array($vista, ['cliente-cuenta', 'cliente-cuenta-eliminar'], true)) {
+            $estilos[] = 'css/cuenta-cliente.css';
+        }
         $scripts[] = 'js/navegacion.js';
 
         if (!$esPanel) {

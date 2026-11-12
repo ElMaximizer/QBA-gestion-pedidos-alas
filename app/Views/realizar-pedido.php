@@ -37,7 +37,20 @@
                     <span><strong>Envío a domicilio</strong><small>Sin costo adicional.</small></span>
                 </label>
             </fieldset>
-            <div data-direccion-entrega>
+            <div class="entrega-direccion" data-direccion-entrega>
+                <?php if ($direccionesGuardadas): ?>
+                    <label class="campo">Dirección guardada
+                        <select class="campo__entrada" name="id_direccion" data-direccion-guardada>
+                            <option value="">Escribir otra dirección</option>
+                            <?php foreach ($direccionesGuardadas as $direccion): ?>
+                                <option value="<?= $direccion['id_direccion'] ?>"
+                                    data-direccion="<?= $escapar(\App\Models\CuentaCliente::direccionEntrega($direccion)) ?>"
+                                    <?= $direccionSeleccionada === (string) $direccion['id_direccion'] ? 'selected' : '' ?>><?= $escapar($direccion['alias'] . ($direccion['principal'] ? ' · Principal' : '') . ' — ' . $direccion['direccion']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <small class="campo__ayuda">Para modificar la dirección solo para este pedido, elegí «Escribir otra dirección».</small>
+                    </label>
+                <?php endif; ?>
                 <label class="campo">
                     <span class="campo-obligatorio__etiqueta">Dirección de entrega <span class="campo-obligatorio"
                             aria-hidden="true" title="Campo obligatorio">*</span></span>
@@ -45,6 +58,7 @@
                         value="<?= $escapar($datos['direccion_entrega'] ?? '') ?>" maxlength="250"
                         autocomplete="street-address" data-campo-direccion>
                 </label>
+                <a class="enlace-texto" href="<?= $escapar($url('cliente-cuenta', ['seccion' => 'direcciones'])) ?>">Administrar mis direcciones</a>
             </div>
             <label class="campo">
                 <span class="campo-obligatorio__etiqueta">Fecha de retiro o entrega <span class="campo-obligatorio"

@@ -67,6 +67,7 @@
                                     <div class="cuenta__desplegable">
                                         <?php if ($clienteActual): ?>
                                             <a class="cuenta__enlace" href="<?= $url('cliente-pedidos') ?>">Mis pedidos</a>
+                                            <a class="cuenta__enlace" href="<?= $url('cliente-cuenta') ?>">Configurar mi cuenta</a>
                                         <?php endif; ?>
                                         <?php if ($equipoActual): ?>
                                             <a class="cuenta__enlace" href="<?= $url('equipo-panel') ?>">Panel del equipo</a>
