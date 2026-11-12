@@ -38,6 +38,9 @@
                     <?= $seccionActiva === 'stock' ? 'aria-current="page"' : '' ?>>Stock</a>
             <?php endif; ?>
             <?php if (in_array($equipoActual['rol'] ?? '', ['administrador', 'dueno'], true)): ?>
+                <a class="boton <?= $seccionActiva === 'ventas' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace"
+                    href="<?= $url('equipo-ventas') ?>"
+                    <?= $seccionActiva === 'ventas' ? 'aria-current="page"' : '' ?>>Ventas</a>
                 <?php
                     $esDueno = ($equipoActual['rol'] ?? '') === 'dueno';
                     $rutaPersonal = $esDueno ? 'equipo-permisos' : 'equipo-personal';
