@@ -219,7 +219,30 @@ try {
         'email' => $emailWeb,
         'password' => $password,
         'confirm_password' => $password,
+        'acepta_terminos' => '1',
+        'acepta_privacidad' => '1',
+        'acepta_cookies' => '1',
     ];
+    $mensajesAntes = (int) $db->query('SELECT COUNT(*) FROM correos_locales')->fetchColumn();
+    foreach (['acepta_terminos', 'acepta_privacidad', 'acepta_cookies'] as $campo) {
+        $sinAceptacion = $campos;
+        unset($sinAceptacion[$campo]);
+        comprobar(
+            $solicitar('/clientes/registro', $sinAceptacion)[0] === 422 && $buscar($emailWeb) === false,
+            'Cada aceptación es obligatoria aunque las otras dos estén marcadas',
+        );
+        foreach (['', '0', 'on', 'true', ['1']] as $valor) {
+            comprobar(
+                $solicitar('/clientes/registro', array_replace($campos, [$campo => $valor]))[0] === 422 &&
+                    $buscar($emailWeb) === false,
+                'Rechaza la aceptación malformada de cada política',
+            );
+        }
+    }
+    comprobar(
+        (int) $db->query('SELECT COUNT(*) FROM correos_locales')->fetchColumn() === $mensajesAntes,
+        'Rechazar la aceptación no envía códigos',
+    );
     comprobar(
         $solicitar('/clientes/registro-completado')[0] === 303,
         'Protege la confirmación sin un registro completado',
@@ -254,6 +277,12 @@ try {
         'Escapa los datos recuperados tras un error',
     );
     comprobar(!str_contains($htmlError, $password), 'No devuelve contraseñas en el HTML');
+    $documento = new DOMDocument();
+    @$documento->loadHTML($htmlError);
+    comprobar(
+        (new DOMXPath($documento))->query('//input[@type="checkbox" and @checked]')->length === 3,
+        'Conserva las tres aceptaciones cuando falla otro campo',
+    );
     comprobar($buscar($emailWeb) === false, 'Los formularios rechazados no crean cuentas');
     $solicitar('/carrito', [
         'csrf' => $csrf,

@@ -309,6 +309,12 @@ Desde **Acceso clientes** se puede crear una cuenta con nombre, correo y
 contraseña, y activarla con un código de seis dígitos. El correo es único y las
 contraseñas se guardan mediante password_hash, sin conservarlas en texto plano.
 
+El registro exige marcar la aceptación de Términos y condiciones, Política de
+privacidad en 2 casillas independientes, una debajo
+de otra. Aparecen sin marcar y el servidor exige las tres aceptaciones. Los enlaces a términos
+y privacidad, azules y subrayados, abren las secciones existentes del aviso legal en otra pestaña,
+sin perder el formulario. Sus textos todavía están pendientes de publicación.
+
 La verificación vence en 10 minutos, admite hasta cinco intentos fallidos y
 permite reenviar un código después de un minuto. Los límites se guardan en la
 base de datos y también se respetan desde otra sesión. Las fechas de vigencia
@@ -462,8 +468,14 @@ correo pendientes. La versión persistente evita que volver a un correo anterior
 reactive sesiones revocadas. Al incorporar esta funcionalidad, las sesiones de
 cliente anteriores deben iniciar sesión nuevamente; las del equipo no cambian.
 
-Eliminar exige una página de confirmación, contraseña actual y casilla de
-aceptación. Se anonimizan el nombre y el correo del perfil, se invalida la
+Eliminar exige una página de confirmación: primero la contraseña actual para
+recibir un código en el correo vigente, luego el código y la casilla de aceptación.
+No hace falta volver a ingresar la contraseña para confirmar. El código se guarda
+como hash, vence en 10 minutos, admite cinco intentos y un envío por minuto.
+Cancelar invalida el código sin eludir el tiempo de espera. Si cambia el correo o
+la contraseña, el código anterior deja de autorizar la eliminación. Pedirlo o un
+fallo de envío no elimina la cuenta; el correo usa la configuración existente de
+PHPMailer o la bandeja local. Se anonimizan el nombre y el correo del perfil, se invalida la
 contraseña y se retira la verificación. La fila se conserva para mantener las
 referencias de pedidos y comprobantes; no se cancelan ni se borran pedidos,
 pagos, datos históricos de entrega o comprobantes. El correo liberado puede
@@ -494,6 +506,13 @@ una base temporal. No utiliza cuentas reales ni envía correos externos.
 dirección principal, integración con pedidos y conservación del historial.
 `php tests/codigo-password-cliente.php` verifica caducidad, consumo, límites,
 identidad, cambio de correo y errores de envío del código de contraseña.
+
+Para habilitar el código de eliminación, aplicar
+**`database/codigo-eliminacion-clientes.sql`** con respaldo previo, después de
+`clientes.sql` y antes de desplegar los archivos actualizados. Crea una tabla
+repetible sin modificar cuentas ni pedidos; el instalador también la incorpora.
+`php tests/codigo-eliminacion-cliente.php` verifica vigencia, límites, propiedad,
+cancelación, errores de envío y consumo del código en una base temporal.
 
 ## HU01 — Registrar un pedido desde el equipo
 

@@ -41,6 +41,23 @@
                     <input class="campo__entrada" type="password" name="confirm_password" minlength="8" maxlength="72"
                         autocomplete="new-password" required>
                 </label>
+                <div class="registro__aceptaciones">
+                    <div class="registro__aceptacion">
+                        <input class="registro__casilla" type="checkbox" id="acepta-terminos" name="acepta_terminos"
+                            value="1" required <?= $aceptaciones['acepta_terminos'] ? 'checked' : '' ?> aria-describedby="politicas-ayuda">
+                        <label class="registro__politicas" for="acepta-terminos">Acepto los
+                            <a href="<?= $escapar($url('aviso-legal') . '#terminos') ?>" target="_blank" rel="noopener noreferrer">Términos y condiciones</a>.
+                        </label>
+                    </div>
+                    <div class="registro__aceptacion">
+                        <input class="registro__casilla" type="checkbox" id="acepta-privacidad" name="acepta_privacidad"
+                            value="1" required <?= $aceptaciones['acepta_privacidad'] ? 'checked' : '' ?> aria-describedby="politicas-ayuda">
+                        <label class="registro__politicas" for="acepta-privacidad">Acepto la
+                            <a href="<?= $escapar($url('aviso-legal') . '#privacidad') ?>" target="_blank" rel="noopener noreferrer">Política de privacidad</a>.
+                        </label>
+                    </div>
+                    <small class="registro__politicas-ayuda" id="politicas-ayuda">Los enlaces se abren en otra pestaña.</small>
+                </div>
                 <button class="boton boton--dorado boton--completo">Crear cuenta</button>
                 <a class="enlace-texto" href="<?= $url('cliente-login') ?>">Ya tengo cuenta · Iniciar sesión</a>
                 <?php if ($error || !empty($_SESSION['qba']['registro_pendiente_email'])): ?>

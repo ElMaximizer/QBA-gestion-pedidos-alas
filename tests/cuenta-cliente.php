@@ -268,15 +268,18 @@ try {
     [, $confirmacion] = $solicitar('/clientes/cuenta/eliminar');
     $csrf = oculto($confirmacion, 'csrf');
     comprobar(
-        $solicitar('/clientes/cuenta/eliminar', ['csrf' => $csrf, 'password' => $nueva])[0] === 422,
+        $solicitar('/clientes/cuenta/eliminar', ['accion' => 'eliminar', 'csrf' => $csrf, 'password' => $nueva])[0] === 422,
         'Eliminar exige la confirmación explícita además de la contraseña',
     );
     comprobar(
-        $solicitar('/clientes/cuenta/eliminar', ['csrf' => $csrf, 'password' => 'Incorrecta', 'confirmar' => '1'])[0] === 422,
+        $solicitar('/clientes/cuenta/eliminar', ['accion' => 'enviar-codigo', 'csrf' => $csrf, 'password' => 'Incorrecta'])[0] === 422,
         'Una contraseña incorrecta no elimina la cuenta',
     );
+    comprobar($solicitar('/clientes/cuenta/eliminar', ['accion' => 'enviar-codigo', 'csrf' => $csrf, 'password' => $nueva])[0] === 303, 'Pide código para eliminar sin eliminar la cuenta');
+    $cuerpoEliminar = $db->query('SELECT cuerpo FROM correos_locales ORDER BY id_correo DESC LIMIT 1')->fetchColumn();
+    preg_match('/es: ([0-9]{6})/', $cuerpoEliminar, $codigoEliminar);
     comprobar(
-        $solicitar('/clientes/cuenta/eliminar', ['csrf' => $csrf, 'password' => $nueva, 'confirmar' => '1'])[0] === 303 &&
+        $solicitar('/clientes/cuenta/eliminar', ['accion' => 'eliminar', 'csrf' => $csrf, 'codigo' => $codigoEliminar[1], 'confirmar' => '1'])[0] === 303 &&
             $acceso->buscarVerificado($id) === null,
         'Elimina el acceso de la cuenta confirmada',
     );
