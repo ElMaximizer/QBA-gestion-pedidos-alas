@@ -18,10 +18,19 @@
                     <a href="<?= $url('como-comprar') ?>">Cómo comprar </a>
                 </nav>
                 <div class="pie-rustic__redes">
-                    <a href="https://www.instagram.com/rustic.pan.salto/" target="_blank"
-                        rel="noopener noreferrer">Instagram </a>
-                    <a href="https://wa.me/59893555459" target="_blank" rel="noopener noreferrer">WhatsApp </a>
-                    <a href="tel:+59898734738">098 734 738</a>
+                    <div class="pie-rustic__sociales">
+                        <a class="pie-rustic__red" href="https://www.instagram.com/rustic.pan.salto/" target="_blank"
+                            rel="noopener noreferrer" aria-label="Instagram de Panadería Rustic (abre en otra pestaña)" title="Instagram">
+                            <span class="pie-pagina__icono-red pie-pagina__icono-red--instagram" aria-hidden="true"></span>
+                        </a>
+                        <a class="pie-rustic__red" href="https://wa.me/59893555459" target="_blank"
+                            rel="noopener noreferrer" aria-label="WhatsApp de Panadería Rustic (abre en otra pestaña)" title="WhatsApp">
+                            <span class="pie-pagina__icono-red pie-pagina__icono-red--whatsapp" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                    <a href="tel:+59898734738">Teléfono: 098 734 738</a>
+                    <a href="https://wa.me/59893555459" target="_blank" rel="noopener noreferrer"
+                        aria-label="WhatsApp: 093 555 459 (abre en otra pestaña)">WhatsApp: 093 555 459</a>
                 </div>
             </div>
             <div class="pie-rustic__base">

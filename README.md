@@ -835,11 +835,17 @@ deben crearse ahí, sin incrustar su contenido en PHP, HTML, CSS o JavaScript.
 Los iconos monocromáticos del footer y del menú usan esos archivos como máscaras
 CSS para heredar el color del tema y sus estados de interacción.
 
-Se conservan las imágenes, colores, tipografía, medidas y puntos de adaptación
-del diseño público anterior. Los bloques nuevos incluyen detalle, campo,
+La tienda mantiene la identidad Rustic, con colores crema y terracota y títulos
+serif. `rustic-nuevo.css` define su presentación final; el panel conserva sus
+temas propios. Inicio muestra los datos del local y los favoritos antes de la
+presentación de la panadería. En móvil, las categorías del catálogo se distribuyen
+en dos columnas y el carrito permanece visible junto al menú. Contacto ofrece
+teléfono, WhatsApp y ubicación, con el formulario antes del panel informativo.
+
+Los componentes incluyen detalle, campo,
 carrito-fila, cantidad y resumen. Los elementos usan bloque__elemento y los
 modificadores, bloque--modificador; por ejemplo, campo__entrada y boton--dorado.
-inicio.css conserva la portada y la cabecera/pie compartidos; componentes.css
+inicio.css contiene la base de la cabecera y el pie compartidos; componentes.css
 reúne los formularios y tarjetas reutilizados. pedidos.css y registro.css
 contienen los estilos de cada flujo. El registro usa los bloques registro y
 contrasena, con elementos como registro__tarjeta y contrasena__boton.

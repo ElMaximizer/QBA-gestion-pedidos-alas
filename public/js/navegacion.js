@@ -47,13 +47,13 @@ function iniciarNavegacion() {
         actualizarMenu(!menuAbierto);
     });
 
-    panelMenu.addEventListener('click', function (evento) {
+    encabezado.addEventListener('click', function (evento) {
         const enlace = evento.target.closest('a');
         const usaModificador = evento.ctrlKey || evento.metaKey || evento.shiftKey || evento.altKey;
 
         if (menuAbierto && enlace && evento.button === 0 && !usaModificador) {
-            // El carrito puede abrir un diálogo: debe poder volver a un control visible.
-            actualizarMenu(false, true);
+            // Los enlaces del menú se ocultan; el carrito exterior conserva su propio foco.
+            actualizarMenu(false, panelMenu.contains(enlace));
         }
     });
 

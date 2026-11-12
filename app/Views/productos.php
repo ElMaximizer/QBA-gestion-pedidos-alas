@@ -21,11 +21,11 @@
     <?php if (!$productos): ?>
         <section class="tarjeta vacio">
             <h2 class="vacio__titulo">No encontramos ese producto</h2>
-            <p class="vacio__descripcion">Prueba con otra palabra o vuelve a ver todas las categorías.</p>
+            <p class="vacio__descripcion">Probá con otra palabra o volvé a ver todas las categorías.</p>
             <a class="boton boton--dorado" href="<?= $url('productos') ?>">Ver todos los productos</a>
         </section>
     <?php else: ?>
-        <p class="catalogo__cantidad"><?= count($productos) ?> productos · Ordenar: destacados</p>
+        <p class="catalogo__cantidad"><?= count($productos) ?> <?= count($productos) === 1 ? 'producto' : 'productos' ?> · Ordenados por destacados</p>
         <div class="catalogo__lista">
             <?php foreach ($productos as $producto) {
                 require __DIR__ . '/partials/producto-tarjeta.php';
@@ -33,8 +33,8 @@
         </div>
     <?php endif; ?>
     <aside class="recuadro">
-        <h3 class="recuadro__titulo">¿Buscas algo para una ocasión especial?</h3>
-        <p class="recuadro__descripcion">Escríbenos y cuéntanos qué tienes en mente.</p>
+        <h2 class="recuadro__titulo">¿Buscás algo para una ocasión especial?</h2>
+        <p class="recuadro__descripcion">Escribinos y contanos qué tenés en mente.</p>
     </aside>
     <a class="boton boton--contorno" href="<?= $url('contacto') ?>">Hacer una consulta</a>
 </main>
