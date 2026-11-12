@@ -19,6 +19,11 @@ al usar el teclado, al pasar el puntero y cuando la pestaña no está visible. R
 la preferencia de movimiento reducido. Sin JavaScript muestra el primer producto.
 El carrito sigue abriendo sobre la página y el pedido continúa exigiendo una cuenta.
 
+Desde el formulario de pedido, «Volver al carrito» y «Revisar carrito» regresan
+al inicio con el panel abierto. La indicación de apertura se retira de la URL
+para que recargar no vuelva a abrirlo. `/carrito` se conserva como recurso de
+lectura y modificación del panel y como vista de respaldo sin JavaScript.
+
 Para bases existentes, aplicar `database/contenido-inicio.sql` o ejecutar el
 instalador **sin `--demo`**. La migración agrega `productos.portada_orden`, se puede
 repetir y conserva productos y pedidos. El inicio mantiene la imagen/favoritos
