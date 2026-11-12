@@ -108,7 +108,17 @@ final class RegistroPedidoEquipoController
         ];
         if ($pedido !== null) {
             foreach (
-                ['cliente_nombre', 'telefono', 'fecha_retiro', 'hora_retiro', 'modalidad_entrega', 'direccion_entrega', 'metodo_pago', 'notas', 'estado']
+                [
+                    'cliente_nombre',
+                    'telefono',
+                    'fecha_retiro',
+                    'hora_retiro',
+                    'modalidad_entrega',
+                    'direccion_entrega',
+                    'metodo_pago',
+                    'notas',
+                    'estado',
+                ]
                 as $campo
             ) {
                 $valores[$campo] = $pedido[$campo];
@@ -123,6 +133,7 @@ final class RegistroPedidoEquipoController
         }
         $token = '';
         $error = '';
+        $erroresCampos = [];
         $puedeConfirmar = false;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -140,7 +151,15 @@ final class RegistroPedidoEquipoController
                 }
                 $puedeConfirmar = true;
                 foreach (
-                    ['cliente_nombre', 'telefono', 'fecha_retiro', 'hora_retiro', 'modalidad_entrega', 'direccion_entrega', 'notas']
+                    [
+                        'cliente_nombre',
+                        'telefono',
+                        'fecha_retiro',
+                        'hora_retiro',
+                        'modalidad_entrega',
+                        'direccion_entrega',
+                        'notas',
+                    ]
                     as $campo
                 ) {
                     $valores[$campo] = Http::texto($_POST, $campo);
@@ -176,6 +195,41 @@ final class RegistroPedidoEquipoController
                     }
                     $valores['lineas'][] = ['id_producto' => '', 'cantidad' => '1'];
                 } elseif (Http::texto($_POST, 'accion', 'registrar') === 'registrar') {
+                    if (!$esEdicion) {
+                        $erroresCampos = Pedido::erroresValidacion($valores);
+                        $seleccionados = [];
+                        foreach ($valores['lineas'] as $indice => $linea) {
+                            $campoProducto = 'lineas-' . $indice . '-id_producto';
+                            $campoCantidad = 'lineas-' . $indice . '-cantidad';
+                            if (!isset($precios[$linea['id_producto']])) {
+                                $erroresCampos[$campoProducto] =
+                                    'Seleccioná un producto disponible.';
+                            } elseif (isset($seleccionados[$linea['id_producto']])) {
+                                $mensaje =
+                                    'Este producto está repetido. Usá una sola línea y ajustá su cantidad.';
+                                $erroresCampos[$campoProducto] = $mensaje;
+                                $erroresCampos[$seleccionados[$linea['id_producto']]] = $mensaje;
+                            } else {
+                                $seleccionados[$linea['id_producto']] = $campoProducto;
+                            }
+                            if (
+                                filter_var($linea['cantidad'], FILTER_VALIDATE_INT, [
+                                    'options' => [
+                                        'min_range' => 1,
+                                        'max_range' => Pedido::MAXIMA_CANTIDAD,
+                                    ],
+                                ]) === false
+                            ) {
+                                $erroresCampos[$campoCantidad] =
+                                    'Ingresá una cantidad entera entre 1 y 99.';
+                            }
+                        }
+                        if ($erroresCampos) {
+                            throw new DomainException(
+                                'Revisá los campos indicados antes de registrar el pedido.',
+                            );
+                        }
+                    }
                     $cantidades = Pedido::cantidadesDesdeLineas($valores['lineas'], $esEdicion);
                     $esperadas = [];
                     foreach ($cantidades as $id => $cantidad) {
@@ -203,9 +257,15 @@ final class RegistroPedidoEquipoController
                         );
                         $id = $idEdicion;
                     } else {
-                        $comprobanteTransferencia = $valores['metodo_pago'] === 'transferencia'
-                            ? $this->leerComprobanteTransferencia()
-                            : null;
+                        $comprobanteTransferencia = null;
+                        if ($valores['metodo_pago'] === 'transferencia') {
+                            try {
+                                $comprobanteTransferencia = $this->leerComprobanteTransferencia();
+                            } catch (DomainException $excepcion) {
+                                $erroresCampos['comprobante'] = $excepcion->getMessage();
+                                throw $excepcion;
+                            }
+                        }
                         $id = $modelo->crear(
                             $valores,
                             $cantidades,
@@ -249,6 +309,11 @@ final class RegistroPedidoEquipoController
             $puedeConfirmar = true;
         }
 
+        $errorGeneral = $error !== '' && !$erroresCampos;
+        if (!$esEdicion && $error !== '' && $valores['metodo_pago'] === 'transferencia') {
+            $erroresCampos['comprobante'] ??=
+                'Volvé a seleccionar el comprobante antes de reenviar el pedido.';
+        }
         if ($esEdicion && $puedeConfirmar && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $actual = $modelo->buscarGestion($idEdicion);
             if (
@@ -256,6 +321,7 @@ final class RegistroPedidoEquipoController
                 !hash_equals($formularios[$token]['version'], Pedido::version($actual))
             ) {
                 $puedeConfirmar = false;
+                $errorGeneral = true;
                 $error =
                     'El pedido fue modificado desde otra pantalla. Volvé a abrirlo para revisar los cambios antes de guardar.';
             }
@@ -301,6 +367,8 @@ final class RegistroPedidoEquipoController
             'productos' => $productos,
             'precios' => $precios,
             'error' => $error,
+            'erroresCampos' => $erroresCampos,
+            'errorGeneral' => $errorGeneral,
             'token' => $token,
             'puedeConfirmar' => $puedeConfirmar,
             'resumen' => $resumenPedido['lineas'],

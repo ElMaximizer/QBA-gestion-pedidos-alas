@@ -574,7 +574,13 @@ detalles en una transacción. El pedido comienza en **Pendiente** y aparece en
 el listado de HU04. Los precios se comprueban nuevamente al guardar: si cambiaron,
 se muestran los nuevos importes para revisarlos antes de volver a confirmar.
 El token del formulario evita duplicados por doble envío. Un error conserva
-los datos ingresados. El carrito público no se utiliza ni se vacía.
+los datos ingresados. Los errores de registro se muestran junto a cada campo,
+con un resumen enlazado para corregirlos con teclado. En transferencias, después
+de un error se indica que hay que volver a seleccionar el comprobante.
+El carrito público no se utiliza ni se vacía.
+
+`php tests/pedido-equipo-validacion.php` verifica la presentación de errores por
+campo, conservación de valores, comprobante y reenvío sin duplicados en una base temporal.
 
 `id_usuario_registro` identifica a la cuenta del equipo que tomó el pedido;
 `id_cliente` conserva NULL para estos pedidos. Ambos identificadores, el total
