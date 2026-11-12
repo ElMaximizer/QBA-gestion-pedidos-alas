@@ -73,6 +73,32 @@
     text-underline-offset: 5px;
 }
 
+.pagina:not(.pagina--equipo) .pie-rustic :focus-visible {
+    outline-color: var(--rustic-texto-claro);
+}
+
+.pie-rustic__sociales {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pie-rustic__red {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--rustic-borde-medio);
+    border-radius: 50%;
+    color: inherit;
+}
+
+.pie-rustic__red:hover {
+    border-color: currentColor;
+    background: var(--rustic-borde-suave);
+}
+
 /* ==========================================
    PANEL DEL EQUIPO: ENCABEZADO
    ========================================== */

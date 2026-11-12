@@ -50,6 +50,48 @@ test('mostrar y ocultar contraseña conserva el valor sin enviar el formulario',
     await expect(campo).toHaveValue('SoloUnaPrueba-123');
 });
 
+test('el enlace para saltar al contenido queda visible al navegar con teclado', async ({ page }) => {
+    await page.goto('/contacto');
+    await page.keyboard.press('Tab');
+    const salto = page.getByRole('link', { name: 'Ir al contenido', exact: true });
+    await expect(salto).toBeFocused();
+    expect(await salto.evaluate((enlace) => {
+        const limites = enlace.getBoundingClientRect();
+        const elemento = document.elementFromPoint(limites.x + limites.width / 2, limites.y + limites.height / 2);
+        return elemento === enlace || enlace.contains(elemento);
+    })).toBe(true);
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/#contenido$/);
+});
+
+test('el carrito móvil abre desde la cabecera y recupera el foco al cerrar', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.route('**/carrito', async (ruta) => {
+        await ruta.fulfill({
+            json: { html: '<p>Carrito de prueba vacío.</p>', unidades: 0, csrf: 'prueba-navegacion' },
+        });
+    });
+    await page.goto('/contacto');
+    const carrito = page.locator('.encabezado__carrito-movil');
+    await expect(carrito).toBeVisible();
+    await page.locator('[data-menu-boton]').click();
+    await carrito.click();
+    await expect(page.locator('#menu-principal')).toBeHidden();
+    const dialogo = page.getByRole('dialog', { name: 'Tu carrito', exact: true });
+    await expect(dialogo).toBeVisible();
+    await expect(dialogo.getByText('Carrito de prueba vacío.')).toBeVisible();
+    await page.getByRole('button', { name: 'Cerrar carrito', exact: true }).click();
+    await expect(dialogo).toBeHidden();
+    await expect(carrito).toBeFocused();
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await expect(carrito).toBeHidden();
+    await expect(page.locator('.navegacion [data-carrito-abrir]')).toBeVisible();
+    await page.goto('/contacto?carrito=abierto');
+    await expect(dialogo).toBeVisible();
+    await page.getByRole('button', { name: 'Cerrar carrito', exact: true }).click();
+    await expect(page.locator('.navegacion [data-carrito-abrir]')).toBeFocused();
+});
+
 test('el panel del equipo exige iniciar sesión', async ({ page }) => {
     await page.goto('/equipo/panel');
     await expect(page).toHaveURL('http://127.0.0.1:8787/equipo/login');

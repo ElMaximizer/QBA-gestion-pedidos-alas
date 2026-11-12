@@ -14,14 +14,24 @@ function iniciarPanelCarrito() {
     let cargando = false;
     let elementoOrigen;
 
+    function enlaceCarritoVisible() {
+        for (const enlace of document.querySelectorAll('[data-carrito-abrir]')) {
+            if (enlace.getClientRects().length > 0) {
+                return enlace;
+            }
+        }
+        return null;
+    }
+
     function abrirPanel() {
         if (panel.open) {
             return;
         }
 
-        elementoOrigen = document.activeElement === document.body
-            ? document.querySelector('[data-carrito-abrir]')
-            : document.activeElement;
+        elementoOrigen =
+            document.activeElement === document.body
+                ? enlaceCarritoVisible()
+                : document.activeElement;
         panel.showModal();
         document.body.classList.add('pagina--carrito-abierto');
     }
@@ -229,14 +239,14 @@ function iniciarPanelCarrito() {
     panel.addEventListener('close', function () {
         document.body.classList.remove('pagina--carrito-abierto');
 
-        let destinoFoco = document.querySelector('[data-carrito-abrir]');
+        let destinoFoco = enlaceCarritoVisible();
 
         if (elementoOrigen && elementoOrigen.isConnected) {
             destinoFoco = elementoOrigen;
         }
 
         if (destinoFoco && destinoFoco.getClientRects().length === 0) {
-            destinoFoco = document.querySelector('[data-menu-boton]');
+            destinoFoco = enlaceCarritoVisible() || document.querySelector('[data-menu-boton]');
         }
 
         if (destinoFoco) {

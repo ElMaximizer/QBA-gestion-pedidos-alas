@@ -205,15 +205,17 @@
         min-width: 110px;
     }
 
-    .filtros {
+    .catalogo .filtros {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
     }
 
-    .filtros__boton {
-        flex: 1;
+    .catalogo .filtros__boton {
         min-width: 0;
         padding-inline: 12px;
-        font-size: 12px;
+        font-size: 14px;
+        overflow-wrap: anywhere;
     }
 
     .catalogo__cantidad {
@@ -279,6 +281,6 @@
 
     .agregar-carrito .boton {
         padding-inline: 12px;
-        font-size: 13px;
+        font-size: 14px;
     }
 }

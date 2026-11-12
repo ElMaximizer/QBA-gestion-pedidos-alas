@@ -19,9 +19,9 @@
             <script src="<?= $escapar($recurso($script)) ?>" defer></script>
         <?php endforeach; ?>
         <?php if (!$esPanel): ?>
-            <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-nuevo.css')) ?>?v=20261111-5">
+            <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-nuevo.css')) ?>?v=20261112-1">
         <?php endif; ?>
-        <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-identidad.css')) ?>?v=2">
+        <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-identidad.css')) ?>?v=3">
         <link rel="stylesheet" href="<?= $escapar($recurso('css/campos-obligatorios.css')) ?>?v=1">
     </head>
     <body class="pagina<?= $esPanel ? ' pagina--equipo' : '' ?>">
@@ -36,6 +36,11 @@
                                 src="<?= $escapar($recurso('images/rustic/logo-negro.svg')) ?>"
                                 alt="Panadería artesanal Rustic, Salto Uruguay" width="1200" height="1200"></span>
                         <span class="marca-rustic__nombre">RUSTIC<span>PANADERÍA ARTESANAL</span></span>
+                    </a>
+                    <a class="carrito encabezado__carrito-movil" href="<?= $url('carrito') ?>" data-carrito-abrir>
+                        <img class="carrito__icono" src="<?= $escapar($recurso('images/carrito.svg')) ?>"
+                            width="20" height="20" alt="Carrito">
+                        <span class="carrito__cantidad"><?= $cantidadCarrito ?></span>
                     </a>
                     <button class="encabezado__menu-boton" type="button" aria-label="Abrir menú de navegación"
                         aria-expanded="false" aria-controls="menu-principal" data-menu-boton hidden>

@@ -12,24 +12,26 @@
             <li>
                 <strong>Ingresá a tu cuenta.</strong> Para confirmar el pedido necesitás iniciar sesión. Si todavía no tenés cuenta, <a class="informacion__enlace" href="<?= $url('registro') ?>">registrate</a> y verificá tu correo. </li>
             <li>
-                <strong>Completá los datos de retiro.</strong> Revisá el carrito e indicá el nombre, teléfono, fecha y hora de retiro. Podés agregar notas para el equipo. </li>
+                <strong>Elegí cómo recibirlo.</strong> Seleccioná retiro en el local o envío a domicilio sin costo adicional. Indicá el nombre, la fecha y la hora; si elegís delivery, completá la dirección. El teléfono y las notas son opcionales. </li>
+            <li>
+                <strong>Elegí cómo pagar.</strong> Podés pagar en el local o transferir el total. Si elegís transferencia, después de confirmar vas a ver las instrucciones para realizarla y adjuntar el comprobante. </li>
             <li>
                 <strong>Enviá el pedido.</strong> Al confirmar, vas a recibir un número de pedido. Queda pendiente de confirmación por el equipo. </li>
         </ol>
-        <p class="informacion__nota">No se realiza ningún cobro en línea al enviar el pedido.</p>
+        <p class="informacion__nota">Confirmar el pedido no realiza un cobro automático. Si pagás por transferencia, el pago queda pendiente hasta que el equipo revise el comprobante.</p>
         <a class="boton boton--dorado" href="<?= $url('productos') ?>">Ver productos</a>
     </section>
     <div class="informacion__secciones">
         <section class="informacion__tarjeta" id="metodos-de-pago" aria-labelledby="titulo-metodos-de-pago">
             <h2 class="informacion__subtitulo" id="titulo-metodos-de-pago">Métodos de pago</h2>
-            <p class="informacion__estado">Pendiente de publicación</p>
-            <p>Los medios de pago aceptados se publicarán en este espacio. Por ahora, consultalos directamente con la panadería.</p>
+            <p>Al realizar tu pedido podés elegir pagar en el local o transferir el total.</p>
+            <p>Para transferir, seguí las instrucciones que aparecen al confirmar. También podés acceder desde Mis pedidos para adjuntar el comprobante y consultar su revisión.</p>
             <a class="informacion__enlace" href="<?= $url('contacto') ?>">Consultar medios de pago </a>
         </section>
         <section class="informacion__tarjeta" id="envios" aria-labelledby="titulo-envios">
-            <h2 class="informacion__subtitulo" id="titulo-envios">Envíos</h2>
-            <p class="informacion__estado">Pendiente de publicación</p>
-            <p>La información sobre envíos todavía no fue publicada. Los pedidos de esta web solicitan fecha y hora de retiro; para consultar otras opciones, comunicate con la panadería.</p>
+            <h2 class="informacion__subtitulo" id="titulo-envios">Retiro y delivery</h2>
+            <p>Podés retirar en el local de Uruguay 1486, Salto, o elegir envío a domicilio sin costo adicional al realizar el pedido.</p>
+            <p>En ambos casos indicá una fecha y hora. El equipo se comunicará para coordinar la preparación y la entrega. Si tenés dudas sobre la zona de reparto, consultanos antes de confirmar.</p>
             <a class="informacion__enlace" href="<?= $url('contacto') ?>">Consultar opciones de entrega </a>
         </section>
         <section class="informacion__tarjeta" id="devoluciones" aria-labelledby="titulo-devoluciones">
