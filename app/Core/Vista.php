@@ -127,7 +127,7 @@ final class Vista
             }
         }
 
-        if ($vista === 'equipo-pedidos') {
+        if (in_array($vista, ['equipo-pedidos', 'equipo-pedido-cancelacion'], true)) {
             $estilos[] = 'css/equipo-pedidos.css';
             $scripts[] = 'js/pedido-equipo.js';
         }

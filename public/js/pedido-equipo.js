@@ -1,52 +1,69 @@
-let formularioParaCancelar = null;
-
-document.addEventListener('submit', (evento) => {
-    const formulario = evento.target.closest('form[data-confirmar-cancelacion], form[data-confirmar-estado]');
-
-    if (!formulario) {
-        return;
-    }
-
-    if (formulario.hasAttribute('data-confirmar-estado') &&
-        (formulario.elements.estado_nuevo.value !== 'Cancelado' || formulario.dataset.estadoActual === 'Cancelado')) {
-        return;
-    }
-
-    if (formulario.dataset.confirmado === 'true') {
-        delete formulario.dataset.confirmado;
-        return;
-    }
-
-    evento.preventDefault();
+function iniciarConfirmacionCancelacion() {
     const dialogo = document.querySelector('[data-dialogo-cancelacion]');
+    if (!dialogo || typeof dialogo.showModal !== 'function') return;
 
-    if (!dialogo || typeof dialogo.showModal !== 'function') {
-        return;
-    }
+    let formularioParaCancelar = null;
+    let controlOrigen = null;
+    const botonVolver = dialogo.querySelector('[data-cerrar-cancelacion]');
+    const botonConfirmar = dialogo.querySelector('[data-aceptar-cancelacion]');
 
-    formularioParaCancelar = formulario;
-    const numeroPedido = formulario.dataset.numeroPedido || '';
-    dialogo.querySelector('[data-mensaje-cancelacion]').textContent =
-        `El pedido #${numeroPedido} quedará como Cancelado y se conservará para futuras consultas.`;
-    dialogo.showModal();
-});
+    dialogo.addEventListener('keydown', function (evento) {
+        if (evento.key !== 'Tab') return;
+        if (evento.shiftKey && document.activeElement === botonVolver) {
+            evento.preventDefault();
+            botonConfirmar.focus();
+        } else if (!evento.shiftKey && document.activeElement === botonConfirmar) {
+            evento.preventDefault();
+            botonVolver.focus();
+        }
+    });
 
-document.querySelector('[data-cerrar-cancelacion]')?.addEventListener('click', () => {
-    document.querySelector('[data-dialogo-cancelacion]')?.close();
-    formularioParaCancelar = null;
-});
+    document.addEventListener('submit', function (evento) {
+        const formulario = evento.target.closest('form[data-confirmar-cancelacion], form[data-confirmar-estado]');
+        if (!formulario || evento.defaultPrevented) return;
+        if (formulario.hasAttribute('data-confirmar-estado') &&
+            (formulario.elements.estado_nuevo.value !== 'Cancelado' || formulario.dataset.estadoActual === 'Cancelado')) return;
+        if (formulario.dataset.confirmado === 'true') {
+            delete formulario.dataset.confirmado;
+            return;
+        }
 
-document.querySelector('[data-aceptar-cancelacion]')?.addEventListener('click', () => {
-    if (!formularioParaCancelar) {
-        return;
-    }
+        evento.preventDefault();
+        formularioParaCancelar = formulario;
+        controlOrigen = evento.submitter || document.activeElement;
+        dialogo.querySelector('#confirmacion-cancelacion-titulo').textContent =
+            `¿Cancelar el pedido #${formulario.dataset.numeroPedido}?`;
+        dialogo.querySelector('[data-cliente-cancelacion]').textContent =
+            `${formulario.dataset.clientePedido} · Estado actual: ${formulario.dataset.estadoActual}`;
+        dialogo.showModal();
+        botonVolver.focus();
+    });
 
-    const formulario = formularioParaCancelar;
-    formularioParaCancelar = null;
-    formulario.dataset.confirmado = 'true';
-    document.querySelector('[data-dialogo-cancelacion]')?.close();
-    formulario.requestSubmit();
-});
+    botonVolver.addEventListener('click', function () {
+        dialogo.close();
+    });
+    dialogo.addEventListener('close', function () {
+        formularioParaCancelar = null;
+        if (controlOrigen?.isConnected && !controlOrigen.disabled) controlOrigen.focus();
+        controlOrigen = null;
+    });
+    botonConfirmar.addEventListener('click', function () {
+        if (!formularioParaCancelar) return;
+        const formulario = formularioParaCancelar;
+        formularioParaCancelar = null;
+        let confirmacion = formulario.querySelector('[name="confirmar_cancelacion"]');
+        if (!confirmacion) {
+            confirmacion = document.createElement('input');
+            confirmacion.type = 'hidden';
+            confirmacion.name = 'confirmar_cancelacion';
+            formulario.append(confirmacion);
+        }
+        confirmacion.value = '1';
+        formulario.dataset.confirmado = 'true';
+        dialogo.close();
+        formulario.requestSubmit();
+    });
+}
 
 function iniciarCambioEstadoPedidos() {
     const formularios = document.querySelectorAll('[data-confirmar-estado]');
@@ -393,6 +410,7 @@ function iniciarFormularioPedidoEquipo() {
 }
 
 iniciarFormularioPedidoEquipo();
+iniciarConfirmacionCancelacion();
 iniciarCambioEstadoPedidos();
 const resultadoPedidos = document.querySelector('[data-resultado-pedidos][role="alert"]')
     || document.querySelector('[data-resultado-pedidos][role="status"]');
