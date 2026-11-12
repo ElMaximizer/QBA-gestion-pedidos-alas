@@ -173,10 +173,11 @@ Empleado, administrador y dueño comparten la misma pantalla. Las opciones de
 Atención del equipo incluyen consultas para todos y **Administrar personal** y
 **Solicitudes de acceso** para el dueño. Se ocultan los módulos que todavía no
 tienen función. El menú conserva los accesos a Productos, Contenido del inicio,
-Pedidos y Stock según el rol; las acciones rápidas son Nuevo pedido, Agregar
-producto y Registrar mercadería. El regreso al sitio público está solo en el
-menú. Se retiró la sección vacía de Próximos retiros; los pedidos se consultan
-desde el menú.
+Pedidos y Stock según el rol. Administrador y dueño también acceden a **Ventas**
+desde el menú, que identifica la sección actual. Las tarjetas del resumen permiten
+consultar los pedidos del día y el listado de pedidos; la tarjeta de productos
+ofrece su gestión a administrador y dueño. El regreso al sitio público está en
+el menú.
 
 La navegación del equipo usa el mismo menú hamburguesa del sitio público hasta
 1000 px. En escritorio los enlaces permanecen visibles; Salir sigue disponible

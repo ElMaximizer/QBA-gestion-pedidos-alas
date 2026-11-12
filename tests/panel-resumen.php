@@ -16,6 +16,7 @@ $correcto = true;
 try {
     $entorno = new EntornoPruebas('equipo');
     $db = $entorno->db;
+    $db->exec(file_get_contents(dirname(__DIR__) . '/database/comprobantes-transferencia.sql'));
     $modelo = new ConsultaPedidos($db);
     $vacio = ['hoy' => 0, 'pendientes_hoy' => 0, 'por_entregar' => 0];
     comprobar($modelo->resumenPanel() === $vacio, 'Sin pedidos muestra ceros enteros');
@@ -126,6 +127,32 @@ try {
                 $valores['Productos activos'] === ['3', '3 categorías disponibles'],
             'El panel conserva el resumen del catálogo y evita mostrar datos en caché',
         );
+        $puedeConsultarVentas = in_array($rol, ['administrador', 'dueno'], true);
+        comprobar(
+            str_contains($html, 'href="/equipo/pedidos?fecha=hoy"') &&
+                $solicitar('/equipo/pedidos?fecha=hoy')[0] === 200,
+            'La tarjeta de pedidos de hoy abre un filtro válido para el rol ' . $rol,
+        );
+        comprobar(
+            str_contains($html, 'href="/equipo/ventas"') === $puedeConsultarVentas,
+            'La navegación ofrece Ventas solo a administrador y dueño',
+        );
+        [$estadoVentas, $htmlVentas] = $solicitar('/equipo/ventas');
+        comprobar(
+            $estadoVentas === ($puedeConsultarVentas ? 200 : 403),
+            'El acceso directo a Ventas conserva los permisos del rol ' . $rol,
+        );
+        if ($puedeConsultarVentas) {
+            $domVentas = new DOMDocument();
+            @$domVentas->loadHTML('<?xml encoding="UTF-8">' . $htmlVentas);
+            $xpathVentas = new DOMXPath($domVentas);
+            comprobar(
+                $xpathVentas->query(
+                    '//nav[@id="menu-administracion"]//a[@href="/equipo/ventas" and @aria-current="page"]',
+                )->length === 1,
+                'Ventas queda identificada como sección activa',
+            );
+        }
     }
     $actualizar = $db->prepare('UPDATE pedidos SET estado = ? WHERE id_pedido = ?');
     $actualizar->execute(['En preparación', $ids[0]]);
