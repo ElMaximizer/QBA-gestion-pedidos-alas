@@ -36,5 +36,5 @@
         <h3 class="recuadro__titulo">¿Buscas algo para una ocasión especial?</h3>
         <p class="recuadro__descripcion">Escríbenos y cuéntanos qué tienes en mente.</p>
     </aside>
-    <a class="boton boton--contorno" role="link" aria-disabled="true">Hacer una consulta</a>
+    <a class="boton boton--contorno" href="<?= $url('contacto') ?>">Hacer una consulta</a>
 </main>
