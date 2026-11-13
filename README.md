@@ -362,6 +362,14 @@ stock, con estilos BEM en mercaderia.css. JavaScript agrega y quita filas sin
 recargar; las mismas acciones funcionan mediante POST sin JavaScript y no
 modifican el stock hasta confirmar la recepción.
 
+La búsqueda y la página se conservan al abrir el registro, agregar o quitar
+insumos, volver al historial y confirmar una recepción. El historial permite
+limpiar la búsqueda y distingue la cantidad recibida de los saldos **Antes** y
+**Después** de cada movimiento. El formulario muestra cuántos insumos incluye;
+con JavaScript, la cantidad indica su unidad y se señalan materias primas
+repetidas antes de confirmar. El botón muestra el envío en curso sin perder la
+acción de registro; la protección contra duplicados se mantiene en el servidor.
+
 Para actualizar una instalación existente, ejecutar desde la raíz del proyecto:
 
     C:\xampp\php\php.exe database\instalar.php

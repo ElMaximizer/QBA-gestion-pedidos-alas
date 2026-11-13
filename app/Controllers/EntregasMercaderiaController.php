@@ -19,14 +19,15 @@ final class EntregasMercaderiaController
         if ($this->autorizar() === null) {
             return;
         }
-        $busqueda = Http::texto($_GET, 'q');
-        $pagina = filter_var(Http::texto($_GET, 'pagina', '1'), FILTER_VALIDATE_INT, [
-            'options' => ['min_range' => 1],
-        ]);
-        if (!$pagina) {
-            throw new DomainException('Seleccioná una página válida.');
-        }
+        $filtrosListado = $this->leerFiltrosListado();
+        $busqueda = $filtrosListado['q'] ?? '';
+        $pagina = $filtrosListado['pagina'] ?? 1;
         $resultado = (new EntregaMercaderia(Conexion::obtener()))->listar($busqueda, $pagina);
+        if ($resultado['pagina'] > 1) {
+            $filtrosListado['pagina'] = $resultado['pagina'];
+        } else {
+            unset($filtrosListado['pagina']);
+        }
         $aviso = $_SESSION['qba']['aviso_mercaderia'] ?? '';
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             unset($_SESSION['qba']['aviso_mercaderia']);
@@ -39,6 +40,7 @@ final class EntregasMercaderiaController
                 'seccionActiva' => 'stock',
                 'busqueda' => $busqueda,
                 'aviso' => $aviso,
+                'filtrosListado' => $filtrosListado,
             ],
         );
     }
@@ -49,6 +51,7 @@ final class EntregasMercaderiaController
         if ($usuario === null) {
             return;
         }
+        $filtrosListado = $this->leerFiltrosListado();
         $valores = [
             'proveedor' => '',
             'fecha_recepcion' => date('Y-m-d'),
@@ -129,7 +132,7 @@ final class EntregasMercaderiaController
                         'Entrega MER-' .
                         str_pad((string) $id, 3, '0', STR_PAD_LEFT) .
                         ' registrada. El stock quedó actualizado.';
-                    Http::redirigir('equipo-mercaderia');
+                    Http::redirigir('equipo-mercaderia', $filtrosListado);
                 } else {
                     throw new DomainException('Seleccioná una acción válida.');
                 }
@@ -158,7 +161,27 @@ final class EntregasMercaderiaController
             'materias' => (new StockMateriaPrima(Conexion::obtener()))->disponibles(),
             'maximoLineas' => EntregaMercaderia::MAXIMO_LINEAS,
             'hoy' => date('Y-m-d'),
+            'filtrosListado' => $filtrosListado,
         ]);
+    }
+
+    private function leerFiltrosListado(): array
+    {
+        $busqueda = Http::texto($_GET, 'q');
+        $pagina = filter_var(Http::texto($_GET, 'pagina', '1'), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1],
+        ]);
+        if (!$pagina || !mb_check_encoding($busqueda, 'UTF-8') || mb_strlen($busqueda) > 120) {
+            throw new DomainException('Revisá la búsqueda y la página seleccionada.');
+        }
+        $filtros = [];
+        if ($busqueda !== '') {
+            $filtros['q'] = $busqueda;
+        }
+        if ($pagina > 1) {
+            $filtros['pagina'] = $pagina;
+        }
+        return $filtros;
     }
 
     private function autorizar(): ?array

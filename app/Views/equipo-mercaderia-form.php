@@ -1,12 +1,12 @@
 <main id="contenido" class="contenedor panel mercaderia">
-    <a class="enlace-volver" href="<?= $url('equipo-mercaderia') ?>"> Entregas de mercadería</a>
+    <a class="enlace-volver" href="<?= $escapar($url('equipo-mercaderia', $filtrosListado)) ?>"> Entregas de mercadería</a>
     <div class="titulo-pagina">
         <span class="etiqueta">ADMINISTRACIÓN · STOCK</span>
         <h1 class="titulo-pagina__titulo">Registrar mercadería</h1>
         <p class="titulo-pagina__descripcion">Registrá lo que recibiste del proveedor para sumarlo al inventario.</p>
     </div>
     <?php if ($error !== ''): ?>
-        <div class="aviso aviso--error" role="alert"><?= $escapar($error) ?> </div>
+        <div class="aviso aviso--error" role="alert" tabindex="-1" data-mercaderia-mensaje><?= $escapar($error) ?> </div>
     <?php endif; ?>
     <?php if (!$materias): ?>
         <section class="tarjeta vacio mercaderia__vacio">
@@ -15,7 +15,7 @@
             <a class="boton boton--dorado" href="<?= $url('equipo-stock') ?>">Ir al stock</a>
         </section>
     <?php else: ?>
-        <form class="mercaderia__formulario" method="post" action="<?= $url('mercaderia-registrar') ?>"
+        <form class="mercaderia__formulario" method="post" action="<?= $escapar($url('mercaderia-registrar', $filtrosListado)) ?>"
             data-mercaderia-form data-maximo="<?= $maximoLineas ?>">
             <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
             <input type="hidden" name="token_formulario" value="<?= $escapar($token) ?>">
@@ -41,7 +41,7 @@
             </section>
             <section class="tarjeta mercaderia__seccion" aria-labelledby="mercaderia-insumos">
                 <h2 id="mercaderia-insumos">Mercadería recibida</h2>
-                <p class="mercaderia__ayuda">Ingresá cada cantidad en la unidad indicada. Podés incluir hasta <?= $maximoLineas ?> materias primas, sin repetirlas.</p>
+                <p class="mercaderia__ayuda" id="mercaderia-cantidad-ayuda">Ingresá cantidades mayores que cero en la unidad indicada, con coma o punto y hasta tres decimales, sin separador de miles. Podés incluir hasta <?= $maximoLineas ?> materias primas, sin repetirlas.</p>
                 <div class="mercaderia__lineas" data-mercaderia-lineas>
                     <?php foreach ($valores['lineas'] as $indice => $linea): ?>
                         <fieldset class="mercaderia__linea">
@@ -53,27 +53,29 @@
                                 <select class="campo__entrada" name="lineas[<?= $indice ?>][id_materia]" required>
                                     <option value="">Seleccioná una materia prima</option>
                                     <?php foreach ($materias as $materia): ?>
-                                        <option value="<?= (int) $materia['id_materia'] ?>" <?= (string) $materia['id_materia'] === $linea['id_materia'] ? 'selected' : '' ?>> <?= $escapar($materia['nombre'] . ' (' . $materia['unidad'] . ')') ?> </option>
+                                        <option value="<?= (int) $materia['id_materia'] ?>" data-unidad="<?= $escapar($materia['unidad']) ?>" <?= (string) $materia['id_materia'] === $linea['id_materia'] ? 'selected' : '' ?>> <?= $escapar($materia['nombre'] . ' (' . $materia['unidad'] . ')') ?> </option>
                                     <?php endforeach; ?>
                                 </select>
                             </label>
                             <label class="campo">
-                                <span class="campo-obligatorio__etiqueta">Cantidad recibida <span
+                                <span class="campo-obligatorio__etiqueta"><span data-mercaderia-cantidad-etiqueta>Cantidad recibida</span> <span
                                         class="campo-obligatorio" aria-hidden="true"
                                         title="Campo obligatorio">*</span></span>
                                 <input class="campo__entrada" name="lineas[<?= $indice ?>][cantidad]"
                                     inputmode="decimal" maxlength="13" required
+                                    pattern="(?!0+([.,]0{1,3})?$)[0-9]{1,9}([.,][0-9]{1,3})?" aria-describedby="mercaderia-cantidad-ayuda"
                                     value="<?= $escapar($linea['cantidad']) ?>" placeholder="Ej.: 25,500">
                             </label>
                             <button class="boton-texto boton-texto--rojo mercaderia__quitar" name="quitar_linea"
                                 value="<?= $indice ?>" formnovalidate aria-label="Quitar insumo <?= $indice + 1 ?>"
                                 <?= count($valores['lineas']) === 1 ? 'disabled' : '' ?>>Quitar</button>
+                            <p class="mercaderia__error-insumo" role="alert" data-mercaderia-error-insumo hidden></p>
                         </fieldset>
                     <?php endforeach; ?>
                 </div>
                 <button class="boton boton--contorno mercaderia__agregar" name="accion" value="agregar-linea"
                     formnovalidate <?= count($valores['lineas']) >= $maximoLineas ? 'disabled' : '' ?>>+ Agregar insumo</button>
-                <p class="solo-lectores" role="status" data-mercaderia-aviso></p>
+                <p class="mercaderia__contador" role="status" data-mercaderia-aviso><?= count($valores['lineas']) ?> de <?= $maximoLineas ?> insumos en la entrega.</p>
             </section>
             <section class="tarjeta mercaderia__seccion">
                 <label class="campo">Observaciones (opcional) <textarea class="campo__entrada" name="observaciones" rows="3" maxlength="1000"
@@ -82,7 +84,7 @@
                 <p class="mercaderia__ayuda">Al confirmar, las cantidades se sumarán al stock actual y quedará registrado quién recibió la entrega.</p>
                 <div class="acciones mercaderia__acciones">
                     <button class="boton boton--dorado" name="accion" value="registrar">Confirmar recepción</button>
-                    <a class="boton boton--contorno" href="<?= $url('equipo-mercaderia') ?>">Cancelar</a>
+                    <a class="boton boton--contorno" href="<?= $escapar($url('equipo-mercaderia', $filtrosListado)) ?>">Volver sin registrar</a>
                 </div>
             </section>
         </form>

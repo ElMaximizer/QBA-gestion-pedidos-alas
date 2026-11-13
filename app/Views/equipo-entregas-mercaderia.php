@@ -6,15 +6,21 @@
         <p class="titulo-pagina__descripcion">Consultá lo que llegó de cada proveedor y cómo se actualizó el inventario. </p>
     </div>
     <?php if ($aviso !== ''): ?>
-        <div class="aviso aviso--exito" role="status"><?= $escapar($aviso) ?> </div>
+        <div class="aviso aviso--exito" role="status" tabindex="-1" data-mercaderia-mensaje><?= $escapar($aviso) ?> </div>
     <?php endif; ?>
-    <a class="boton boton--dorado" href="<?= $url('mercaderia-registrar') ?>">+ Registrar mercadería</a>
+    <a class="boton boton--dorado" href="<?= $escapar($url('mercaderia-registrar', $filtrosListado)) ?>">+ Registrar mercadería</a>
     <form class="mercaderia__busqueda" method="get" action="<?= $url('equipo-mercaderia') ?>">
         <label class="campo">Buscar entregas <input class="campo__entrada" type="search" name="q" maxlength="120" value="<?= $escapar($busqueda) ?>"
                 placeholder="Proveedor, comprobante o materia prima">
         </label>
         <button class="boton boton--contorno">Buscar</button>
     </form>
+    <?php if ($busqueda !== ''): ?>
+        <div class="mercaderia__filtros-activos">
+            <p>Búsqueda: «<?= $escapar($busqueda) ?>»</p>
+            <a class="boton boton--contorno" href="<?= $escapar($url('equipo-mercaderia')) ?>">Limpiar búsqueda</a>
+        </div>
+    <?php endif; ?>
     <p class="mercaderia__cantidad"><?= $total ?> <?= $total === 1 ? 'entrega registrada' : 'entregas registradas' ?> </p>
     <div class="mercaderia__historial">
         <?php foreach ($entregas as $entrega): ?>
@@ -36,9 +42,9 @@
                         <li class="mercaderia__detalle">
                             <div>
                                 <strong><?= $escapar($detalle['nombre_materia']) ?></strong><span
-                                    class="mercaderia__movimiento">Stock: <?= $escapar(str_replace('.', ',', $detalle['stock_anterior']) . '  ' . str_replace('.', ',', $detalle['stock_resultante']) . ' ' . $detalle['unidad']) ?></span>
+                                    class="mercaderia__movimiento">Antes: <?= $escapar(str_replace('.', ',', $detalle['stock_anterior']) . ' ' . $detalle['unidad']) ?> · Después: <?= $escapar(str_replace('.', ',', $detalle['stock_resultante']) . ' ' . $detalle['unidad']) ?></span>
                             </div>
-                            <strong class="mercaderia__recibido">+ <?= $escapar(str_replace('.', ',', $detalle['cantidad']) . ' ' . $detalle['unidad']) ?></strong>
+                            <strong class="mercaderia__recibido">Recibido: + <?= $escapar(str_replace('.', ',', $detalle['cantidad']) . ' ' . $detalle['unidad']) ?></strong>
                         </li>
                     <?php endforeach; ?>
                 </ul>
@@ -51,6 +57,9 @@
             <section class="tarjeta vacio mercaderia__vacio">
                 <h2 class="vacio__titulo"> <?= $busqueda === '' ? 'Todavía no hay entregas registradas' : 'No encontramos entregas' ?></h2>
                 <p class="vacio__descripcion"> <?= $busqueda === '' ? 'Registrá la mercadería recibida para actualizar el stock y conservar su historial.' : 'Probá con otro proveedor, comprobante o materia prima.' ?> </p>
+                <?php if ($busqueda !== ''): ?>
+                    <a class="boton boton--contorno" href="<?= $escapar($url('equipo-mercaderia')) ?>">Ver todas las entregas</a>
+                <?php endif; ?>
             </section>
         <?php endif; ?>
     </div>
