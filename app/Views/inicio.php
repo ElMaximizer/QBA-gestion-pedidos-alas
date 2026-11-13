@@ -38,21 +38,16 @@
             <div class="inicio-productos">
                 <?php foreach ($productosDestacados as $producto): ?>
                     <article class="inicio-producto">
-                        <a class="inicio-producto__foto"
-                            href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>"><img
+                        <div class="inicio-producto__foto"><img
                                 src="<?= $escapar($recurso('images/' . $producto['imagen'])) ?>"
-                                alt="<?= $escapar($producto['nombre']) ?>" width="400" height="300" loading="lazy"><span aria-hidden="true">→</span></a>
+                                alt="<?= $escapar($producto['nombre']) ?>" width="400" height="300" loading="lazy"></div>
                         <div class="inicio-producto__informacion">
                             <span class="etiqueta-rustic"><?= $escapar($producto['categoria']) ?></span>
                             <h3>
-                                <a
-                                    href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>"><?= $escapar($producto['nombre']) ?></a>
+                                <?= $escapar($producto['nombre']) ?>
                             </h3>
                             <p><?= $escapar($producto['descripcion']) ?></p>
-                            <div class="inicio-producto__base">
-                                <span><?= $dinero($producto['precio'], true) ?> <small>/ <?= $escapar($producto['presentacion']) ?></small></span>
-                                <a href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>">Ver producto </a>
-                            </div>
+                            <?php require __DIR__ . '/partials/producto-compra.php'; ?>
                         </div>
                     </article>
                 <?php endforeach; ?>
