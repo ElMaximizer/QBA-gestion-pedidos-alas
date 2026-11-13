@@ -186,7 +186,7 @@
 .equipo-personal__tabla tbody tr:hover { background: #f8f0e6; }
 .equipo-personal__tabla tbody tr:last-child td { border-bottom: 0; }
 .equipo-personal__tabla td:first-child,
-.equipo-personal__tabla td:nth-child(2) { white-space: nowrap; }
+.equipo-personal__tabla td:nth-child(2) { white-space: normal; overflow-wrap: anywhere; }
 .equipo-personal__tabla td:first-child { font-weight: 700; }
 .equipo-personal__tabla td:nth-child(4) { min-width: 190px; color: #6c5d52; }
 
@@ -205,13 +205,14 @@
 }
 
 .equipo-personal__cambio {
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: stretch;
     gap: .55rem;
 }
 
-.equipo-personal__campo--cambio { min-width: 145px; }
-.equipo-personal__cambio .boton { min-height: 42px; padding-inline: .85rem; }
+.equipo-personal__campo--cambio { min-width: 0; }
+.equipo-personal__cambio .boton { width: 100%; min-height: 42px; padding-inline: .85rem; }
 
 .equipo-personal__actividad {
     display: grid;
@@ -392,4 +393,147 @@
     .equipo-personal__crear-formulario { grid-template-columns: 1fr; }
     .equipo-personal__crear-ayuda { grid-column: 1; }
     .equipo-personal__crear-boton { grid-column: 1; width: 100%; }
+}
+
+/* HU10. Lectura del directorio y de la actividad acumulada. */
+.equipo-personal .equipo-personal__campo,
+.equipo-personal .equipo-personal__campo input,
+.equipo-personal .equipo-personal__campo select {
+    min-width: 0;
+}
+
+.equipo-personal__filtros .equipo-personal__campo input,
+.equipo-personal__filtros .equipo-personal__campo select {
+    font-size: 16px;
+}
+
+.equipo-personal__filtros .boton {
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
+}
+
+.equipo-personal__filtros-activos,
+.equipo-personal__criterio,
+.equipo-personal__sin-actividad {
+    color: var(--muted, #665f55);
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.equipo-personal__filtros-activos {
+    margin: -12px 0 24px;
+}
+
+.equipo-personal__criterio {
+    margin: 0 0 20px;
+    max-width: 85ch;
+}
+
+.equipo-personal__sin-actividad {
+    margin: 12px 0 0;
+}
+
+.equipo-personal .equipo-personal__tabla-contenedor:focus-visible,
+.equipo-personal [data-personal-aviso]:focus {
+    outline: 3px solid #7e2525;
+    outline-offset: 4px;
+}
+
+.equipo-personal__etiqueta-movil {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .equipo-personal .tarjeta.equipo-personal__tabla-contenedor {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .equipo-personal .equipo-personal__tabla {
+        display: block;
+        min-width: 0;
+    }
+
+    .equipo-personal__tabla thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+
+    .equipo-personal__tabla tbody {
+        display: grid;
+        gap: 20px;
+    }
+
+    .equipo-personal .equipo-personal__tabla tbody tr {
+        display: block;
+        padding: 10px 20px;
+        border: 1px solid #e5d9ca;
+        border-radius: 5px;
+        background: #fffdfa;
+    }
+
+    .equipo-personal .equipo-personal__tabla td {
+        display: grid;
+        grid-template-columns: minmax(0, 120px) minmax(0, 1fr);
+        gap: 16px;
+        min-width: 0;
+        padding: 14px 0;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .equipo-personal .equipo-personal__tabla td > * {
+        min-width: 0;
+    }
+
+    .equipo-personal__tabla .equipo-personal__etiqueta-movil {
+        display: block;
+        color: var(--muted, #665f55);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .equipo-personal__tabla .equipo-personal__actividad {
+        min-width: 0;
+        font-size: 14px;
+    }
+
+    .equipo-personal__tabla .equipo-personal__insignia,
+    .equipo-personal__tabla .equipo-personal__estado {
+        justify-self: start;
+        max-width: 100%;
+        white-space: normal;
+    }
+
+    .equipo-personal__actividad strong {
+        flex: 0 0 auto;
+    }
+
+    .equipo-personal__celda-actividad .equipo-personal__sin-actividad {
+        grid-column: 1 / -1;
+        margin: 0;
+    }
+
+    .equipo-personal .equipo-personal__tabla .boton {
+        white-space: normal;
+    }
+
+}
+
+@media (max-width: 600px) {
+    .equipo-personal .equipo-personal__tabla td {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 6px;
+    }
+
+    .equipo-personal__vacio .vacio__titulo {
+        font-size: 26px;
+    }
 }

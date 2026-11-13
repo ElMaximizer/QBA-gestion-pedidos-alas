@@ -1,4 +1,14 @@
 <main id="contenido" class="contenedor panel equipo-personal">
+    <?php
+    $indicadoresActividad = [
+        'pedidos_registrados' => 'Pedidos registrados',
+        'pedidos_actualizados' => 'Cambios en pedidos',
+        'pedidos_entregados' => 'Pedidos entregados',
+        'mercaderia_registrada' => 'Entregas de mercadería',
+        'pagos_confirmados' => 'Pagos confirmados',
+    ];
+    $hayFiltros = $busqueda !== '' || $rol !== '';
+    ?>
     <div class="titulo-pagina">
         <span class="etiqueta"><?= $puedeEditarRoles ? 'SOLO DUEÑO' : 'EQUIPO' ?></span>
         <h1 class="titulo-pagina__titulo"><?= $puedeEditarRoles ? 'Administrar personal' : 'Personal del equipo' ?></h1>
@@ -10,10 +20,10 @@
     </div>
 
     <?php if ($aviso !== ''): ?>
-        <p class="equipo-personal__aviso" role="status"><?= $escapar($aviso) ?></p>
+        <p class="equipo-personal__aviso" role="status" tabindex="-1" data-personal-aviso><?= $escapar($aviso) ?></p>
     <?php endif; ?>
     <?php if ($error !== ''): ?>
-        <p class="equipo-personal__error" role="alert"><?= $escapar($error) ?></p>
+        <p class="equipo-personal__error" id="personal-error" role="alert" tabindex="-1" data-personal-aviso><?= $escapar($error) ?></p>
     <?php endif; ?>
 
     <?php if ($puedeEditarRoles): ?>
@@ -31,7 +41,7 @@
         </section>
 
         <p class="equipo-personal__nota">
-            Solo se muestran cuentas aprobadas. Revisá las cuentas pendientes en
+            Se muestran cuentas activas y desactivadas. Revisá las cuentas pendientes en
             <a class="enlace-texto" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso</a>.
         </p>
         <details class="tarjeta equipo-personal__crear" id="crear-empleado" <?= $error !== '' ? 'open' : '' ?>>
@@ -93,7 +103,7 @@
     <?php else: ?>
     <?php endif; ?>
 
-    <form class="equipo-personal__filtros" method="get" action="<?= $url($rutaPersonal) ?>">
+    <form class="equipo-personal__filtros" method="get" action="<?= $url($rutaPersonal) ?>" data-personal-filtros>
         <label class="equipo-personal__campo">
             <span>Buscar por nombre o correo</span>
             <input type="search" name="q" maxlength="120" value="<?= $escapar($busqueda) ?>" autocomplete="off">
@@ -107,26 +117,41 @@
                 <?php endforeach; ?>
             </select>
         </label>
-        <button class="boton boton--dorado" type="submit">Buscar</button>
-        <a class="boton boton--contorno" href="<?= $url($rutaPersonal) ?>">Limpiar</a>
+        <button class="boton boton--dorado" type="submit">Aplicar filtros</button>
+        <a class="boton boton--contorno" href="<?= $url($rutaPersonal) ?>">Restablecer filtros</a>
     </form>
+
+    <?php if ($hayFiltros): ?>
+        <p class="equipo-personal__filtros-activos">Filtros aplicados: <?= $rol === '' ? 'Todos los roles' : $escapar(\App\Models\PersonalEquipo::ROLES[$rol] ?? 'Rol no válido') ?><?php if ($busqueda !== ''): ?> · Búsqueda: «<?= $escapar($busqueda) ?>»<?php endif; ?>.</p>
+    <?php endif; ?>
 
     <section class="equipo-personal__resultados" aria-labelledby="equipo-personal-titulo">
         <div class="equipo-personal__resumen">
-            <h2 id="equipo-personal-titulo">Cuentas aprobadas</h2>
-            <p><?= count($usuarios) ?> <?= count($usuarios) === 1 ? 'cuenta encontrada' : 'cuentas encontradas' ?></p>
+            <h2 id="equipo-personal-titulo"><?= $puedeEditarRoles ? 'Cuentas activas y desactivadas' : 'Cuentas aprobadas' ?></h2>
+            <?php if ($error === '' || $puedeEditarRoles): ?>
+                <p><?= count($usuarios) ?> <?= count($usuarios) === 1 ? 'cuenta encontrada' : 'cuentas encontradas' ?></p>
+            <?php endif; ?>
         </div>
+        <p class="equipo-personal__criterio" id="personal-actividad-ayuda">Actividad acumulada, sin filtro por fecha. «Cambios en pedidos» cuenta eventos del historial: un mismo pedido puede tener varios cambios.</p>
 
         <?php if ($usuarios === []): ?>
             <div class="tarjeta vacio equipo-personal__vacio">
-                <h3 class="vacio__titulo">No encontramos cuentas</h3>
-                <p class="vacio__descripcion">Probá cambiar la búsqueda o el rol seleccionado.</p>
+                <?php if ($error !== ''): ?>
+                    <h3 class="vacio__titulo">Revisá el aviso antes de continuar</h3>
+                    <p class="vacio__descripcion">Podés corregir los filtros o restablecerlos para volver a consultar el personal.</p>
+                <?php elseif ($hayFiltros): ?>
+                    <h3 class="vacio__titulo">No encontramos cuentas con estos filtros</h3>
+                    <p class="vacio__descripcion">Probá cambiar la búsqueda o el rol seleccionado.</p>
+                <?php else: ?>
+                    <h3 class="vacio__titulo">Todavía no hay cuentas para mostrar</h3>
+                    <p class="vacio__descripcion">Las cuentas del equipo aparecerán aquí cuando estén aprobadas.</p>
+                <?php endif; ?>
             </div>
         <?php else: ?>
-            <div class="tarjeta equipo-personal__tabla-contenedor">
-                <table class="equipo-personal__tabla">
-                    <thead>
-                        <tr>
+            <div class="tarjeta equipo-personal__tabla-contenedor" role="region" aria-labelledby="equipo-personal-titulo" tabindex="0">
+                <table class="equipo-personal__tabla" role="table" aria-describedby="personal-actividad-ayuda">
+                    <thead role="rowgroup">
+                        <tr role="row">
                             <th scope="col">Nombre</th>
                             <th scope="col">Correo</th>
                             <th scope="col">Rol actual</th>
@@ -136,13 +161,14 @@
                             <?php if ($puedeEditarRoles): ?><th scope="col">Acción</th><?php endif; ?>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody role="rowgroup">
                         <?php foreach ($usuarios as $usuario): ?>
-                            <tr>
-                                <td><?= $escapar($usuario['nombre']) ?></td>
-                                <td><?= $escapar($usuario['email']) ?></td>
-                                <td><span class="equipo-personal__insignia"><?= $escapar($usuario['nombre_rol']) ?></span></td>
-                                <td>
+                            <tr role="row">
+                                <td role="cell"><span class="equipo-personal__etiqueta-movil" aria-hidden="true">Nombre</span><span><?= $escapar($usuario['nombre']) ?></span></td>
+                                <td role="cell"><span class="equipo-personal__etiqueta-movil" aria-hidden="true">Correo</span><span><?= $escapar($usuario['email']) ?></span></td>
+                                <td role="cell"><span class="equipo-personal__etiqueta-movil" aria-hidden="true">Rol actual</span><span class="equipo-personal__insignia"><?= $escapar($usuario['nombre_rol']) ?></span></td>
+                                <td role="cell">
+                                    <span class="equipo-personal__etiqueta-movil" aria-hidden="true"><?= $puedeEditarRoles ? 'Permisos nuevos' : 'Responsabilidades del rol' ?></span>
                                     <?php if ($puedeEditarRoles && $usuario['estado'] === 'aprobado'): ?>
                                         <form class="equipo-personal__cambio" method="post" action="<?= $url($rutaPersonal) ?>">
                                             <input type="hidden" name="csrf" value="<?= $csrf ?>">
@@ -158,25 +184,31 @@
                                             <button class="boton boton--contorno" type="submit" aria-label="Guardar permisos de <?= $escapar($usuario['nombre']) ?>">Guardar</button>
                                         </form>
                                     <?php else: ?>
-                                        <?= $escapar($usuario['funciones']) ?>
+                                        <span><?= $escapar($usuario['funciones']) ?></span>
                                     <?php endif; ?>
                                 </td>
-                                <td>
+                                <td class="equipo-personal__celda-actividad" role="cell">
+                                    <span class="equipo-personal__etiqueta-movil" aria-hidden="true">Actividad registrada</span>
                                     <ul class="equipo-personal__actividad" aria-label="Tareas realizadas por <?= $escapar($usuario['nombre']) ?>">
-                                        <li><span>Pedidos registrados</span><strong><?= (int) $usuario['pedidos_registrados'] ?></strong></li>
-                                        <li><span>Pedidos actualizados</span><strong><?= (int) $usuario['pedidos_actualizados'] ?></strong></li>
-                                        <li><span>Pedidos entregados</span><strong><?= (int) $usuario['pedidos_entregados'] ?></strong></li>
-                                        <li><span>Mercadería recibida</span><strong><?= (int) $usuario['mercaderia_registrada'] ?></strong></li>
-                                        <li><span>Pagos confirmados</span><strong><?= (int) $usuario['pagos_confirmados'] ?></strong></li>
+                                        <?php $tieneActividad = false; ?>
+                                        <?php foreach ($indicadoresActividad as $clave => $nombre): ?>
+                                            <?php $tieneActividad = $tieneActividad || (int) $usuario[$clave] > 0; ?>
+                                            <li><span><?= $escapar($nombre) ?></span><strong><?= (int) $usuario[$clave] ?></strong></li>
+                                        <?php endforeach; ?>
                                     </ul>
+                                    <?php if (!$tieneActividad): ?>
+                                        <p class="equipo-personal__sin-actividad">Sin actividad registrada para esta cuenta.</p>
+                                    <?php endif; ?>
                                 </td>
-                                <td>
+                                <td role="cell">
+                                    <span class="equipo-personal__etiqueta-movil" aria-hidden="true">Estado</span>
                                     <span class="equipo-personal__estado <?= $usuario['estado'] === 'aprobado' ? 'equipo-personal__estado--activo' : 'equipo-personal__estado--inactivo' ?>">
                                         <?= $escapar($usuario['nombre_estado']) ?>
                                     </span>
                                 </td>
                                 <?php if ($puedeEditarRoles): ?>
-                                    <td>
+                                    <td role="cell">
+                                        <span class="equipo-personal__etiqueta-movil" aria-hidden="true">Acción</span>
                                         <form method="post" action="<?= $url($rutaPersonal) ?>">
                                             <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                             <input type="hidden" name="id_usuario" value="<?= (int) $usuario['id_usuario'] ?>">

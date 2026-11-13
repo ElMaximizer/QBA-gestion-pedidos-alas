@@ -394,6 +394,25 @@ recepciones simultáneas con conexiones independientes, rollback completo,
 integración con HU07, conservación del historial y la
 actualización de la base sin pérdida de recepciones.
 
+## HU10 — Consultar personal y actividad
+
+Administrador y dueño consultan el personal desde el menú del equipo. El
+administrador ve las cuentas aprobadas en **Personal**; el dueño usa la vista
+compartida de **Personal y permisos**, que también incluye cuentas desactivadas.
+La consulta permite buscar por nombre o correo y filtrar por rol, con un resumen
+de los filtros aplicados y una opción para restablecerlos.
+
+La actividad es acumulada y no tiene filtro por fecha. **Cambios en pedidos**
+cuenta eventos del historial, por lo que un pedido puede aportar varios cambios.
+**Entregas de mercadería** cuenta recepciones registradas. Si todos los contadores
+de una cuenta están en cero, se indica que no tiene actividad registrada.
+
+En celular, el listado presenta una ficha por persona con etiquetas para sus
+datos y contadores. Los filtros funcionan sin JavaScript; con JavaScript se
+muestra el estado de consulta y se lleva el foco a los avisos. Los errores de
+filtros del administrador permanecen en la misma pantalla para corregirlos.
+No requiere cambios de SQL.
+
 ## HU16 — Registrarse
 
 Desde **Acceso clientes** se puede crear una cuenta con nombre, correo y

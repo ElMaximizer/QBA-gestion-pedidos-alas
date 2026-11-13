@@ -147,6 +147,7 @@ final class Vista
 
         if ($esPersonalEquipo) {
             $estilos[] = 'css/equipo-personal.css';
+            $scripts[] = 'js/equipo-personal.js';
         }
 
         $estilos[] = 'css/tema-rustic.css';
