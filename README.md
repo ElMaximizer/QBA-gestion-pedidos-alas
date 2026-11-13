@@ -867,8 +867,10 @@ ejecutando ese archivo en la base del proyecto, después de `estructura.sql` y
 
 ## HU18 — Realizar un pedido
 
-El cliente puede explorar y filtrar productos, ver su detalle, agregar cantidades
-al carrito y actualizarlo sin iniciar sesión. Para completar sus datos y confirmar
+El cliente puede explorar y filtrar productos, consultar sus ingredientes y
+alérgenos en las tarjetas y agregar la cantidad elegida directamente al carrito,
+tanto desde Inicio como desde el catálogo. Puede actualizarlo sin iniciar sesión.
+Para completar sus datos y confirmar
 debe ingresar con una cuenta de cliente verificada. Al
 confirmar, el pedido y sus líneas se guardan en MySQL como **Pendiente**, se vacía
 el carrito y se muestra el número del pedido.

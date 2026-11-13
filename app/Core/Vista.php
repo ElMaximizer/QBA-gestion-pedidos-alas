@@ -67,6 +67,9 @@ final class Vista
             $estilos[] = 'css/cuenta-cliente.css';
         }
         $scripts[] = 'js/navegacion.js';
+        if (in_array($vista, ['inicio', 'productos'], true)) {
+            $estilos[] = 'css/producto-compra.css';
+        }
 
         if (!$esPanel) {
             $estilos[] = 'css/carrito.css';
