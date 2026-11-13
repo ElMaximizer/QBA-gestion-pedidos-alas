@@ -11,38 +11,21 @@ final class Rutas
 
     public static function todas(): array
     {
-        if (self::$rutas === null) {
-            self::$rutas = require dirname(__DIR__, 2) . '/config/rutas.php';
-        }
-
-        return self::$rutas;
+        return self::$rutas ??= require dirname(__DIR__, 2) . '/config/rutas.php';
     }
 
     public static function url(string $nombre, array $parametros = []): string
     {
-        $rutas = self::todas();
-        if (!isset($rutas[$nombre][0])) {
-            throw new InvalidArgumentException('Ruta desconocida.');
-        }
-
-        $ruta = $rutas[$nombre][0];
+        $ruta = self::todas()[$nombre][0] ?? throw new InvalidArgumentException('Ruta desconocida.');
         unset($parametros['ruta']);
         $consulta = http_build_query($parametros, '', '&', PHP_QUERY_RFC3986);
-        $direccion = self::base() . '/' . $ruta;
-
-        if ($consulta !== '') {
-            $direccion .= '?' . $consulta;
-        }
-
-        return $direccion;
+        return self::base() . '/' . $ruta . ($consulta === '' ? '' : '?' . $consulta);
     }
 
     public static function recurso(string $archivo): string
     {
-        if (
-            !preg_match('~^(?:css|js|images)/[a-zA-Z0-9._/-]+$~D', $archivo) ||
-            in_array('..', explode('/', $archivo), true)
-        ) {
+        if (!preg_match('~^(?:css|js|images)/[a-zA-Z0-9._/-]+$~D', $archivo)
+            || in_array('..', explode('/', $archivo), true)) {
             throw new InvalidArgumentException('Recurso inválido.');
         }
         return self::base() . '/' . $archivo;
@@ -57,18 +40,14 @@ final class Rutas
         if (array_key_exists('ruta', $_GET)) {
             // Compatibilidad solo en el punto de entrada anterior; nunca cambia una URL amigable.
             $nombre = $_GET['ruta'];
-            $esEntradaAnterior = in_array($camino, ['', 'index.php'], true);
-            if ($esEntradaAnterior && is_string($nombre) && isset(self::todas()[$nombre])) {
-                return $nombre;
-            }
-
-            return null;
+            return in_array($camino, ['', 'index.php'], true) && is_string($nombre)
+                && isset(self::todas()[$nombre]) ? $nombre : null;
         }
         if ($camino === 'index.php') {
             return 'inicio';
         }
-        foreach (self::todas() as $nombre => $configuracionRuta) {
-            if ($camino === $configuracionRuta[0]) {
+        foreach (self::todas() as $nombre => [$direccion]) {
+            if ($camino === $direccion) {
                 return $nombre;
             }
         }
@@ -98,12 +77,6 @@ final class Rutas
         if ($directorio === '.' || $directorio === '/') {
             return '';
         }
-        $partes = explode('/', trim(rawurldecode($directorio), '/'));
-        $partesCodificadas = [];
-        foreach ($partes as $parte) {
-            $partesCodificadas[] = rawurlencode($parte);
-        }
-
-        return '/' . implode('/', $partesCodificadas);
+        return '/' . implode('/', array_map('rawurlencode', explode('/', trim(rawurldecode($directorio), '/'))));
     }
 }

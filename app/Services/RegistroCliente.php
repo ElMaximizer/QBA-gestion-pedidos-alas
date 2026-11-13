@@ -13,21 +13,15 @@ final class RegistroCliente
     private readonly Cliente $clientes;
     private readonly CorreoVerificacion $correo;
 
-    public function __construct(PDO $conexion, ?CorreoVerificacion $correo = null)
+    public function __construct(PDO $db, ?CorreoVerificacion $correo = null)
     {
-        $this->clientes = new Cliente($conexion);
-        $this->correo = $correo ?? new CorreoVerificacion($conexion);
+        $this->clientes = new Cliente($db);
+        $this->correo = $correo ?? new CorreoVerificacion($db);
     }
 
-    public function registrar(
-        string $nombre,
-        string $email,
-        string $password,
-        string $confirmacion,
-    ): array {
-        return $this->entregar(
-            $this->clientes->registrar($nombre, $email, $password, $confirmacion),
-        );
+    public function registrar(string $nombre, string $email, string $password, string $confirmacion): array
+    {
+        return $this->entregar($this->clientes->registrar($nombre, $email, $password, $confirmacion));
     }
 
     public function reenviar(string $email): bool
@@ -44,11 +38,7 @@ final class RegistroCliente
             $cliente['correo_enviado'] = true;
         } catch (Throwable $error) {
             // No registrar credenciales, contenido del correo ni trazas con argumentos.
-            error_log(
-                'HU16: falló la entrega del código (' .
-                    $error::class .
-                    '). Revisá la configuración de correo.',
-            );
+            error_log('HU16: falló la entrega del código (' . $error::class . '). Revisá la configuración de correo.');
             $cliente['correo_enviado'] = false;
         }
         unset($cliente['codigo']);

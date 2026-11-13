@@ -23,12 +23,9 @@ if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', $metodos, true)) {
     exit('Método no permitido.');
 }
 
-if (
-    in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD'], true) &&
-    Rutas::necesitaRedireccion($ruta)
-) {
+if (in_array($_SERVER['REQUEST_METHOD'], ['GET', 'HEAD'], true) && Rutas::necesitaRedireccion($ruta)) {
     header('Location: ' . Rutas::url($ruta, $_GET), true, 302);
-    exit();
+    exit;
 }
 
 try {
@@ -37,16 +34,10 @@ try {
     (new $controlador())->$accion();
 } catch (DomainException $error) {
     http_response_code(422);
-    Vista::mostrar('error', [
-        'tituloPagina' => 'Revisá la solicitud',
-        'mensaje' => $error->getMessage(),
-    ]);
+    Vista::mostrar('error', ['tituloPagina' => 'Revisá la solicitud', 'mensaje' => $error->getMessage()]);
 } catch (Throwable $error) {
     error_log((string) $error);
     http_response_code(503);
-    Vista::mostrar('error', [
-        'tituloPagina' => 'Servicio no disponible',
-        'mensaje' =>
-            'No pudimos completar la operación en este momento. Intentá nuevamente en unos minutos.',
-    ]);
+    Vista::mostrar('error', ['tituloPagina' => 'Servicio no disponible',
+        'mensaje' => 'No pudimos completar la operación en este momento. Intentá nuevamente en unos minutos.']);
 }

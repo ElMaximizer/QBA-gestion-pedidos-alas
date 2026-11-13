@@ -44,7 +44,7 @@
     color: var(--muted);
     font-size: 10px;
     font-weight: 600;
-    letter-spacing: 0.1em;
+    letter-spacing: .1em;
 }
 
 .carrito-panel__titulo {
@@ -61,9 +61,7 @@
     border-radius: 50%;
     background: var(--cream);
     color: var(--navy);
-    font:
-        28px/1 Arial,
-        sans-serif;
+    font: 28px/1 Arial, sans-serif;
     cursor: pointer;
 }
 
@@ -208,9 +206,7 @@
     border: 0;
     background: transparent;
     color: #92272a;
-    font:
-        13px/1.5 Arial,
-        sans-serif;
+    font: 13px/1.5 Arial, sans-serif;
     text-align: left;
     cursor: pointer;
 }
@@ -245,9 +241,7 @@
     border-radius: 6px;
     background: var(--white);
     color: var(--navy);
-    font:
-        16px/1.5 Arial,
-        sans-serif;
+    font: 16px/1.5 Arial, sans-serif;
     text-align: center;
 }
 
@@ -294,7 +288,7 @@
 }
 
 .carrito-contenido__continuar:disabled {
-    opacity: 0.5;
+    opacity: .5;
     cursor: not-allowed;
 }
 

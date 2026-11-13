@@ -15,9 +15,7 @@ final class DatosCuenta
     {
         $cedula = trim($cedula);
         if (!preg_match('/^[0-9]{6,8}$/D', $cedula)) {
-            throw new DomainException(
-                'Ingresá una cédula de 6 a 8 dígitos, sin puntos ni guiones.',
-            );
+            throw new DomainException('Ingresá una cédula de 6 a 8 dígitos, sin puntos ni guiones.');
         }
         return (int) $cedula;
     }
@@ -51,9 +49,7 @@ final class DatosCuenta
     {
         // Bcrypt en PHP 8.2 trunca a 72 bytes: se rechazan valores que excedan ese límite.
         if (mb_strlen($password) < 8 || strlen($password) > 72 || str_contains($password, "\0")) {
-            throw new DomainException(
-                'Usá una contraseña de al menos 8 caracteres y de un máximo de 72 bytes.',
-            );
+            throw new DomainException('Usá una contraseña de al menos 8 caracteres y de un máximo de 72 bytes.');
         }
         if ($password !== $confirmacion) {
             throw new DomainException('Las contraseñas no coinciden. Volvé a confirmarla.');

@@ -5,10 +5,7 @@
     --green: #146b4b;
 }
 
-button,
-input,
-select,
-textarea {
+button, input, select, textarea {
     font: inherit;
     -webkit-tap-highlight-color: transparent;
 }
@@ -67,12 +64,11 @@ button:focus-visible {
 }
 
 .boton:disabled {
-    opacity: 0.5;
+    opacity: .5;
     cursor: not-allowed;
 }
 
-.enlace-volver,
-.enlace-texto {
+.enlace-volver, .enlace-texto {
     display: inline-block;
     font-size: 14px;
     font-weight: 600;
@@ -82,8 +78,7 @@ button:focus-visible {
     margin: 0 0 28px;
 }
 
-.enlace-volver:hover,
-.enlace-texto:hover {
+.enlace-volver:hover, .enlace-texto:hover {
     color: var(--gold);
 }
 
@@ -111,10 +106,9 @@ button:focus-visible {
     background: var(--white);
 }
 
-.tarjeta__titulo,
-.resumen__titulo {
+.tarjeta__titulo, .resumen__titulo {
     font-size: 26px;
-    letter-spacing: -0.02em;
+    letter-spacing: -.02em;
 }
 
 .pila {
@@ -123,8 +117,7 @@ button:focus-visible {
     gap: 20px;
 }
 
-.pila > .tarjeta__titulo,
-.pila > .aviso {
+.pila > .tarjeta__titulo, .pila > .aviso {
     margin: 0;
 }
 
@@ -171,7 +164,7 @@ button:focus-visible {
     margin: 0 0 20px;
     font-size: 16px;
     line-height: 1.18;
-    letter-spacing: -0.025em;
+    letter-spacing: -.025em;
 }
 
 h4.recuadro__titulo {

@@ -1,28 +1,15 @@
-function iniciarBotonesContrasena() {
-    'use strict';
+'use strict';
 
-    const botones = document.querySelectorAll('[data-toggle-password]');
+document.querySelectorAll('[data-toggle-password]').forEach((boton) => {
+    const entrada = document.getElementById(boton.dataset.togglePassword);
+    if (!entrada) return;
 
-    for (const boton of botones) {
-        const campoContrasena = document.getElementById(boton.dataset.togglePassword);
-
-        if (!campoContrasena) {
-            continue;
-        }
-
-        boton.hidden = false;
-        boton.addEventListener('click', function () {
-            const mostrarContrasena = campoContrasena.type === 'password';
-
-            campoContrasena.type = mostrarContrasena ? 'text' : 'password';
-            boton.textContent = mostrarContrasena ? 'Ocultar' : 'Mostrar';
-            boton.setAttribute(
-                'aria-label',
-                mostrarContrasena ? 'Ocultar contraseña' : 'Mostrar contraseña',
-            );
-            boton.setAttribute('aria-pressed', String(mostrarContrasena));
-        });
-    }
-}
-
-iniciarBotonesContrasena();
+    boton.hidden = false;
+    boton.addEventListener('click', () => {
+        const visible = entrada.type === 'password';
+        entrada.type = visible ? 'text' : 'password';
+        boton.textContent = visible ? 'Ocultar' : 'Mostrar';
+        boton.setAttribute('aria-label', visible ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        boton.setAttribute('aria-pressed', String(visible));
+    });
+});

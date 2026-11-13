@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS usuarios_equipo (
     cedula INT UNSIGNED NOT NULL,
     email VARCHAR(190) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    estado ENUM('pendiente', 'aprobado', 'rechazado', 'desactivado') NOT NULL DEFAULT 'pendiente',
+    estado ENUM('pendiente', 'aprobado', 'rechazado') NOT NULL DEFAULT 'pendiente',
     rol ENUM('empleado', 'administrador', 'dueno') NOT NULL DEFAULT 'empleado',
     creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY uq_equipo_cedula (cedula),

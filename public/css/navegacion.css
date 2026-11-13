@@ -42,11 +42,11 @@
     width: 24px;
     height: 24px;
     background-color: currentColor;
-    mask: url('../images/menu.svg') center / contain no-repeat;
+    mask: url("../images/menu.svg") center / contain no-repeat;
 }
 
 .encabezado--menu-abierto .encabezado__menu-icono {
-    mask-image: url('../images/cerrar.svg');
+    mask-image: url("../images/cerrar.svg");
 }
 
 .encabezado__menu-boton[hidden],
@@ -99,27 +99,16 @@
     }
 
     .encabezado--publico .navegacion__enlace:hover,
-    .encabezado--publico .navegacion__enlace[aria-current='page'],
+    .encabezado--publico .navegacion__enlace[aria-current="page"],
     .encabezado--publico .carrito:hover {
         background: var(--cream);
         color: var(--gold);
         text-decoration: none;
     }
 
-    .encabezado--publico .carrito {
-        gap: 10px;
-    }
-
-    .encabezado--publico .carrito__cantidad {
-        margin-left: auto;
-        min-width: 22px;
-        height: 22px;
-    }
-
-    .encabezado--publico .carrito__icono {
-        width: 20px;
-        height: 20px;
-    }
+    .encabezado--publico .carrito { gap: 10px; }
+    .encabezado--publico .carrito__cantidad { margin-left: auto; min-width: 22px; height: 22px; }
+    .encabezado--publico .carrito__icono { width: 20px; height: 20px; }
 
     .encabezado--publico .encabezado__acceso,
     .encabezado--publico .cuenta {
@@ -130,15 +119,6 @@
         font-size: 14px;
     }
 
-    .encabezado--publico .cuenta__activador {
-        justify-content: space-between;
-        min-height: 48px;
-    }
-
-    .encabezado--publico .cuenta__desplegable {
-        position: static;
-        width: 100%;
-        margin-top: 8px;
-        box-shadow: none;
-    }
+    .encabezado--publico .cuenta__activador { justify-content: space-between; min-height: 48px; }
+    .encabezado--publico .cuenta__desplegable { position: static; width: 100%; margin-top: 8px; box-shadow: none; }
 }

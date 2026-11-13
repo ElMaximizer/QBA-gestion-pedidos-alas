@@ -4,9 +4,7 @@ declare(strict_types=1);
 use App\Controllers\AccesoController;
 use App\Controllers\AccesoEquipoController;
 use App\Controllers\CarritoController;
-use App\Controllers\ComprobanteTransferenciaController;
 use App\Controllers\ContactoController;
-use App\Controllers\CuentaClienteController;
 use App\Controllers\ConsultasEquipoController;
 use App\Controllers\ContenidoInicioController;
 use App\Controllers\InicioController;
@@ -14,10 +12,8 @@ use App\Controllers\InformacionController;
 use App\Controllers\NosotrosController;
 use App\Controllers\GestionProductoController;
 use App\Controllers\PanelEquipoController;
-use App\Controllers\EstadisticasEquipoController;
 use App\Controllers\PedidosEquipoController;
 use App\Controllers\PedidoController;
-use App\Controllers\PedidosClienteController;
 use App\Controllers\PermisosEquipoController;
 use App\Controllers\PersonalEquipoController;
 use App\Controllers\ProductoController;
@@ -27,7 +23,6 @@ use App\Controllers\RegistroPedidoEquipoController;
 use App\Controllers\StockEquipoController;
 use App\Controllers\SolicitudesEquipoController;
 use App\Controllers\EntregasMercaderiaController;
-use App\Controllers\VentasEquipoController;
 
 // Nombre interno => [dirección pública, controlador, acción, métodos].
 return [
@@ -36,179 +31,35 @@ return [
     'aviso-legal' => ['aviso-legal', InformacionController::class, 'legal', ['GET', 'HEAD']],
     'como-comprar' => ['como-comprar', InformacionController::class, 'comprar', ['GET', 'HEAD']],
     'contacto' => ['contacto', ContactoController::class, 'index', ['GET', 'HEAD', 'POST']],
-    'contacto-enviado' => [
-        'contacto/enviado',
-        ContactoController::class,
-        'enviado',
-        ['GET', 'HEAD'],
-    ],
+    'contacto-enviado' => ['contacto/enviado', ContactoController::class, 'enviado', ['GET', 'HEAD']],
     'productos' => ['productos', ProductoController::class, 'index', ['GET', 'HEAD']],
     'producto' => ['producto', ProductoController::class, 'ver', ['GET', 'HEAD']],
     'carrito' => ['carrito', CarritoController::class, 'index', ['GET', 'HEAD', 'POST']],
-    'realizar-pedido' => [
-        'pedidos/realizar',
-        PedidoController::class,
-        'crear',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'pedido-confirmado' => [
-        'pedidos/confirmado',
-        PedidoController::class,
-        'confirmado',
-        ['GET', 'HEAD'],
-    ],
-    'cliente-pedidos' => ['clientes/pedidos', PedidosClienteController::class, 'index', ['GET', 'HEAD']],
-    'cliente-cuenta' => ['clientes/cuenta', CuentaClienteController::class, 'index', ['GET', 'HEAD', 'POST']],
-    'cliente-cuenta-eliminar' => ['clientes/cuenta/eliminar', CuentaClienteController::class, 'eliminar', ['GET', 'HEAD', 'POST']],
-    'cliente-transferencia-enviada' => ['clientes/pedidos/transferencia-enviada', PedidosClienteController::class, 'informarTransferencia', ['POST']],
-    'equipo-comprobante-transferencia' => ['equipo/pedidos/comprobante', ComprobanteTransferenciaController::class, 'ver', ['GET', 'HEAD']],
-    'registro' => [
-        'clientes/registro',
-        RegistroController::class,
-        'index',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'verificar-cuenta' => [
-        'clientes/verificar',
-        RegistroController::class,
-        'verificar',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'registro-completado' => [
-        'clientes/registro-completado',
-        RegistroController::class,
-        'completado',
-        ['GET', 'HEAD'],
-    ],
-    'cliente-login' => [
-        'clientes/login',
-        AccesoController::class,
-        'index',
-        ['GET', 'HEAD', 'POST'],
-    ],
+    'realizar-pedido' => ['pedidos/realizar', PedidoController::class, 'crear', ['GET', 'HEAD', 'POST']],
+    'pedido-confirmado' => ['pedidos/confirmado', PedidoController::class, 'confirmado', ['GET', 'HEAD']],
+    'registro' => ['clientes/registro', RegistroController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'verificar-cuenta' => ['clientes/verificar', RegistroController::class, 'verificar', ['GET', 'HEAD', 'POST']],
+    'registro-completado' => ['clientes/registro-completado', RegistroController::class, 'completado', ['GET', 'HEAD']],
+    'cliente-login' => ['clientes/login', AccesoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'cerrar-sesion' => ['clientes/salir', AccesoController::class, 'salir', ['POST']],
-    'equipo-registro' => [
-        'equipo/registro',
-        RegistroEquipoController::class,
-        'index',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'equipo-solicitud-enviada' => [
-        'equipo/solicitud-enviada',
-        RegistroEquipoController::class,
-        'enviado',
-        ['GET', 'HEAD'],
-    ],
-    'equipo-login' => [
-        'equipo/login',
-        AccesoEquipoController::class,
-        'index',
-        ['GET', 'HEAD', 'POST'],
-    ],
+    'equipo-registro' => ['equipo/registro', RegistroEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-solicitud-enviada' => ['equipo/solicitud-enviada', RegistroEquipoController::class, 'enviado', ['GET', 'HEAD']],
+    'equipo-login' => ['equipo/login', AccesoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
     'equipo-panel' => ['equipo/panel', PanelEquipoController::class, 'index', ['GET', 'HEAD']],
-    'equipo-estadisticas' => ['equipo/estadisticas', EstadisticasEquipoController::class, 'index', ['GET', 'HEAD']],
-    'equipo-ventas' => ['equipo/ventas', VentasEquipoController::class, 'index', ['GET', 'HEAD']],
-    'equipo-consultas' => [
-        'equipo/consultas',
-        ConsultasEquipoController::class,
-        'index',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'equipo-solicitudes' => [
-        'equipo/solicitudes',
-        SolicitudesEquipoController::class,
-        'index',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'equipo-contenido-inicio' => [
-        'equipo/contenido-inicio',
-        ContenidoInicioController::class,
-        'index',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'equipo-pedidos' => [
-        'equipo/pedidos',
-        PedidosEquipoController::class,
-        'index',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'equipo-pedido-detalle' => [
-        'equipo/pedidos/detalle',
-        PedidosEquipoController::class,
-        'detalle',
-        ['GET', 'HEAD'],
-    ],
-    'equipo-pedido-registrar' => [
-        'equipo/pedidos/registrar',
-        RegistroPedidoEquipoController::class,
-        'index',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'equipo-pedido-editar' => [
-        'equipo/pedidos/editar',
-        RegistroPedidoEquipoController::class,
-        'editar',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'equipo-permisos' => [
-        'equipo/permisos',
-        PermisosEquipoController::class,
-        'index',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'equipo-personal' => [
-        'equipo/personal',
-        PersonalEquipoController::class,
-        'index',
-        ['GET', 'HEAD'],
-    ],
+    'equipo-consultas' => ['equipo/consultas', ConsultasEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-solicitudes' => ['equipo/solicitudes', SolicitudesEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-contenido-inicio' => ['equipo/contenido-inicio', ContenidoInicioController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-pedidos' => ['equipo/pedidos', PedidosEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-pedido-registrar' => ['equipo/pedidos/registrar', RegistroPedidoEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-pedido-editar' => ['equipo/pedidos/editar', RegistroPedidoEquipoController::class, 'editar', ['GET', 'HEAD', 'POST']],
+    'equipo-permisos' => ['equipo/permisos', PermisosEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-personal' => ['equipo/personal', PersonalEquipoController::class, 'index', ['GET', 'HEAD']],
     'equipo-cerrar-sesion' => ['equipo/salir', AccesoEquipoController::class, 'salir', ['POST']],
-    'equipo-productos' => [
-        'equipo/productos',
-        GestionProductoController::class,
-        'index',
-        ['GET', 'HEAD'],
-    ],
-    'equipo-stock' => [
-        'equipo/stock',
-        StockEquipoController::class,
-        'index',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'equipo-mercaderia' => [
-        'equipo/stock/entregas',
-        EntregasMercaderiaController::class,
-        'index',
-        ['GET', 'HEAD'],
-    ],
-    'mercaderia-registrar' => [
-        'equipo/stock/entregas/registrar',
-        EntregasMercaderiaController::class,
-        'registrar',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'producto-agregar' => [
-        'equipo/productos/agregar',
-        GestionProductoController::class,
-        'agregar',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'producto-editar' => [
-        'equipo/productos/editar',
-        GestionProductoController::class,
-        'editar',
-        ['GET', 'HEAD', 'POST'],
-    ],
-    'producto-estado' => [
-        'equipo/productos/estado',
-        GestionProductoController::class,
-        'estado',
-        ['POST'],
-    ],
-    'producto-eliminar' => [
-        'equipo/productos/eliminar',
-        GestionProductoController::class,
-        'eliminar',
-        ['GET', 'HEAD', 'POST'],
-    ],
+    'equipo-productos' => ['equipo/productos', GestionProductoController::class, 'index', ['GET', 'HEAD']],
+    'equipo-stock' => ['equipo/stock', StockEquipoController::class, 'index', ['GET', 'HEAD', 'POST']],
+    'equipo-mercaderia' => ['equipo/stock/entregas', EntregasMercaderiaController::class, 'index', ['GET', 'HEAD']],
+    'mercaderia-registrar' => ['equipo/stock/entregas/registrar', EntregasMercaderiaController::class, 'registrar', ['GET', 'HEAD', 'POST']],
+    'producto-agregar' => ['equipo/productos/agregar', GestionProductoController::class, 'agregar', ['GET', 'HEAD', 'POST']],
+    'producto-editar' => ['equipo/productos/editar', GestionProductoController::class, 'editar', ['GET', 'HEAD', 'POST']],
+    'producto-eliminar' => ['equipo/productos/eliminar', GestionProductoController::class, 'eliminar', ['GET', 'HEAD', 'POST']],
 ];
