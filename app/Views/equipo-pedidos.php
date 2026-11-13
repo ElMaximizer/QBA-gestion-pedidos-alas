@@ -4,6 +4,11 @@
     $hayFiltros = $busqueda !== '' || $estado !== '' || $fecha !== '';
     $filtrosLimpios = $modoVista === 'lista' ? ['vista' => 'lista'] : [];
     $fechasVisibles = ['hoy' => 'Hoy', 'proximos' => 'Por entregar desde hoy', 'anteriores' => 'Anteriores'];
+    $accionesAvance = [
+        'En preparación' => 'Iniciar preparación',
+        'Listo para retirar' => 'Marcar listo para retirar',
+        'Entregado' => 'Marcar como entregado',
+    ];
     ?>
     <div class="titulo-pagina">
         <span class="etiqueta">ATENCIÓN DEL EQUIPO</span>
@@ -230,6 +235,14 @@
                         $estadoSeleccionado = $estadoEnviado;
                     }
                     $idControlEstado = 'pedido-estado-' . $pedido['id_pedido'];
+                    $esAvanceDirecto = count($estadosDisponibles) === 1;
+                    $textoAccionEstado = 'Guardar nuevo estado';
+                    if ($estadoSeleccionado !== '') {
+                        $textoAccionEstado = 'Cambiar a ' . $estadoSeleccionado;
+                    }
+                    if ($esAvanceDirecto) {
+                        $textoAccionEstado = $accionesAvance[$estadoSeleccionado] ?? $textoAccionEstado;
+                    }
                     ?>
                     <form class="equipo-pedido__estado-form" method="post" action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>"
                         data-confirmar-estado data-numero-pedido="<?= (int) $pedido['id_pedido'] ?>"
@@ -239,26 +252,41 @@
                         <input type="hidden" name="accion" value="actualizar_estado">
                         <input type="hidden" name="id_pedido" value="<?= $pedido['id_pedido'] ?>">
                         <p class="equipo-pedido__estado-contexto" id="<?= $idControlEstado ?>-actual">Estado actual: <strong><?= $escapar($pedido['estado']) ?></strong></p>
-                        <label class="campo" for="<?= $idControlEstado ?>">
-                            <span>Nuevo estado <span class="solo-lectores">del pedido #<?= (int) $pedido['id_pedido'] ?></span></span>
-                            <select class="campo__entrada" name="estado_nuevo" required id="<?= $idControlEstado ?>"
-                                aria-describedby="<?= $idControlEstado ?>-actual<?= $errorEstado !== '' ? ' ' . $idControlEstado . '-error' : '' ?>"
-                                <?= $errorEstado !== '' ? 'aria-invalid="true"' : '' ?>>
-                                <option value="" <?= $estadoSeleccionado === '' ? 'selected' : '' ?> disabled>Elegí un nuevo estado</option>
-                                <?php foreach ($estadosDisponibles as $estadoOpcion): ?>
-                                    <option value="<?= $escapar($estadoOpcion) ?>" <?= $estadoOpcion === $estadoSeleccionado ? 'selected' : '' ?>>
-                                        <?= $escapar($estadoOpcion) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </label>
-                        <button class="boton boton--dorado" type="submit" data-guardar-estado>
-                            <?= $estadoSeleccionado !== '' ? 'Cambiar a ' . $escapar($estadoSeleccionado) : 'Guardar nuevo estado' ?>
+                        <?php if ($esAvanceDirecto): ?>
+                            <input type="hidden" name="estado_nuevo" value="<?= $escapar($estadoSeleccionado) ?>">
+                        <?php else: ?>
+                            <label class="campo" for="<?= $idControlEstado ?>">
+                                <span>Nuevo estado <span class="solo-lectores">del pedido #<?= (int) $pedido['id_pedido'] ?></span></span>
+                                <select class="campo__entrada" name="estado_nuevo" required id="<?= $idControlEstado ?>"
+                                    aria-describedby="<?= $idControlEstado ?>-actual <?= $idControlEstado ?>-ayuda<?= $errorEstado !== '' ? ' ' . $idControlEstado . '-error' : '' ?>"
+                                    <?= $errorEstado !== '' ? 'aria-invalid="true"' : '' ?>>
+                                    <option value="" <?= $estadoSeleccionado === '' ? 'selected' : '' ?> disabled>Elegí un nuevo estado</option>
+                                    <?php foreach ($estadosDisponibles as $estadoOpcion): ?>
+                                        <option value="<?= $escapar($estadoOpcion) ?>" <?= $estadoOpcion === $estadoSeleccionado ? 'selected' : '' ?>>
+                                            <?= $escapar($estadoOpcion) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                        <?php endif; ?>
+                        <button class="boton boton--dorado" type="submit" data-guardar-estado
+                            <?= $esAvanceDirecto ? 'id="' . $idControlEstado . '"' : '' ?>
+                            data-texto-avance="<?= $esAvanceDirecto ? $escapar($textoAccionEstado) : '' ?>"
+                            aria-label="<?= $escapar($textoAccionEstado) ?> del pedido #<?= (int) $pedido['id_pedido'] ?>"
+                            aria-describedby="<?= $idControlEstado ?>-actual <?= $idControlEstado ?>-ayuda<?= $errorEstado !== '' ? ' ' . $idControlEstado . '-error' : '' ?>">
+                            <?= $escapar($textoAccionEstado) ?>
                         </button>
+                        <p class="equipo-pedido__estado-ayuda" id="<?= $idControlEstado ?>-ayuda">
+                            <?= $esAvanceDirecto && $estadoSeleccionado === 'Entregado'
+                                ? 'Marcá como entregado cuando el cliente ya recibió el pedido. El estado del pago se conserva.'
+                                : 'El cambio se aplica al guardar. El estado del pago se conserva.' ?>
+                        </p>
                         <?php if ($errorEstado !== ''): ?>
                             <p class="equipo-pedido__estado-error" id="<?= $idControlEstado ?>-error"><?= $escapar($errorEstado) ?></p>
                         <?php endif; ?>
                     </form>
+                <?php elseif ($esEmpleado && in_array($pedido['estado'], ['Entregado', 'Cancelado'], true)): ?>
+                    <p class="equipo-pedido__estado-cerrado">Este pedido <?= $pedido['estado'] === 'Entregado' ? 'ya fue entregado' : 'está cancelado' ?>. Para corregir su estado, consultá al dueño.</p>
                 <?php endif; ?>
                 <div class="equipo-pedido__acciones">
                     <a class="boton boton--contorno"

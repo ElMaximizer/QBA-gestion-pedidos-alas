@@ -698,6 +698,21 @@ subtotales y el total del pedido. Los pedidos cancelados o entregados se
 identifican expresamente. El regreso al listado conserva sus
 filtros y página. La consulta funciona sin JavaScript y no requiere cambios SQL.
 
+## HU13 — Actualizar el estado de un pedido como empleado
+
+El listado del equipo muestra el estado actual y el próximo avance autorizado.
+Cuando existe una sola opción, se ofrece directamente **Iniciar preparación**,
+**Marcar listo para retirar** o **Marcar como entregado**, según el pedido y su
+modalidad. El servidor mantiene la validación de los cambios permitidos para
+cada rol; administrador y dueño conservan su selector cuando tienen varias
+opciones. Los pedidos cerrados indican al empleado cómo solicitar una corrección.
+
+El cambio de estado conserva el estado del pago. Los errores identifican el
+número de pedido y aparecen junto a la acción. Con JavaScript, el botón muestra
+el guardado en curso y permanece bloqueado aunque se cambie el selector; al
+volver mediante el navegador se restablece. El envío funciona sin JavaScript
+con POST y CSRF y conserva los filtros del listado. No requiere cambios de SQL.
+
 ## HU02 — Cambiar el estado de un pedido
 
 En el listado del equipo, cada pedido muestra su estado actual y un selector de

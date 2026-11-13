@@ -235,11 +235,29 @@
 }
 
 .equipo-pedido__estado-contexto,
-.equipo-pedido__estado-error {
+.equipo-pedido__estado-error,
+.equipo-pedido__estado-ayuda {
     flex-basis: 100%;
     margin: 0;
     font-size: 14px;
     line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.equipo-pedido__estado-ayuda {
+    color: var(--muted, #766b61);
+}
+
+.equipo-pedido__estado-cerrado {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border, #e5d9c9);
+    border-radius: 8px;
+    color: var(--muted, #766b61);
+    background: var(--cream, #f6f2ea);
+    font-size: 14px;
+    line-height: 1.6;
     overflow-wrap: anywhere;
 }
 
@@ -345,7 +363,8 @@
     }
 
     .equipo-pedido__estado-contexto,
-    .equipo-pedido__estado-error {
+    .equipo-pedido__estado-error,
+    .equipo-pedido__estado-ayuda {
         flex-basis: auto;
     }
 

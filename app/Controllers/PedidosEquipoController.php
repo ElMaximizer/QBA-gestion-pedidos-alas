@@ -105,11 +105,13 @@ final class PedidosEquipoController
                 if (http_response_code() < 400) {
                     http_response_code(422);
                 }
-                $error = ($idPagoEnviado !== null ? 'Pedido #' . $idPagoEnviado . ': ' : '') . $excepcion->getMessage();
+                $idPedidoError = $idPagoEnviado ?? $idEstadoEnviado;
+                $error = ($idPedidoError !== null ? 'Pedido #' . $idPedidoError . ': ' : '') . $excepcion->getMessage();
             } catch (Throwable $excepcion) {
                 error_log('Gestión de pedidos: falló una actualización (' . $excepcion::class . ').');
                 http_response_code(503);
-                $error = ($idPagoEnviado !== null ? 'Pedido #' . $idPagoEnviado . ': ' : '') . 'No pudimos guardar el cambio. Intentá nuevamente.';
+                $idPedidoError = $idPagoEnviado ?? $idEstadoEnviado;
+                $error = ($idPedidoError !== null ? 'Pedido #' . $idPedidoError . ': ' : '') . 'No pudimos guardar el cambio. Intentá nuevamente.';
             }
         }
 
@@ -161,6 +163,7 @@ final class PedidosEquipoController
                 'puedeRegistrarPagoLocal' => $puedeRegistrarPagoLocal,
                 'puedeDecidirTransferencias' => $puedeDecidirTransferencias,
                 'puedeActualizarEstado' => $puedeActualizarEstado,
+                'esEmpleado' => $usuario['rol'] === 'empleado',
                 'puedeVerEstadisticas' => in_array(
                     $usuario['rol'],
                     ['administrador', 'dueno'],
