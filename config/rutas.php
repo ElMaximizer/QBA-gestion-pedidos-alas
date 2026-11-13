@@ -4,6 +4,7 @@ declare(strict_types=1);
 use App\Controllers\AccesoController;
 use App\Controllers\AccesoEquipoController;
 use App\Controllers\CarritoController;
+use App\Controllers\CatalogoEquipoController;
 use App\Controllers\ComprobanteTransferenciaController;
 use App\Controllers\ContactoController;
 use App\Controllers\CuentaClienteController;
@@ -163,6 +164,12 @@ return [
         ['GET', 'HEAD'],
     ],
     'equipo-cerrar-sesion' => ['equipo/salir', AccesoEquipoController::class, 'salir', ['POST']],
+    'equipo-catalogo' => [
+        'equipo/catalogo',
+        CatalogoEquipoController::class,
+        'index',
+        ['GET', 'HEAD'],
+    ],
     'equipo-productos' => [
         'equipo/productos',
         GestionProductoController::class,

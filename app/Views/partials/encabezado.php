@@ -21,6 +21,7 @@
                 'css/mercaderia.css' => '?v=20261113-1',
                 'css/equipo-personal.css' => '?v=20261113-2',
                 'css/equipo-pedido-form.css' => '?v=20261113-1',
+                'css/equipo-catalogo.css' => '?v=20261113-1',
                 default => '',
             };
             ?>

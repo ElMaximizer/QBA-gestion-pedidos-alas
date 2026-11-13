@@ -18,6 +18,8 @@
             <p class="panel-estadistica__detalle"><?= $resumenProductos['categorias'] ?> <?= $resumenProductos['categorias'] === 1 ? 'categoría disponible' : 'categorías disponibles' ?></p>
             <?php if ($administraProductos): ?>
                 <a class="panel-estadistica__enlace" href="<?= $url('equipo-productos') ?>">Administrar productos <span aria-hidden="true">→</span></a>
+            <?php elseif ($usuario['rol'] === 'empleado'): ?>
+                <a class="panel-estadistica__enlace" href="<?= $url('equipo-catalogo') ?>">Consultar productos <span aria-hidden="true">→</span></a>
             <?php endif; ?>
         </article>
         <article class="tarjeta panel-estadistica">

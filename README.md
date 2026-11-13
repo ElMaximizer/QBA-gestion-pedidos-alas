@@ -713,6 +713,24 @@ el guardado en curso y permanece bloqueado aunque se cambie el selector; al
 volver mediante el navegador se restablece. El envío funciona sin JavaScript
 con POST y CSRF y conserva los filtros del listado. No requiere cambios de SQL.
 
+## HU14 — Consultar productos como empleado
+
+El empleado accede a **Productos** desde el menú del equipo o desde la tarjeta
+**Productos activos** del panel. La consulta de `/equipo/catalogo` es de solo
+lectura, exige una cuenta aprobada del equipo y utiliza los productos activos
+del catálogo existente, excluyendo los eliminados.
+
+Permite buscar por nombre y filtrar por categoría. Cada ficha muestra imagen,
+código, descripción, precio con centavos cuando corresponde y presentación.
+**Ingredientes y alérgenos** despliega la información sin salir de la consulta;
+si no está registrada, se indica expresamente. Todos los filtros y desplegables
+funcionan sin JavaScript.
+
+Administrador y dueño conservan la gestión de productos y sus permisos. La nueva
+pantalla no ofrece acciones de edición ni carrito; no requiere cambios de SQL.
+El formato de precios del catálogo permite mostrar centavos mediante el helper
+existente, conservando el comportamiento predeterminado de las demás vistas.
+
 ## HU02 — Cambiar el estado de un pedido
 
 En el listado del equipo, cada pedido muestra su estado actual y un selector de

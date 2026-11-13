@@ -28,6 +28,10 @@
                 <a class="boton <?= $seccionActiva === 'contenido' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace"
                     href="<?= $url('equipo-contenido-inicio') ?>"
                     <?= $seccionActiva === 'contenido' ? 'aria-current="page"' : '' ?>>Contenido del inicio</a>
+            <?php elseif (($equipoActual['rol'] ?? '') === 'empleado'): ?>
+                <a class="boton <?= $seccionActiva === 'productos' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace"
+                    href="<?= $url('equipo-catalogo') ?>"
+                    <?= $seccionActiva === 'productos' ? 'aria-current="page"' : '' ?>>Productos</a>
             <?php endif; ?>
             <a class="boton <?= $seccionActiva === 'pedidos' ? 'boton--azul' : 'boton--contorno' ?> navegacion-equipo__enlace"
                 href="<?= $url('equipo-pedidos') ?>"

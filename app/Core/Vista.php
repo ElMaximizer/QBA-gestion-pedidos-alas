@@ -116,6 +116,10 @@ final class Vista
             $scripts[] = 'js/productos.js';
         }
 
+        if ($vista === 'equipo-catalogo') {
+            $estilos[] = 'css/equipo-catalogo.css';
+        }
+
         if ($esGestionStock) {
             $estilos[] = 'css/equipo-stock.css';
             $scripts[] = 'js/equipo-stock.js';
@@ -181,8 +185,9 @@ final class Vista
             'escapar' => static function (mixed $texto): string {
                 return htmlspecialchars((string) $texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
             },
-            'dinero' => static function (int $centavos): string {
-                return '$ ' . number_format($centavos / 100, 0, ',', '.');
+            'dinero' => static function (int $centavos, bool $mostrarCentavos = false): string {
+                $decimales = $mostrarCentavos && $centavos % 100 !== 0 ? 2 : 0;
+                return '$ ' . number_format($centavos / 100, $decimales, ',', '.');
             },
             'url' => static function (string $ruta, array $parametros = []): string {
                 return Rutas::url($ruta, $parametros);
