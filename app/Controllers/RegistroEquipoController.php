@@ -25,9 +25,17 @@ final class RegistroEquipoController
                 foreach (array_keys($datos) as $campo) {
                     $datos[$campo] = Http::texto($_POST, $campo);
                 }
-                $usuario = (new RegistroEquipo(Conexion::obtener()))->solicitar($datos['nombre'], $datos['cedula'], $datos['email'],
-                    Http::cadena($_POST, 'password'), Http::cadena($_POST, 'confirm_password'));
-                $_SESSION['qba']['solicitud_equipo'] = ['creado' => time(), 'correo_enviado' => $usuario['correo_enviado']];
+                $usuario = (new RegistroEquipo(Conexion::obtener()))->solicitar(
+                    $datos['nombre'],
+                    $datos['cedula'],
+                    $datos['email'],
+                    Http::cadena($_POST, 'password'),
+                    Http::cadena($_POST, 'confirm_password'),
+                );
+                $_SESSION['qba']['solicitud_equipo'] = [
+                    'creado' => time(),
+                    'correo_enviado' => $usuario['correo_enviado'],
+                ];
                 Http::redirigir('equipo-solicitud-enviada');
             } catch (DomainException $excepcion) {
                 http_response_code(422);
@@ -38,8 +46,11 @@ final class RegistroEquipoController
                 $error = 'No pudimos guardar tu solicitud en este momento. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('equipo-registro', ['tituloPagina' => 'Solicitar usuario | Panadería Rustic',
-            'datos' => $datos, 'error' => $error]);
+        Vista::mostrar('equipo-registro', [
+            'tituloPagina' => 'Solicitar usuario | Panadería Rustic',
+            'datos' => $datos,
+            'error' => $error,
+        ]);
     }
 
     public function enviado(): void
@@ -50,7 +61,9 @@ final class RegistroEquipoController
             unset($_SESSION['qba']['solicitud_equipo']);
             Http::redirigir('equipo-registro');
         }
-        Vista::mostrar('equipo-solicitud-enviada', ['tituloPagina' => 'Solicitud recibida | Panadería Rustic',
-            'correoEnviado' => $solicitud['correo_enviado']]);
+        Vista::mostrar('equipo-solicitud-enviada', [
+            'tituloPagina' => 'Solicitud recibida | Panadería Rustic',
+            'correoEnviado' => $solicitud['correo_enviado'],
+        ]);
     }
 }

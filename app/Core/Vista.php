@@ -12,27 +12,73 @@ final class Vista
         extract(self::contexto(), EXTR_SKIP);
         $administraProductos = Sesion::administraProductos();
         $seccionActiva = $variables['seccionActiva'] ?? '';
-        $esGestionProducto = in_array($vista, ['equipo-productos', 'equipo-producto-form', 'equipo-producto-eliminar'], true);
+        $esGestionProducto = in_array(
+            $vista,
+            ['equipo-productos', 'equipo-producto-form', 'equipo-producto-eliminar'],
+            true,
+        );
         $esGestionStock = $vista === 'equipo-stock';
         $esPersonalEquipo = $vista === 'equipo-personal';
-        $esPanel = ($variables['layoutEquipo'] ?? false) || in_array($vista, ['equipo-panel', 'equipo-contenido-inicio'], true)
-            || $esGestionProducto || $esGestionStock || $esPersonalEquipo;
-        $esRegistro = in_array($vista, ['cliente-login', 'cliente-registro', 'cliente-verificar', 'registro-completado',
-            'equipo-registro', 'equipo-solicitud-enviada', 'equipo-login'], true);
-        $estilos = $vista === 'inicio' ? [] : ['css/componentes.css',
-            $esPanel ? 'css/panel.css' : ($esRegistro ? 'css/registro.css' : 'css/pedidos.css')];
-        $scripts = in_array($vista, ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login'], true) ? ['js/registro.js'] : [];
+        $esPanel =
+            ($variables['layoutEquipo'] ?? false) ||
+            in_array($vista, ['equipo-panel', 'equipo-contenido-inicio'], true) ||
+            $esGestionProducto ||
+            $esGestionStock ||
+            $esPersonalEquipo;
+        $esRegistro = in_array(
+            $vista,
+            [
+                'cliente-login',
+                'cliente-registro',
+                'cliente-verificar',
+                'registro-completado',
+                'equipo-registro',
+                'equipo-solicitud-enviada',
+                'equipo-login',
+            ],
+            true,
+        );
+        $estilos = [];
+        if ($vista !== 'inicio') {
+            $estilos[] = 'css/componentes.css';
+
+            if ($esPanel) {
+                $estilos[] = 'css/panel.css';
+            } elseif ($esRegistro) {
+                $estilos[] = 'css/registro.css';
+            } else {
+                $estilos[] = 'css/pedidos.css';
+            }
+        }
+
+        $scripts = [];
+        if (
+            in_array(
+                $vista,
+                ['cliente-login', 'cliente-registro', 'equipo-registro', 'equipo-login', 'cliente-cuenta', 'cliente-cuenta-eliminar'],
+                true,
+            )
+        ) {
+            $scripts[] = 'js/registro.js';
+        }
 
         $estilos[] = 'css/navegacion.css';
+        if (in_array($vista, ['cliente-cuenta', 'cliente-cuenta-eliminar'], true)) {
+            $estilos[] = 'css/cuenta-cliente.css';
+        }
         $scripts[] = 'js/navegacion.js';
+        if (in_array($vista, ['inicio', 'productos'], true)) {
+            $estilos[] = 'css/producto-compra.css';
+        }
 
         if (!$esPanel) {
             $estilos[] = 'css/carrito.css';
             $scripts[] = 'js/carrito.js';
         }
 
-        if ($vista === 'inicio') {
-            $scripts[] = 'js/carrusel-inicio.js';
+        if ($vista === 'realizar-pedido') {
+            $estilos[] = 'css/entrega-pedido.css';
+            $scripts[] = 'js/entrega-pedido.js';
         }
 
         if ($vista === 'equipo-contenido-inicio') {
@@ -41,6 +87,15 @@ final class Vista
 
         if (in_array($vista, ['equipo-consultas', 'equipo-solicitudes'], true)) {
             $estilos[] = 'css/bandeja-equipo.css';
+        }
+
+        if ($vista === 'cliente-pedidos') {
+            $estilos[] = 'css/cliente-pedidos.css';
+        }
+
+        if (in_array($vista, ['pedido-confirmado', 'cliente-pedidos', 'cliente-transferencia'], true)) {
+            $estilos[] = 'css/transferencia-pedido.css';
+            $scripts[] = 'js/transferencia-pedido.js';
         }
 
         if ($vista === 'nosotros') {
@@ -57,22 +112,31 @@ final class Vista
 
         if ($esGestionProducto) {
             $estilos[] = 'css/gestion-productos.css';
+            $scripts[] = 'js/productos.js';
+        }
+
+        if ($vista === 'equipo-catalogo') {
+            $estilos[] = 'css/equipo-catalogo.css';
         }
 
         if ($esGestionStock) {
             $estilos[] = 'css/equipo-stock.css';
+            $scripts[] = 'js/equipo-stock.js';
         }
 
         if (in_array($vista, ['equipo-entregas-mercaderia', 'equipo-mercaderia-form'], true)) {
             $estilos[] = 'css/mercaderia.css';
-
-            if ($vista === 'equipo-mercaderia-form') {
-                $scripts[] = 'js/mercaderia.js';
-            }
+            $scripts[] = 'js/mercaderia.js';
         }
 
-        if ($vista === 'equipo-pedidos') {
+        if (in_array($vista, ['equipo-pedidos', 'equipo-pedido-cancelacion'], true)) {
             $estilos[] = 'css/equipo-pedidos.css';
+            $scripts[] = 'js/pedido-equipo.js';
+        }
+
+        if ($vista === 'equipo-ventas') {
+            $estilos[] = 'css/equipo-ventas.css';
+            $scripts[] = 'js/consulta-filtros.js';
         }
 
         if ($vista === 'equipo-pedido-form') {
@@ -80,16 +144,19 @@ final class Vista
             $scripts[] = 'js/pedido-equipo.js';
         }
 
+        if ($vista === 'equipo-pedido-detalle') {
+            $estilos[] = 'css/equipo-pedido-detalle.css';
+        }
+
         if ($esPersonalEquipo) {
             $estilos[] = 'css/equipo-personal.css';
+            $scripts[] = 'js/consulta-filtros.js';
         }
 
-        if ($vista === 'equipo-producto-form') {
-            $scripts[] = 'js/productos.js';
+        if ($esPanel) {
+            $estilos[] = 'css/tema-rustic.css';
+            $estilos[] = 'css/tema-rustic-americana.css';
         }
-
-        $estilos[] = 'css/tema-rustic.css';
-        $estilos[] = 'css/tema-rustic-americana.css';
 
         extract($variables, EXTR_SKIP);
 
@@ -116,10 +183,19 @@ final class Vista
     private static function contexto(): array
     {
         return [
-            'escapar' => static fn (mixed $texto): string => htmlspecialchars((string) $texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'),
-            'dinero' => static fn (int $centavos): string => '$ ' . number_format($centavos / 100, 0, ',', '.'),
-            'url' => static fn (string $ruta, array $parametros = []): string => Rutas::url($ruta, $parametros),
-            'recurso' => static fn (string $archivo): string => Rutas::recurso($archivo),
+            'escapar' => static function (mixed $texto): string {
+                return htmlspecialchars((string) $texto, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+            },
+            'dinero' => static function (int $centavos, bool $mostrarCentavos = false): string {
+                $decimales = $mostrarCentavos && $centavos % 100 !== 0 ? 2 : 0;
+                return '$ ' . number_format($centavos / 100, $decimales, ',', '.');
+            },
+            'url' => static function (string $ruta, array $parametros = []): string {
+                return Rutas::url($ruta, $parametros);
+            },
+            'recurso' => static function (string $archivo): string {
+                return Rutas::recurso($archivo);
+            },
             'clienteActual' => Sesion::cliente(),
             'equipoActual' => Sesion::equipo(),
             'csrf' => Sesion::csrf(),

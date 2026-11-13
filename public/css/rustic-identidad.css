@@ -4,8 +4,8 @@
    ========================================== */
 
 :root {
-    --rustic-terracota:#AD5D43;
-    --rustic-terracota-oscuro: #80432F;
+    --rustic-terracota: #ad5d43;
+    --rustic-terracota-oscuro: #80432f;
     --rustic-texto-claro: #fff8ed;
     --rustic-crema-hover: #f1dfcf;
 
@@ -14,19 +14,18 @@
     --rustic-borde-boton: #fff8ed99;
 }
 
-
 /* ==========================================
    FOOTER
    ========================================== */
 
-.r-footer {
+.pie-rustic {
     background: var(--rustic-terracota);
     color: var(--rustic-texto-claro);
 }
 
 /* Logo */
 
-.r-footer .r-footer__logo {
+.pie-rustic .pie-rustic__logo {
     position: relative;
     display: block;
     width: 142px;
@@ -35,7 +34,7 @@
     overflow: hidden;
 }
 
-.r-footer__logo img {
+.pie-rustic__logo img {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -48,32 +47,57 @@
 
 /* Contenido */
 
-.r-footer .r-footer__top {
+.pie-rustic .pie-rustic__contenido {
     align-items: center;
 }
 
-.r-footer .r-footer__top p {
+.pie-rustic .pie-rustic__contenido p {
     margin: 0 0 26px;
     font-size: 20px;
     line-height: 1.45;
 }
 
-.r-footer .r-footer__base {
+.pie-rustic .pie-rustic__base {
     margin-top: 32px;
     border-top-color: var(--rustic-borde-medio);
 }
 
-.r-footer .r-footer__base,
-.r-footer .r-eyebrow {
+.pie-rustic .pie-rustic__base,
+.pie-rustic .etiqueta-rustic {
     color: var(--rustic-texto-claro);
 }
 
-.r-footer a:hover {
+.pie-rustic a:hover {
     color: var(--rustic-texto-claro);
     text-decoration: underline;
     text-underline-offset: 5px;
 }
 
+.pagina:not(.pagina--equipo) .pie-rustic :focus-visible {
+    outline-color: var(--rustic-texto-claro);
+}
+
+.pie-rustic__sociales {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pie-rustic__red {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--rustic-borde-medio);
+    border-radius: 50%;
+    color: inherit;
+}
+
+.pie-rustic__red:hover {
+    border-color: currentColor;
+    background: var(--rustic-borde-suave);
+}
 
 /* ==========================================
    PANEL DEL EQUIPO: ENCABEZADO
@@ -109,16 +133,22 @@
 
 .pagina--equipo .encabezado-equipo .marca__nombre {
     color: var(--rustic-texto-claro);
-    font: 400 27px/1.15 Georgia, "Times New Roman", serif;
-    letter-spacing: -.02em;
+    font:
+        400 27px/1.15 Georgia,
+        'Times New Roman',
+        serif;
+    letter-spacing: -0.02em;
     white-space: normal;
 }
 
 .pagina--equipo .encabezado-equipo .marca__descripcion {
     margin: 0;
     color: var(--rustic-texto-claro);
-    font: 500 9px/1.5 "Segoe UI", Arial, sans-serif;
-    letter-spacing: .12em;
+    font:
+        500 9px/1.5 'Segoe UI',
+        Arial,
+        sans-serif;
+    letter-spacing: 0.12em;
 }
 
 /* Logo */
@@ -143,7 +173,6 @@
     transform: translate(-50%, -50%);
 }
 
-
 /* ==========================================
    PANEL DEL EQUIPO: NAVEGACIÓN
    ========================================== */
@@ -166,7 +195,7 @@
     color: var(--rustic-texto-claro);
 }
 
-.pagina--equipo .encabezado-equipo .navegacion-equipo__enlace[aria-current="page"] {
+.pagina--equipo .encabezado-equipo .navegacion-equipo__enlace[aria-current='page'] {
     border-color: var(--rustic-texto-claro);
     background: var(--rustic-texto-claro);
     color: var(--rustic-terracota-oscuro);
@@ -197,27 +226,25 @@
     outline-offset: 4px;
 }
 
-
 /* ==========================================
    CELULARES: HASTA 600 PX
    ========================================== */
 
 @media (max-width: 600px) {
-
     /* Footer */
 
-    .r-footer .r-footer__logo {
+    .pie-rustic .pie-rustic__logo {
         width: 122px;
         height: 114px;
         margin-bottom: 14px;
     }
 
-    .r-footer__logo img {
+    .pie-rustic__logo img {
         width: 228px;
         height: 228px;
     }
 
-    .r-footer .r-footer__base {
+    .pie-rustic .pie-rustic__base {
         margin-top: 28px;
     }
 
@@ -243,7 +270,7 @@
     .pagina--equipo .encabezado-equipo .marca__descripcion {
         max-width: 145px;
         font-size: 7px;
-        letter-spacing: .06em;
+        letter-spacing: 0.06em;
     }
 
     /* Logo del equipo */
@@ -260,13 +287,11 @@
     }
 }
 
-
 /* ==========================================
    CELULARES PEQUEÑOS: HASTA 380 PX
    ========================================== */
 
 @media (max-width: 380px) {
-
     .pagina--equipo .encabezado-equipo .marca__nombre {
         font-size: 16px;
     }

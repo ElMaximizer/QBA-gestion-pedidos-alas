@@ -1,0 +1,164 @@
+/* HU14. Consulta de productos activos para el equipo. */
+.catalogo-equipo {
+    min-width: 0;
+}
+
+.catalogo-equipo__filtros {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.catalogo-equipo .campo,
+.catalogo-equipo .campo__entrada {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.catalogo-equipo .boton {
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
+}
+
+.catalogo-equipo__criterio,
+.catalogo-equipo__cantidad {
+    color: var(--muted, #665f55);
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.catalogo-equipo__lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 24px;
+}
+
+.catalogo-equipo .catalogo-equipo__producto {
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    min-width: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.catalogo-equipo__imagen {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 400 / 245;
+    object-fit: cover;
+}
+
+.catalogo-equipo__contenido {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    padding: 20px;
+    overflow-wrap: anywhere;
+}
+
+.catalogo-equipo__codigo {
+    margin: 0;
+    color: var(--muted, #665f55);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.catalogo-equipo__contenido h2 {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.3;
+}
+
+.catalogo-equipo__descripcion {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.catalogo-equipo__precio {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 12px;
+    margin: 0;
+}
+
+.catalogo-equipo__precio strong {
+    color: #7e2525;
+    font-size: 28px;
+    line-height: 1.3;
+}
+
+.catalogo-equipo__precio span {
+    color: var(--muted, #665f55);
+    font-size: 14px;
+}
+
+.catalogo-equipo__informacion {
+    margin-top: auto;
+    border-top: 1px solid var(--border, #ded8cd);
+}
+
+.catalogo-equipo__informacion summary {
+    min-height: 44px;
+    padding: 14px 4px;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.6;
+    cursor: pointer;
+}
+
+.catalogo-equipo .catalogo-equipo__informacion summary:focus-visible {
+    outline: 3px solid #7e2525;
+    outline-offset: -3px;
+}
+
+.catalogo-equipo__informacion dl {
+    display: grid;
+    gap: 16px;
+    margin: 0;
+    padding-bottom: 14px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.catalogo-equipo__informacion dt {
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.catalogo-equipo__informacion dd {
+    margin: 0;
+    white-space: pre-wrap;
+}
+
+.catalogo-equipo > .enlace-texto {
+    margin-top: 28px;
+}
+
+@media (max-width: 760px) {
+    .catalogo-equipo__filtros {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .catalogo-equipo__filtros .boton {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .catalogo-equipo__filtros {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .catalogo-equipo__vacio .vacio__titulo {
+        font-size: 26px;
+    }
+}
