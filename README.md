@@ -784,8 +784,13 @@ permisos siguen controlados por el servidor. Con JavaScript, el envío muestra q
 se está guardando y bloquea temporalmente las acciones de pago del mismo pedido.
 Sin JavaScript, los formularios conservan el envío normal mediante POST y CSRF.
 
+El total del listado muestra los centavos cuando corresponde, sin redondearlos,
+para comprobar el importe exacto antes de registrar efectivo o revisar una
+transferencia. La confirmación conserva la búsqueda, los filtros y la vista.
+
 `php tests/pagos-equipo.php` verifica estados, cobros, comprobantes, revisiones,
-permisos y reenvíos con datos ficticios en una base temporal.
+importes exactos, contexto del listado, permisos y reenvíos con datos ficticios
+en una base temporal. Las pruebas se conservan solo en el entorno local.
 
 ## HU23 — Administrar pedidos como dueño
 

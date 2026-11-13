@@ -111,7 +111,7 @@
                     </div>
                     <div>
                         <dt>Total </dt>
-                        <dd><?= $dinero($pedido['total_centavos']) ?> </dd>
+                        <dd><?= $dinero($pedido['total_centavos'], true) ?> </dd>
                     </div>
                     <div class="equipo-pedido__pago">
                         <dt>Forma de pago</dt>
