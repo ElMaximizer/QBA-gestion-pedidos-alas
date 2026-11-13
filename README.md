@@ -844,6 +844,12 @@ guardan en una transacción: si falla una parte, se revierte todo. Un formulario
 anterior no sobrescribe modificaciones recientes y reenviar el mismo formulario
 no repite el cambio. Guardar sin modificar datos no genera una entrada adicional.
 
+El historial muestra los importes y precios unitarios con sus centavos cuando
+corresponde. Las correcciones de modalidad y dirección de entrega también
+presentan los valores anteriores y nuevos, incluso cuando son los únicos datos
+modificados. Los registros antiguos que no incluyen esos campos se muestran sin
+reconstruir información ausente.
+
 La instalación incorpora `database/pedido-cambios.sql`, que crea el historial sin
 modificar los pedidos existentes. Se puede aplicar con el instalador habitual o
 ejecutando ese archivo en la base del proyecto, después de `estructura.sql` y

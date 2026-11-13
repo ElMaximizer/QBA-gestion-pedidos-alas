@@ -17,21 +17,33 @@
                         'telefono' => 'Teléfono',
                         'fecha_retiro' => 'Fecha de retiro',
                         'hora_retiro' => 'Hora de retiro',
+                        'modalidad_entrega' => 'Modalidad de entrega',
+                        'direccion_entrega' => 'Dirección de entrega',
                         'notas' => 'Notas',
                         'estado' => 'Estado',
                         'total_centavos' => 'Total'
                     ]
                     as $campo => $etiqueta
                 ): ?>
-                    <?php if ($cambio['antes'][$campo] === $cambio['despues'][$campo]) {
+                    <?php if (!array_key_exists($campo, $cambio['antes'])
+                        || !array_key_exists($campo, $cambio['despues'])
+                        || $cambio['antes'][$campo] === $cambio['despues'][$campo]) {
                         continue;
                     } ?>
                     <div class="pedido-equipo__diferencia">
                         <dt><?= $escapar($etiqueta) ?> </dt>
                         <?php foreach (['antes' => 'Antes', 'despues' => 'Después'] as $momento => $nombreMomento): ?>
-                            <?php $valor = $cambio[$momento][$campo]; ?>
-                            <dd>
-                                <strong><?= $nombreMomento ?>:</strong> <?= $campo === 'total_centavos' ? $dinero($valor) : $escapar($valor === '' ? 'Sin información' : $valor) ?> </dd>
+                            <?php
+                            $valor = $cambio[$momento][$campo];
+                            if ($campo === 'modalidad_entrega') {
+                                $valor = match ($valor) {
+                                    'retiro' => 'Retiro en el local',
+                                    'domicilio' => 'Envío a domicilio',
+                                    default => $valor,
+                                };
+                            }
+                            ?>
+                            <dd><strong><?= $nombreMomento ?>:</strong> <?= $campo === 'total_centavos' ? $dinero($valor, true) : $escapar($valor === '' ? 'Sin información' : $valor) ?></dd>
                         <?php endforeach; ?>
                     </div>
                 <?php endforeach; ?>
@@ -43,7 +55,7 @@
                             <h3 class="pedido-equipo__subtitulo"><?= $nombreMomento ?></h3>
                             <ul class="pedido-equipo__detalle">
                                 <?php foreach ($cambio[$momento]['lineas'] as $linea): ?>
-                                    <li><?= $escapar($linea['nombre']) ?> × <?= $linea['cantidad'] ?> · <?= $dinero($linea['precio']) ?> c/u</li>
+                                    <li><?= $escapar($linea['nombre']) ?> × <?= $linea['cantidad'] ?> · <?= $dinero($linea['precio'], true) ?> c/u</li>
                                 <?php endforeach; ?>
                             </ul>
                         </div>
