@@ -156,16 +156,16 @@
     gap: 16px;
 }
 
-.equipo-stock__item {
+.equipo-stock .equipo-stock__item {
     padding: 22px;
     border-inline-start: 5px solid #477b57;
 }
 
-.equipo-stock__item--bajo {
+.equipo-stock .equipo-stock__item--bajo {
     border-inline-start-color: #bc7a27;
 }
 
-.equipo-stock__item--error {
+.equipo-stock .equipo-stock__item--error {
     border-inline-start-color: #7d2929;
 }
 
@@ -261,7 +261,7 @@
         grid-column: auto;
     }
 
-    .equipo-stock__item {
+    .equipo-stock .equipo-stock__item {
         padding: 18px;
     }
 
