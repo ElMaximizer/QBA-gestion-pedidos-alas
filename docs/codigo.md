@@ -46,6 +46,10 @@ texto recibido de una persona sin interpretarlo como HTML. `$url(...)` prepara
 un enlace interno, `$recurso(...)` localiza una imagen o archivo y `$dinero(...)`
 muestra un importe guardado en centavos.
 
+`App\Core\Importe` comparte las conversiones entre los importes decimales de la
+base y los centavos usados en los cálculos. `App\Services\ImagenComprobante`
+comparte la lectura y validación de los comprobantes enviados por clientes y equipo.
+
 Las vistas usan `if (...):` con `endif;` y `foreach (...):` con `endforeach;`.
 Cada apertura, contenido y cierre debe verse en su nivel de sangría. Los campos
 `textarea` conservan el contenido pegado a sus etiquetas para no agregar espacios
@@ -81,6 +85,9 @@ actualizar su contenido y recuperar el foco del teclado.
 esperar una respuesta del servidor antes de continuar. Los atributos `data-*`
 conectan los controles del HTML con sus scripts; los atributos `aria-*` describen
 su estado para las herramientas de accesibilidad.
+
+`consulta-filtros.js` comparte el estado de consulta y la recuperación del botón
+al volver a la página en los filtros de personal y ventas.
 
 ## Aplicar el formato
 

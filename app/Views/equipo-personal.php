@@ -20,10 +20,10 @@
     </div>
 
     <?php if ($aviso !== ''): ?>
-        <p class="equipo-personal__aviso" role="status" tabindex="-1" data-personal-aviso><?= $escapar($aviso) ?></p>
+        <p class="equipo-personal__aviso" role="status" tabindex="-1" data-consulta-aviso><?= $escapar($aviso) ?></p>
     <?php endif; ?>
     <?php if ($error !== ''): ?>
-        <p class="equipo-personal__error" id="personal-error" role="alert" tabindex="-1" data-personal-aviso><?= $escapar($error) ?></p>
+        <p class="equipo-personal__error" id="personal-error" role="alert" tabindex="-1" data-consulta-aviso><?= $escapar($error) ?></p>
     <?php endif; ?>
 
     <?php if ($puedeEditarRoles): ?>
@@ -100,10 +100,9 @@
                 </form>
             </div>
         </details>
-    <?php else: ?>
     <?php endif; ?>
 
-    <form class="equipo-personal__filtros" method="get" action="<?= $url($rutaPersonal) ?>" data-personal-filtros>
+    <form class="equipo-personal__filtros" method="get" action="<?= $url($rutaPersonal) ?>" data-consulta-filtros>
         <label class="equipo-personal__campo">
             <span>Buscar por nombre o correo</span>
             <input type="search" name="q" maxlength="120" value="<?= $escapar($busqueda) ?>" autocomplete="off">

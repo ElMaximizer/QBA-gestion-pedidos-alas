@@ -12,14 +12,13 @@ numeración, los actores y el alcance indicado por el usuario para cada HU.
 ## Rediseño Rustic y contenido del inicio
 
 Desde **Panel → Contenido del inicio**, administrador y dueño pueden elegir hasta
-3 favoritos y ordenar hasta 5 productos activos para el carrusel. Sin una selección
-de portada se usan los favoritos; sin productos disponibles se muestra la imagen
-general de panadería. Las selecciones se guardan juntas y un formulario anterior
+3 favoritos y ordenar hasta 5 productos como prioridad para la imagen de portada.
+Se muestra el primero que siga activo; los siguientes sirven de respaldo si se
+desactivan o eliminan los anteriores. Sin una selección de portada se usa el primer
+favorito disponible; sin productos se conserva el fondo de la portada. Las
+selecciones se guardan juntas y un formulario anterior
 no sobrescribe cambios de otra pestaña. Los empleados no tienen acceso al editor.
 
-El carrusel cambia cada 6 segundos, permite avanzar, retroceder y pausar. Se detiene
-al usar el teclado, al pasar el puntero y cuando la pestaña no está visible. Respeta
-la preferencia de movimiento reducido. Sin JavaScript muestra el primer producto.
 El carrito sigue abriendo sobre la página y el pedido continúa exigiendo una cuenta.
 
 Desde el formulario de pedido, «Volver al carrito» y «Revisar carrito» regresan

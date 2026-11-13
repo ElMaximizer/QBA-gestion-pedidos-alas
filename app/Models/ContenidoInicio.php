@@ -45,7 +45,7 @@ final class ContenidoInicio
         foreach ([[$favoritos, 3], [$portada, 5]] as [$ids, $maximo]) {
             if (count($ids) > $maximo || count($ids) !== count(array_unique($ids, SORT_REGULAR))) {
                 throw new DomainException(
-                    'Elegí hasta 3 favoritos y 5 productos distintos para el carrusel.',
+                    'Elegí hasta 3 favoritos y 5 productos distintos para la imagen de portada.',
                 );
             }
             foreach ($ids as $id) {
@@ -80,11 +80,11 @@ final class ContenidoInicio
             foreach ($favoritos as $id) {
                 $favorito->execute([$id]);
             }
-            $diapositiva = $this->conexion->prepare(
+            $imagenPortada = $this->conexion->prepare(
                 'UPDATE productos SET portada_orden = ? WHERE id_producto = ?',
             );
             foreach (array_values($portada) as $orden => $id) {
-                $diapositiva->execute([$orden + 1, $id]);
+                $imagenPortada->execute([$orden + 1, $id]);
             }
             $this->conexion->commit();
         } catch (Throwable $error) {

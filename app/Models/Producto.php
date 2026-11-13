@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Core\Conexion;
+use App\Core\Importe;
 use DomainException;
 use PDO;
 use Throwable;
@@ -114,12 +115,11 @@ final class Producto
             $validos[$campo] = trim($datos[$campo]);
         }
         $precio = str_replace(',', '.', trim($datos['precio']));
-        preg_match('/^([0-9]{1,8})(?:\.([0-9]{1,2}))?$/D', $precio, $partes);
-        $centavos = (int) $partes[1] * 100 + (int) str_pad($partes[2] ?? '', 2, '0');
+        $centavos = Importe::aCentavos($precio);
         return $validos + [
             'categoria' => $datos['categoria'],
             'activo' => (int) $datos['activo'],
-            'precio' => sprintf('%d.%02d', intdiv($centavos, 100), $centavos % 100),
+            'precio' => Importe::aDecimal($centavos),
         ];
     }
 
@@ -162,10 +162,10 @@ final class Producto
         }
         $precio = $datos['precio'] ?? null;
         $precio = is_string($precio) ? str_replace(',', '.', trim($precio)) : '';
-        if (!preg_match('/^([0-9]{1,8})(?:\.([0-9]{1,2}))?$/D', $precio, $partes)) {
+        if (!preg_match('/^([0-9]{1,8})(?:\.([0-9]{1,2}))?$/D', $precio)) {
             $errores['precio'] = 'Ingresá un precio mayor que cero, con coma o punto y hasta dos decimales.';
         } else {
-            $centavos = (int) $partes[1] * 100 + (int) str_pad($partes[2] ?? '', 2, '0');
+            $centavos = Importe::aCentavos($precio);
             if ($centavos < 1) {
                 $errores['precio'] = 'Ingresá un precio mayor que cero, con coma o punto y hasta dos decimales.';
             }
@@ -403,8 +403,7 @@ final class Producto
     private static function normalizar(array $producto): array
     {
         // DECIMAL llega como texto: evitamos errores de redondeo con importes en centavos.
-        [$entero, $decimal] = array_pad(explode('.', (string) $producto['precio'], 2), 2, '0');
-        $producto['precio'] = (int) $entero * 100 + (int) str_pad($decimal, 2, '0');
+        $producto['precio'] = Importe::aCentavos((string) $producto['precio']);
         $producto['id_producto'] = (int) $producto['id_producto'];
         $producto['imagen_guardada'] = $producto['imagen'];
         $producto['imagen'] = self::imagen($producto);

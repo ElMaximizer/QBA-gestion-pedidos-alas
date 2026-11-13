@@ -2,7 +2,7 @@
     <div class="titulo-pagina">
         <span class="etiqueta">SITIO PÚBLICO</span>
         <h1 class="titulo-pagina__titulo">Contenido del inicio</h1>
-        <p class="titulo-pagina__descripcion">Elegí los favoritos de la casa y el orden de los productos de la portada. </p>
+        <p class="titulo-pagina__descripcion">Elegí los favoritos de la casa y la imagen principal del inicio.</p>
     </div>
     <?php if ($aviso !== ''): ?>
         <p class="aviso aviso--exito" role="status"><?= $escapar($aviso) ?></p>
@@ -22,7 +22,7 @@
             <input type="hidden" name="version" value="<?= $escapar($seleccion['version']) ?>">
             <fieldset class="tarjeta contenido-inicio__seccion">
                 <legend class="contenido-inicio__titulo">Favoritos de la casa</legend>
-                <p>Elegí hasta 3 productos activos para destacar debajo de las categorías.</p>
+                <p>Elegí hasta 3 productos activos para mostrar en la sección «La selección de la casa».</p>
                 <div class="contenido-inicio__lista">
                     <?php foreach ($productos as $producto): ?>
                         <label class="contenido-inicio__producto">
@@ -39,8 +39,8 @@
                 </div>
             </fieldset>
             <fieldset class="tarjeta contenido-inicio__seccion">
-                <legend class="contenido-inicio__titulo">Carrusel de portada</legend>
-                <p>Elegí hasta 5 productos distintos en el orden en que querés mostrarlos. Si dejás todos los espacios vacíos, se muestran los favoritos.</p>
+                <legend class="contenido-inicio__titulo">Imagen de portada</legend>
+                <p>Se muestra la imagen del primer producto activo de esta lista. Los siguientes quedan como respaldo si desactivás o eliminás los anteriores. Si dejás todos los espacios vacíos, se usa el primer favorito disponible.</p>
                 <div class="contenido-inicio__orden">
                     <?php for ($posicion = 0; $posicion < 5; $posicion++): ?>
                         <label class="campo">Posición <?= $posicion + 1 ?> <select class="campo__entrada" name="portada[]">

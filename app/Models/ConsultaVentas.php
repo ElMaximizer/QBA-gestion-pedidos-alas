@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Core\Importe;
 use DateTimeImmutable;
 use DomainException;
 use PDO;
@@ -34,7 +35,7 @@ final class ConsultaVentas
         $consulta->execute([$desde, $hasta, $desde, $hasta]);
         $resumen = $consulta->fetch(PDO::FETCH_ASSOC) ?: [];
         foreach (['ingresos', 'saldo_pendiente'] as $campo) {
-            $resumen[$campo . '_centavos'] = self::aCentavos((string) ($resumen[$campo] ?? '0'));
+            $resumen[$campo . '_centavos'] = Importe::aCentavos((string) ($resumen[$campo] ?? '0'));
         }
         foreach (['pedidos_pagados', 'pedidos_pendientes', 'transferencias', 'pagos_local'] as $campo) {
             $resumen[$campo] = (int) ($resumen[$campo] ?? 0);
@@ -54,7 +55,7 @@ final class ConsultaVentas
         $detalle->execute([$desde, $hasta]);
         $pedidos = $detalle->fetchAll(PDO::FETCH_ASSOC);
         foreach ($pedidos as &$pedido) {
-            $pedido['total_centavos'] = self::aCentavos((string) $pedido['total']);
+            $pedido['total_centavos'] = Importe::aCentavos((string) $pedido['total']);
         }
         unset($pedido);
 
@@ -65,11 +66,5 @@ final class ConsultaVentas
     {
         $objeto = DateTimeImmutable::createFromFormat('!Y-m-d', $fecha);
         return $objeto !== false && $objeto->format('Y-m-d') === $fecha;
-    }
-
-    private static function aCentavos(string $importe): int
-    {
-        [$entero, $decimal] = array_pad(explode('.', $importe, 2), 2, '0');
-        return (int) $entero * 100 + (int) str_pad(substr($decimal, 0, 2), 2, '0');
     }
 }

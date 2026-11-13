@@ -11,6 +11,7 @@ use App\Models\Carrito;
 use App\Models\Pedido;
 use App\Models\Producto;
 use App\Services\FiltrosPedidos;
+use App\Services\ImagenComprobante;
 use DomainException;
 use Throwable;
 
@@ -278,7 +279,7 @@ final class RegistroPedidoEquipoController
                         $comprobanteTransferencia = null;
                         if ($valores['metodo_pago'] === 'transferencia') {
                             try {
-                                $comprobanteTransferencia = $this->leerComprobanteTransferencia();
+                                $comprobanteTransferencia = ImagenComprobante::leer($_FILES['comprobante'] ?? null);
                             } catch (DomainException $excepcion) {
                                 $erroresCampos['comprobante'] = $excepcion->getMessage();
                                 throw $excepcion;
@@ -408,33 +409,6 @@ final class RegistroPedidoEquipoController
             'filtrosListado' => $filtrosListado,
             'descripcionCliente' => $descripcionCliente,
         ]);
-    }
-
-    private function leerComprobanteTransferencia(): array
-    {
-        $archivo = $_FILES['comprobante'] ?? null;
-        if (!is_array($archivo) || ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK
-            || !is_string($archivo['tmp_name'] ?? null) || !is_uploaded_file($archivo['tmp_name'])) {
-            throw new DomainException('Adjuntá el comprobante de transferencia para registrar el pedido.');
-        }
-        $tamano = (int) ($archivo['size'] ?? 0);
-        if ($tamano < 1 || $tamano > 2 * 1024 * 1024) {
-            throw new DomainException('La imagen del comprobante debe pesar como máximo 2 MB.');
-        }
-        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($archivo['tmp_name']);
-        if (!is_string($mime) || !in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
-            throw new DomainException('Adjuntá una imagen JPG, PNG o WebP.');
-        }
-        $imagen = getimagesize($archivo['tmp_name']);
-        if (!is_array($imagen) || ($imagen['mime'] ?? '') !== $mime) {
-            throw new DomainException('El archivo adjunto no parece ser una imagen válida.');
-        }
-        $contenido = file_get_contents($archivo['tmp_name']);
-        if (!is_string($contenido)) {
-            throw new DomainException('No pudimos leer el comprobante. Elegí la imagen nuevamente.');
-        }
-
-        return ['mime' => $mime, 'contenido' => $contenido];
     }
 
     private function prepararResumen(array $productos, array $lineas): array

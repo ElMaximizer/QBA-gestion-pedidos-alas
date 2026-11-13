@@ -189,153 +189,6 @@ body.pagina {
     letter-spacing: 0.17em;
 }
 
-/* Inicio: título protagonista y producto real en primer plano. */
-.portada {
-    padding: clamp(42px, 6vw, 82px) 0 clamp(48px, 7vw, 96px);
-    background: var(--rustic-paper);
-}
-
-.portada__contenido {
-    grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
-    align-items: center;
-    gap: clamp(30px, 5vw, 78px);
-}
-
-.portada__titulo {
-    max-width: 660px;
-    margin: 17px 0 20px;
-    font:
-        500 clamp(46px, 6.1vw, 82px)/0.98 Georgia,
-        'Times New Roman',
-        serif;
-    letter-spacing: -0.06em;
-}
-
-.portada__descripcion {
-    max-width: 500px;
-    font-size: 17px;
-}
-
-.portada__acciones {
-    gap: 11px;
-    margin-top: 25px;
-}
-
-.portada__acciones .boton {
-    min-width: 160px;
-}
-
-.portada__sello {
-    margin-top: 25px;
-    color: #8a7667;
-    font-size: 9px;
-    letter-spacing: 0.16em;
-}
-
-.portada__carrusel {
-    height: clamp(350px, 43vw, 570px);
-    border-radius: 3px;
-    background: #eee8de;
-    box-shadow: 12px 12px 0 #eee5d9;
-}
-
-.portada__foto,
-.portada__imagen {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.portada__diapositiva::after {
-    background: linear-gradient(transparent 48%, rgb(24 20 17 / 72%));
-}
-
-.portada__leyenda {
-    left: 28px;
-    bottom: 78px;
-}
-
-.portada__leyenda-etiqueta {
-    color: #f3dcae;
-}
-
-.portada__controles {
-    right: 22px;
-    left: 22px;
-}
-
-.portada__flecha,
-.portada__pausa {
-    border-color: #ffffff8c;
-    background: rgb(37 34 31 / 78%);
-}
-
-/* Categorías y favoritos. */
-.categorias,
-.destacados {
-    padding-block: clamp(54px, 7vw, 94px);
-}
-
-.encabezado-seccion {
-    max-width: 760px;
-    margin-bottom: 30px;
-}
-
-.encabezado-seccion__titulo {
-    margin: 10px 0 12px;
-    font:
-        500 clamp(36px, 4.8vw, 60px)/1.02 Georgia,
-        'Times New Roman',
-        serif;
-}
-
-.encabezado-seccion__descripcion {
-    max-width: 620px;
-}
-
-.categorias__lista,
-.destacados__lista {
-    gap: 18px;
-}
-
-.categoria {
-    min-height: 245px;
-    border: 1px solid var(--rustic-line);
-    border-radius: 3px;
-    background: #efe8dc;
-    transition:
-        transform 0.2s ease,
-        background 0.2s ease;
-}
-
-.categoria:nth-child(2) {
-    background: #f2e8dd;
-}
-
-.categoria:nth-child(3) {
-    background: #e9e3d9;
-}
-
-.categoria:hover {
-    transform: translateY(-3px);
-    background: #e8ddce;
-}
-
-.categoria__titulo {
-    font:
-        500 32px/1.08 Georgia,
-        'Times New Roman',
-        serif;
-}
-
-.categoria__accion {
-    color: var(--rustic-red);
-}
-
-.destacados {
-    padding-top: 28px;
-}
-
 .producto {
     overflow: hidden;
     border-radius: 3px;
@@ -379,17 +232,6 @@ body.pagina {
 .producto__descripcion {
     margin: 0 19px 14px;
     font-size: 13px;
-}
-
-.producto__precio {
-    margin: 0 19px 15px;
-    color: var(--rustic-ink);
-    font-size: 14px;
-}
-
-.producto__boton {
-    width: calc(100% - 38px);
-    margin-inline: 19px;
 }
 
 /* Catálogo, detalle y contacto. */
@@ -540,21 +382,6 @@ body.pagina {
     box-shadow: 0 6px 20px rgb(37 34 31 / 4%);
 }
 
-.pie-pagina {
-    border-top: 1px solid var(--rustic-line);
-    background: #f0ece4;
-}
-
-.pie-pagina__titulo,
-.pie-pagina__titulo-seccion {
-    color: var(--rustic-ink);
-}
-
-.pie-pagina__enlace:hover,
-.pie-pagina__acceso:hover {
-    color: var(--rustic-red);
-}
-
 @media (max-width: 800px) {
     .contenedor {
         width: min(100% - 34px, 680px);
@@ -562,35 +389,6 @@ body.pagina {
 
     .encabezado--publico .encabezado__contenido {
         min-height: 72px;
-    }
-
-    .portada {
-        padding-block: 36px 48px;
-    }
-
-    .portada__contenido {
-        grid-template-columns: 1fr;
-        gap: 28px;
-    }
-
-    .portada__titulo {
-        max-width: 640px;
-        font-size: clamp(46px, 11vw, 72px);
-    }
-
-    .portada__carrusel {
-        height: min(72vw, 460px);
-        min-height: 290px;
-        box-shadow: 7px 7px 0 #eee5d9;
-    }
-
-    .categorias,
-    .destacados {
-        padding-block: 48px;
-    }
-
-    .categoria {
-        min-height: 190px;
     }
 
     .detalle {
@@ -617,25 +415,6 @@ body.pagina {
 
     .navegacion__enlace {
         font-size: 12px;
-    }
-
-    .portada__acciones {
-        display: grid;
-        grid-template-columns: 1fr;
-    }
-
-    .portada__acciones .boton {
-        width: 100%;
-    }
-
-    .portada__leyenda {
-        left: 17px;
-        bottom: 70px;
-    }
-
-    .portada__flecha {
-        width: 38px;
-        height: 38px;
     }
 
     .contacto__columnas {

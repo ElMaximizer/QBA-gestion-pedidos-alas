@@ -10,6 +10,7 @@ use App\Core\Transferencia;
 use App\Core\Vista;
 use App\Models\ComprobanteTransferencia;
 use App\Models\PedidosCliente;
+use App\Services\ImagenComprobante;
 use DomainException;
 use Throwable;
 
@@ -117,32 +118,12 @@ final class PedidosClienteController
                 throw new DomainException('Seleccioná un pedido válido.');
             }
 
-            $archivo = $_FILES['comprobante'] ?? null;
-            if (!is_array($archivo) || ($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK
-                || !is_string($archivo['tmp_name'] ?? null) || !is_uploaded_file($archivo['tmp_name'])) {
-                throw new DomainException('Adjuntá la imagen del comprobante para avisar al equipo.');
-            }
-            $tamano = (int) ($archivo['size'] ?? 0);
-            if ($tamano < 1 || $tamano > 2 * 1024 * 1024) {
-                throw new DomainException('La imagen debe pesar como máximo 2 MB.');
-            }
-            $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($archivo['tmp_name']);
-            if (!is_string($mime) || !in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) {
-                throw new DomainException('Adjuntá una imagen JPG, PNG o WebP.');
-            }
-            $imagen = getimagesize($archivo['tmp_name']);
-            if (!is_array($imagen) || ($imagen['mime'] ?? '') !== $mime) {
-                throw new DomainException('El archivo adjunto no parece ser una imagen válida.');
-            }
-            $contenido = file_get_contents($archivo['tmp_name']);
-            if (!is_string($contenido)) {
-                throw new DomainException('No pudimos leer el comprobante. Elegí la imagen nuevamente.');
-            }
+            $comprobante = ImagenComprobante::leer($_FILES['comprobante'] ?? null);
             (new ComprobanteTransferencia(Conexion::obtener()))->guardar(
                 (int) $idPedido,
                 (int) $cliente['id_cliente'],
-                $mime,
-                $contenido,
+                $comprobante['mime'],
+                $comprobante['contenido'],
             );
             $_SESSION['qba']['aviso_transferencia_cliente'] =
                 'Avisamos al equipo. El pago queda pendiente de aprobación hasta que confirme la recepción.';

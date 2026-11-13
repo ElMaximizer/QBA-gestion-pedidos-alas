@@ -136,7 +136,7 @@
 }
 
 .equipo-ventas__tabla-contenedor:focus-visible,
-.equipo-ventas [data-ventas-error]:focus {
+.equipo-ventas [data-consulta-aviso]:focus {
     outline: 3px solid #7e2525;
     outline-offset: 4px;
 }

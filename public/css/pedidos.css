@@ -129,10 +129,6 @@
     line-height: 1.5;
 }
 
-.resumen__linea--total {
-    font-size: 24px;
-}
-
 @media (max-width: 1150px) {
     .detalle {
         gap: 32px;

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Core\Importe;
 use DateTimeImmutable;
 use DomainException;
 use PDO;
@@ -138,7 +139,7 @@ final class Pedido
                 $direccionEntrega,
                 $metodoPago,
                 $datos['notas'],
-                self::decimal($total),
+                Importe::aDecimal($total),
                 $token,
             ]);
             $idPedido = (int) $this->conexion->lastInsertId();
@@ -327,7 +328,7 @@ final class Pedido
         $consulta->execute([$id]);
         $pedido['id_pedido'] = (int) $pedido['id_pedido'];
         $pedido['hora_retiro'] = substr($pedido['hora_retiro'], 0, 5);
-        $pedido['total_centavos'] = self::centavos($pedido['total']);
+        $pedido['total_centavos'] = Importe::aCentavos($pedido['total']);
         $pedido['lineas'] = [];
         foreach ($consulta->fetchAll() as $detalle) {
             $idProducto = $detalle['id_producto'] === null ? null : (int) $detalle['id_producto'];
@@ -340,7 +341,7 @@ final class Pedido
                         : (string) $idProducto,
                 'nombre' => $detalle['nombre_producto'],
                 'cantidad' => (int) $detalle['cantidad'],
-                'precio' => self::centavos($detalle['precio_unitario']),
+                'precio' => Importe::aCentavos($detalle['precio_unitario']),
             ];
         }
         return $pedido;
@@ -641,7 +642,7 @@ final class Pedido
                 $direccionEntrega,
                 $datos['notas'],
                 $datos['estado'],
-                self::decimal($total),
+                Importe::aDecimal($total),
                 $id,
             ]);
             $this->conexion
@@ -760,19 +761,8 @@ final class Pedido
                 $linea['id_producto'],
                 $linea['nombre'],
                 $linea['cantidad'],
-                self::decimal($linea['precio']),
+                Importe::aDecimal($linea['precio']),
             ]);
         }
-    }
-
-    private static function centavos(string $decimal): int
-    {
-        [$entero, $fraccion] = array_pad(explode('.', $decimal, 2), 2, '0');
-        return (int) $entero * 100 + (int) str_pad($fraccion, 2, '0');
-    }
-
-    private static function decimal(int $centavos): string
-    {
-        return sprintf('%d.%02d', intdiv($centavos, 100), $centavos % 100);
     }
 }

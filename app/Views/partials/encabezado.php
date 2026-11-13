@@ -8,18 +8,14 @@
         <link rel="stylesheet" href="<?= $escapar($recurso('css/inicio.css')) ?>">
         <?php foreach ($estilos as $estilo): ?>
             <?php
-            $esTemaAnterior = in_array($estilo, ['css/tema-rustic.css', 'css/tema-rustic-americana.css', 'css/tema-rustic-pophams.css'], true);
-            if (!$esPanel && $esTemaAnterior) {
-                continue;
-            }
             $versionEstilo = match ($estilo) {
                 'css/equipo-pedidos.css' => '?v=20261113-5',
                 'css/equipo-pedido-detalle.css' => '?v=20261113-1',
                 'css/gestion-productos.css' => '?v=20261113-2',
                 'css/equipo-stock.css' => '?v=20261113-2',
-                'css/equipo-ventas.css' => '?v=20261113-1',
+                'css/equipo-ventas.css' => '?v=20261113-2',
                 'css/mercaderia.css' => '?v=20261113-1',
-                'css/equipo-personal.css' => '?v=20261113-3',
+                'css/equipo-personal.css' => '?v=20261113-4',
                 'css/equipo-pedido-form.css' => '?v=20261113-1',
                 'css/equipo-catalogo.css' => '?v=20261113-1',
                 'css/transferencia-pedido.css' => '?v=20261113-1',
