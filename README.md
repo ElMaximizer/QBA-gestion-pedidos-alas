@@ -631,6 +631,22 @@ modo de vista. Los mensajes distinguen la lista vacía de una búsqueda sin resu
 `php tests/contexto-pedidos.php` verifica estos recorridos, el escape y la
 validación de parámetros con pedidos ficticios en una base temporal.
 
+## HU05 — Registrar y revisar pagos
+
+El listado distingue el estado del pedido del estado del pago: efectivo pendiente
+o realizado, transferencia aprobada y comprobante pendiente, por revisar o rechazado.
+Las acciones identifican el pedido para lectores de pantalla y los mensajes de
+guardado o error incluyen su número. El enlace al comprobante anticipa que abre
+otra pestaña y permite consultarlo también después de una revisión o cancelación.
+
+Los pedidos cancelados no ofrecen nuevos cobros ni revisiones. Las reglas y los
+permisos siguen controlados por el servidor. Con JavaScript, el envío muestra que
+se está guardando y bloquea temporalmente las acciones de pago del mismo pedido.
+Sin JavaScript, los formularios conservan el envío normal mediante POST y CSRF.
+
+`php tests/pagos-equipo.php` verifica estados, cobros, comprobantes, revisiones,
+permisos y reenvíos con datos ficticios en una base temporal.
+
 ## HU23 — Administrar pedidos como dueño
 
 Administrador y dueño consultan el listado de HU04 y acceden a **Ver / modificar pedido**.

@@ -114,32 +114,40 @@
                             </span>
                             <?php
                             $esTransferencia = $pedido['metodo_pago'] === 'transferencia';
+                            $pedidoCancelado = $pedido['estado'] === 'Cancelado';
                             $estadoRevision = $pedido['estado_pago'] === 'pagado'
                                 ? 'aprobada'
                                 : ($pedido['estado_revision_transferencia'] ?? null);
                             $comprobanteEnviado = $esTransferencia
                                 && !empty($pedido['estado_revision_transferencia']);
                             $transferenciaInformada = $comprobanteEnviado && $estadoRevision === 'pendiente';
-                            $textoEstadoPago = !$esTransferencia
-                                ? ($pedido['estado_pago'] === 'pagado' ? 'Realizado' : 'Pendiente')
-                                : ($estadoRevision === 'aprobada'
-                                    ? 'Aprobada'
-                                    : ($estadoRevision === 'rechazada'
-                                        ? 'Rechazada'
-                                        : ($comprobanteEnviado
-                                            ? 'Pendiente de aprobación'
-                                            : (!empty($pedido['transferencia_enviada_en']) ? 'Comprobante no disponible' : 'Pendiente'))));
+                            $pagoConfirmado = $pedido['estado_pago'] === 'pagado' || ($esTransferencia && $estadoRevision === 'aprobada');
+                            if (!$esTransferencia) {
+                                $textoEstadoPago = $pagoConfirmado ? 'Pago realizado' : 'Pago pendiente';
+                            } elseif ($estadoRevision === 'aprobada') {
+                                $textoEstadoPago = 'Transferencia aprobada';
+                            } elseif ($estadoRevision === 'rechazada') {
+                                $textoEstadoPago = 'Comprobante rechazado';
+                            } elseif ($comprobanteEnviado) {
+                                $textoEstadoPago = 'Comprobante por revisar';
+                            } else {
+                                $textoEstadoPago = !empty($pedido['transferencia_enviada_en']) ? 'Comprobante no disponible' : 'Comprobante pendiente';
+                            }
                             ?>
-                            <span class="insignia <?= in_array($textoEstadoPago, ['Aprobada', 'Realizado'], true) ? 'insignia--exito' : 'insignia--neutra' ?><?= $textoEstadoPago === 'Rechazada' ? ' equipo-pedido__transferencia-rechazada' : '' ?>">
+                            <span class="insignia <?= $pagoConfirmado ? 'insignia--exito' : 'insignia--neutra' ?><?= $esTransferencia && $estadoRevision === 'rechazada' ? ' equipo-pedido__transferencia-rechazada' : '' ?>">
                                 <?= $escapar($textoEstadoPago) ?>
                             </span>
-                            <?php if (!$esTransferencia && $pedido['estado_pago'] !== 'pagado' && $puedeRegistrarPagoLocal): ?>
+                            <?php if ($pagoConfirmado && !empty($pedido['pago_confirmado_en'])): ?>
+                                <small>Confirmado el <?= $escapar(date('d/m/Y H:i', strtotime($pedido['pago_confirmado_en']))) ?>.</small>
+                            <?php endif; ?>
+                            <?php if (!$esTransferencia && !$pagoConfirmado && !$pedidoCancelado && $puedeRegistrarPagoLocal): ?>
+                                <small>Confirmá esta acción únicamente cuando hayas recibido el total del pedido en efectivo.</small>
                                 <div class="equipo-pedido__transferencia-acciones">
-                                    <form method="post" action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>">
+                                    <form method="post" action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>" data-pago-equipo>
                                         <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
                                         <input type="hidden" name="id_pedido" value="<?= (int) $pedido['id_pedido'] ?>">
                                         <input type="hidden" name="accion" value="registrar_pago_local">
-                                        <button class="boton boton--dorado" type="submit">Confirmar efectivo recibido</button>
+                                        <button class="boton boton--dorado" type="submit" aria-label="Confirmar efectivo recibido del pedido #<?= (int) $pedido['id_pedido'] ?>">Confirmar efectivo recibido</button>
                                     </form>
                                 </div>
                             <?php endif; ?>
@@ -160,8 +168,13 @@
                                     <?php endif; ?>
                                 </details>
                             <?php endif; ?>
-                            <?php if ($transferenciaInformada): ?>
+                            <?php if ($pedidoCancelado): ?>
+                                <small>Este pedido está cancelado. No admite nuevos pagos ni revisiones de comprobantes.</small>
+                            <?php elseif ($transferenciaInformada): ?>
                                 <small>El cliente adjuntó el comprobante y espera la revisión del pago.</small>
+                                <?php if ($puedeDecidirTransferencias): ?>
+                                    <small>Revisá el comprobante y verificá el ingreso del importe en la cuenta antes de aprobar el pago.</small>
+                                <?php endif; ?>
                             <?php elseif ($esTransferencia && $estadoRevision === 'rechazada'): ?>
                                 <small>El comprobante fue rechazado. El cliente podrá enviar uno nuevo.</small>
                             <?php elseif ($esTransferencia && !$comprobanteEnviado && !empty($pedido['transferencia_enviada_en'])): ?>
@@ -171,25 +184,26 @@
                             <?php endif; ?>
                             <?php if ($comprobanteEnviado && $puedeVerTransferencias): ?>
                                 <div class="equipo-pedido__transferencia-acciones">
-                                    <a class="boton boton--contorno" href="<?= $escapar($url('equipo-comprobante-transferencia', ['id' => $pedido['id_pedido']])) ?>" target="_blank" rel="noopener">Ver comprobante</a>
-                                    <?php if ($puedeDecidirTransferencias && $transferenciaInformada): ?>
-                                        <form method="post" action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>">
+                                    <a class="boton boton--contorno" href="<?= $escapar($url('equipo-comprobante-transferencia', ['id' => $pedido['id_pedido']])) ?>" target="_blank" rel="noopener" aria-label="Ver comprobante del pedido #<?= (int) $pedido['id_pedido'] ?> (se abre en una pestaña nueva)">Ver comprobante</a>
+                                    <?php if ($puedeDecidirTransferencias && $transferenciaInformada && !$pedidoCancelado): ?>
+                                        <form method="post" action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>" data-pago-equipo>
                                             <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
                                             <input type="hidden" name="id_pedido" value="<?= (int) $pedido['id_pedido'] ?>">
                                             <input type="hidden" name="accion" value="revisar_transferencia">
                                             <input type="hidden" name="decision" value="aprobar">
-                                            <button class="boton boton--dorado" type="submit">Aprobar pago</button>
+                                            <button class="boton boton--dorado" type="submit" aria-label="Aprobar transferencia del pedido #<?= (int) $pedido['id_pedido'] ?>">Aprobar transferencia</button>
                                         </form>
-                                        <form method="post" action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>">
+                                        <form method="post" action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>" data-pago-equipo>
                                             <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
                                             <input type="hidden" name="id_pedido" value="<?= (int) $pedido['id_pedido'] ?>">
                                             <input type="hidden" name="accion" value="revisar_transferencia">
                                             <input type="hidden" name="decision" value="rechazar">
-                                            <button class="boton boton--contorno" type="submit">Rechazar comprobante</button>
+                                            <button class="boton boton--contorno" type="submit" aria-label="Rechazar comprobante del pedido #<?= (int) $pedido['id_pedido'] ?>">Rechazar comprobante</button>
                                         </form>
                                     <?php endif; ?>
                                 </div>
-                            <?php elseif ($comprobanteEnviado): ?>
+                                <small>El comprobante se abre en una pestaña nueva.</small>
+                            <?php elseif ($transferenciaInformada && !$pedidoCancelado): ?>
                                 <small>El comprobante está pendiente de revisión por administración.</small>
                             <?php endif; ?>
                         </dd>

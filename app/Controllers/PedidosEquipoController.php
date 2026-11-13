@@ -27,6 +27,7 @@ final class PedidosEquipoController
         $error = '';
         $idEstadoEnviado = null;
         $estadoEnviado = '';
+        $idPagoEnviado = null;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
@@ -40,13 +41,15 @@ final class PedidosEquipoController
                 }
 
                 if ($accion === 'registrar_pago_local') {
+                    $idPagoEnviado = $idPedido;
                     if (!$puedeRegistrarPagoLocal) {
                         http_response_code(403);
                         throw new DomainException('Tu cuenta no puede registrar pagos recibidos en el local.');
                     }
                     (new ConsultaPedidos(Conexion::obtener()))->registrarPagoLocal($idPedido, (int) $usuario['id_usuario']);
-                    $_SESSION['qba']['aviso_pedidos'] = 'Se registró el pago en efectivo recibido en el local.';
+                    $_SESSION['qba']['aviso_pedidos'] = 'Pedido #' . $idPedido . ': efectivo recibido registrado. El pago figura como Realizado.';
                 } elseif ($accion === 'revisar_transferencia') {
+                    $idPagoEnviado = $idPedido;
                     if (!$puedeDecidirTransferencias) {
                         http_response_code(403);
                         throw new DomainException('Solo administrador y dueño pueden revisar transferencias.');
@@ -60,9 +63,9 @@ final class PedidosEquipoController
                         $decision === 'aprobar',
                         (int) $usuario['id_usuario'],
                     );
-                    $_SESSION['qba']['aviso_pedidos'] = $decision === 'aprobar'
-                        ? 'La transferencia fue aprobada y el pago quedó confirmado.'
-                        : 'El comprobante fue rechazado. El cliente puede volver a enviarlo.';
+                    $_SESSION['qba']['aviso_pedidos'] = 'Pedido #' . $idPedido . ': ' . ($decision === 'aprobar'
+                        ? 'transferencia aprobada. El pago quedó confirmado.'
+                        : 'comprobante rechazado. El pago sigue pendiente.');
                 } elseif ($accion === 'actualizar_estado') {
                     $idEstadoEnviado = $idPedido;
                     if (!$puedeActualizarEstado) {
@@ -102,11 +105,11 @@ final class PedidosEquipoController
                 if (http_response_code() < 400) {
                     http_response_code(422);
                 }
-                $error = $excepcion->getMessage();
+                $error = ($idPagoEnviado !== null ? 'Pedido #' . $idPagoEnviado . ': ' : '') . $excepcion->getMessage();
             } catch (Throwable $excepcion) {
                 error_log('Gestión de pedidos: falló una actualización (' . $excepcion::class . ').');
                 http_response_code(503);
-                $error = 'No pudimos guardar el cambio. Intentá nuevamente.';
+                $error = ($idPagoEnviado !== null ? 'Pedido #' . $idPagoEnviado . ': ' : '') . 'No pudimos guardar el cambio. Intentá nuevamente.';
             }
         }
 
