@@ -710,7 +710,8 @@ a la fecha de registro, del más reciente al más antiguo.
 
 **Ver productos y detalle** abre la fecha y modalidad programadas, el estado,
 las indicaciones del cliente y las cantidades por producto. Se mantienen los
-subtotales y el total del pedido. Los pedidos cancelados o entregados se
+subtotales y el total del pedido con sus centavos, sin redondear los importes
+históricos guardados. Los pedidos cancelados o entregados se
 identifican expresamente. El regreso al listado conserva sus
 filtros y página. La consulta funciona sin JavaScript y no requiere cambios SQL.
 
