@@ -1,47 +1,108 @@
-(() => {
+function iniciarCarruselInicio() {
     'use strict';
+
     const carrusel = document.querySelector('[data-carrusel]');
-    if (!carrusel) return;
-    const diapositivas = [...carrusel.querySelectorAll('[data-diapositiva]')];
-    if (diapositivas.length < 2) return;
+
+    if (!carrusel) {
+        return;
+    }
+
+    const diapositivas = Array.from(carrusel.querySelectorAll('[data-diapositiva]'));
+
+    if (diapositivas.length < 2) {
+        return;
+    }
+
     const contador = carrusel.querySelector('[data-contador]');
-    const pausa = carrusel.querySelector('[data-pausa]');
+    const botonPausa = carrusel.querySelector('[data-pausa]');
     const movimientoReducido = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let actual = 0;
+    const intervaloMilisegundos = 6000;
+    let indiceActual = 0;
     let pausado = movimientoReducido.matches;
     let temporizador;
     let punteroEncima = false;
 
-    const detener = () => {
+    function detenerAvance() {
         clearInterval(temporizador);
         temporizador = undefined;
         contador.setAttribute('aria-live', 'polite');
-    };
-    const iniciar = () => {
-        detener();
-        if (!pausado && !punteroEncima && !document.hidden && !carrusel.contains(document.activeElement)) {
+    }
+
+    function iniciarAvance() {
+        detenerAvance();
+
+        const focoEnCarrusel = carrusel.contains(document.activeElement);
+
+        if (!pausado && !punteroEncima && !document.hidden && !focoEnCarrusel) {
             contador.setAttribute('aria-live', 'off');
-            temporizador = setInterval(() => mostrar(actual + 1), 6000);
+            temporizador = setInterval(function () {
+                mostrarDiapositiva(indiceActual + 1);
+            }, intervaloMilisegundos);
         }
-    };
-    const mostrar = (indice) => {
-        actual = (indice + diapositivas.length) % diapositivas.length;
-        diapositivas.forEach((diapositiva, posicion) => { diapositiva.hidden = posicion !== actual; });
-        contador.textContent = `${actual + 1} / ${diapositivas.length}`;
-    };
-    const cambiarPausa = () => { pausa.textContent = pausado ? 'Reanudar' : 'Pausar'; iniciar(); };
+    }
+
+    function mostrarDiapositiva(indice) {
+        // Después del último producto volvemos al primero; al retroceder hacemos lo inverso.
+        indiceActual = (indice + diapositivas.length) % diapositivas.length;
+
+        for (let posicion = 0; posicion < diapositivas.length; posicion++) {
+            diapositivas[posicion].hidden = posicion !== indiceActual;
+        }
+
+        contador.textContent = `${indiceActual + 1} / ${diapositivas.length}`;
+    }
+
+    function actualizarPausa() {
+        botonPausa.textContent = pausado ? 'Reanudar' : 'Pausar';
+        iniciarAvance();
+    }
 
     carrusel.querySelector('[data-controles-carrusel]').hidden = false;
-    carrusel.querySelector('[data-anterior]').addEventListener('click', () => { detener(); mostrar(actual - 1); iniciar(); });
-    carrusel.querySelector('[data-siguiente]').addEventListener('click', () => { detener(); mostrar(actual + 1); iniciar(); });
-    pausa.addEventListener('click', () => { pausado = !pausado; cambiarPausa(); });
-    carrusel.addEventListener('mouseenter', () => { punteroEncima = true; detener(); });
-    carrusel.addEventListener('mouseleave', () => { punteroEncima = false; iniciar(); });
-    carrusel.addEventListener('focusin', detener);
-    carrusel.addEventListener('focusout', (evento) => { if (!carrusel.contains(evento.relatedTarget)) queueMicrotask(iniciar); });
-    document.addEventListener('visibilitychange', iniciar);
-    movimientoReducido.addEventListener('change', () => { pausado = movimientoReducido.matches; cambiarPausa(); });
-    window.addEventListener('pagehide', detener);
-    window.addEventListener('pageshow', iniciar);
-    cambiarPausa();
-})();
+
+    carrusel.querySelector('[data-anterior]').addEventListener('click', function () {
+        detenerAvance();
+        mostrarDiapositiva(indiceActual - 1);
+        iniciarAvance();
+    });
+
+    carrusel.querySelector('[data-siguiente]').addEventListener('click', function () {
+        detenerAvance();
+        mostrarDiapositiva(indiceActual + 1);
+        iniciarAvance();
+    });
+
+    botonPausa.addEventListener('click', function () {
+        pausado = !pausado;
+        actualizarPausa();
+    });
+
+    carrusel.addEventListener('mouseenter', function () {
+        punteroEncima = true;
+        detenerAvance();
+    });
+
+    carrusel.addEventListener('mouseleave', function () {
+        punteroEncima = false;
+        iniciarAvance();
+    });
+
+    carrusel.addEventListener('focusin', detenerAvance);
+    carrusel.addEventListener('focusout', function (evento) {
+        if (!carrusel.contains(evento.relatedTarget)) {
+            // Esperamos a que termine el cambio de foco antes de decidir si vuelve a avanzar.
+            queueMicrotask(iniciarAvance);
+        }
+    });
+
+    document.addEventListener('visibilitychange', iniciarAvance);
+    movimientoReducido.addEventListener('change', function () {
+        pausado = movimientoReducido.matches;
+        actualizarPausa();
+    });
+    window.addEventListener('pagehide', detenerAvance);
+    window.addEventListener('pageshow', iniciarAvance);
+
+    actualizarPausa();
+}
+
+iniciarCarruselInicio();

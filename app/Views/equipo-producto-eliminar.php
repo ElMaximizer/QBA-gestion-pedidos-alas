@@ -2,12 +2,13 @@
     <div class="titulo-pagina">
         <span class="etiqueta">ADMINISTRACIÓN</span>
         <h1 class="titulo-pagina__titulo">Eliminar producto</h1>
-        <p class="titulo-pagina__descripcion">Revisa el producto y sus consecuencias antes de confirmar la eliminación.</p>
+        <p class="titulo-pagina__descripcion">Revisa el producto y sus consecuencias antes de confirmar la eliminación. </p>
     </div>
     <?php if ($error): ?>
-    <div class="aviso aviso--error" role="alert"><?= $escapar($error) ?></div>
+        <div class="aviso aviso--error" role="alert"><?= $escapar($error) ?> </div>
     <?php endif; ?>
-    <form class="tarjeta producto-eliminar" method="post" action="<?= $escapar($url('producto-eliminar', ['id' => $producto['id_producto']])) ?>">
+    <form class="tarjeta producto-eliminar" method="post"
+        action="<?= $escapar($url('producto-eliminar', ['id' => $producto['id_producto']])) ?>">
         <input type="hidden" name="csrf" value="<?= $csrf ?>">
         <input type="hidden" name="version" value="<?= $escapar($version) ?>">
         <span class="insignia insignia--error">Eliminar producto</span>

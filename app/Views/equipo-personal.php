@@ -2,9 +2,11 @@
     <div class="titulo-pagina">
         <span class="etiqueta"><?= $puedeEditarRoles ? 'SOLO DUEÑO' : 'EQUIPO' ?></span>
         <h1 class="titulo-pagina__titulo"><?= $puedeEditarRoles ? 'Administrar personal' : 'Personal del equipo' ?></h1>
-        <p class="titulo-pagina__descripcion"><?= $puedeEditarRoles
-            ? 'Consultá el equipo y asigná a cada cuenta aprobada el rol de empleado o administrador.'
-            : 'Consultá las cuentas aprobadas y las responsabilidades definidas para cada rol.' ?></p>
+        <p class="titulo-pagina__descripcion">
+            <?= $puedeEditarRoles
+                ? 'Consultá el equipo y asigná a cada cuenta aprobada el rol de empleado o administrador.'
+                : 'Consultá las cuentas aprobadas, sus responsabilidades y la actividad registrada en el sistema.' ?>
+        </p>
     </div>
 
     <?php if ($aviso !== ''): ?>
@@ -15,24 +17,80 @@
     <?php endif; ?>
 
     <?php if ($puedeEditarRoles): ?>
-    <section class="equipo-personal__roles" aria-label="Permisos de cada rol">
-        <?php foreach (\App\Models\PersonalEquipo::ROLES as $clave => $nombre): ?>
-            <article class="tarjeta equipo-personal__rol">
-                <h2><?= $escapar($nombre) ?></h2>
-                <p><?= $escapar(\App\Models\PersonalEquipo::FUNCIONES[$clave]) ?></p>
+        <section class="equipo-personal__roles" aria-label="Permisos de cada rol">
+            <?php foreach (\App\Models\PersonalEquipo::ROLES as $clave => $nombre): ?>
+                <article class="tarjeta equipo-personal__rol">
+                    <h2><?= $escapar($nombre) ?></h2>
+                    <p><?= $escapar(\App\Models\PersonalEquipo::FUNCIONES[$clave]) ?></p>
+                </article>
+            <?php endforeach; ?>
+            <article class="tarjeta equipo-personal__rol equipo-personal__rol--dueno">
+                <h2>Dueño</h2>
+                <p>Acceso completo. La cuenta del dueño no se puede modificar desde esta pantalla.</p>
             </article>
-        <?php endforeach; ?>
-        <article class="tarjeta equipo-personal__rol equipo-personal__rol--dueno">
-            <h2>Dueño</h2>
-            <p>Acceso completo. La cuenta del dueño no se puede modificar desde esta pantalla.</p>
-        </article>
-    </section>
+        </section>
 
-    <p class="equipo-personal__nota">
-        Solo se muestran cuentas aprobadas. Revisá las cuentas pendientes en <a class="enlace-texto" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso</a>.
-    </p>
+        <p class="equipo-personal__nota">
+            Solo se muestran cuentas aprobadas. Revisá las cuentas pendientes en
+            <a class="enlace-texto" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso</a>.
+        </p>
+        <details class="tarjeta equipo-personal__crear" id="crear-empleado" <?= $error !== '' ? 'open' : '' ?>>
+            <summary class="equipo-personal__crear-resumen">
+                <span class="equipo-personal__crear-intro">
+                    <span class="etiqueta">ALTA DIRECTA</span>
+                    <strong>Crear cuenta de empleado</strong>
+                    <span>Agregá una persona al equipo sin pasar por una solicitud de acceso.</span>
+                </span>
+                <span class="equipo-personal__crear-accion">
+                    <span class="equipo-personal__crear-abrir">Abrir formulario</span>
+                    <span class="equipo-personal__crear-cerrar">Cerrar formulario</span>
+                    <span class="equipo-personal__crear-icono" aria-hidden="true"></span>
+                </span>
+            </summary>
+            <div class="equipo-personal__crear-contenido">
+                <form class="equipo-personal__crear-formulario" method="post" action="<?= $url('equipo-permisos') ?>">
+                    <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                    <input type="hidden" name="accion" value="crear_empleado">
+                    <div class="equipo-personal__crear-columna">
+                        <label class="equipo-personal__campo">
+                            <span>Nombre completo</span>
+                            <input name="nombre" maxlength="120" autocomplete="name" required
+                                value="<?= $escapar($nuevoNombre) ?>">
+                        </label>
+                        <label class="equipo-personal__campo">
+                            <span>Cédula</span>
+                            <input name="cedula" inputmode="numeric" pattern="[0-9]{6,8}" minlength="6" maxlength="8"
+                                autocomplete="off" aria-describedby="equipo-personal-cedula-ayuda" required
+                                value="<?= $escapar($nuevaCedula) ?>">
+                            <small id="equipo-personal-cedula-ayuda">De 6 a 8 dígitos, sin puntos ni guiones.</small>
+                        </label>
+                        <label class="equipo-personal__campo">
+                            <span>Correo electrónico</span>
+                            <input type="email" name="email" maxlength="190" autocomplete="email" required
+                                value="<?= $escapar($nuevoEmail) ?>">
+                        </label>
+                    </div>
+                    <div class="equipo-personal__crear-columna">
+                        <label class="equipo-personal__campo">
+                            <span>Contraseña inicial</span>
+                            <input type="password" name="password" minlength="8" maxlength="72"
+                                autocomplete="new-password" required>
+                            <small>Debe tener al menos 8 caracteres.</small>
+                        </label>
+                        <label class="equipo-personal__campo">
+                            <span>Repetir contraseña</span>
+                            <input type="password" name="confirmacion" minlength="8" maxlength="72"
+                                autocomplete="new-password" required>
+                        </label>
+                    </div>
+
+                    <button class="boton boton--dorado equipo-personal__crear-boton" type="submit">
+                        Crear cuenta de empleado
+                    </button>
+                </form>
+            </div>
+        </details>
     <?php else: ?>
-    <p class="equipo-personal__nota">Esta consulta no modifica cuentas, estados ni permisos.</p>
     <?php endif; ?>
 
     <form class="equipo-personal__filtros" method="get" action="<?= $url($rutaPersonal) ?>">
@@ -72,7 +130,10 @@
                             <th scope="col">Nombre</th>
                             <th scope="col">Correo</th>
                             <th scope="col">Rol actual</th>
-                            <th scope="col"><?= $puedeEditarRoles ? 'Permisos nuevos' : 'Funciones del rol' ?></th>
+                            <th scope="col"><?= $puedeEditarRoles ? 'Permisos nuevos' : 'Responsabilidades del rol' ?></th>
+                            <th scope="col">Actividad registrada</th>
+                            <th scope="col">Estado</th>
+                            <?php if ($puedeEditarRoles): ?><th scope="col">Acción</th><?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
@@ -82,23 +143,50 @@
                                 <td><?= $escapar($usuario['email']) ?></td>
                                 <td><span class="equipo-personal__insignia"><?= $escapar($usuario['nombre_rol']) ?></span></td>
                                 <td>
-                                    <?php if ($puedeEditarRoles): ?>
-                                    <form class="equipo-personal__cambio" method="post" action="<?= $url($rutaPersonal) ?>">
-                                        <input type="hidden" name="csrf" value="<?= $csrf ?>">
-                                        <input type="hidden" name="id_usuario" value="<?= (int) $usuario['id_usuario'] ?>">
-                                        <label class="equipo-personal__campo equipo-personal__campo--cambio">
-                                            <select name="rol" aria-label="Nuevo rol para <?= $escapar($usuario['nombre']) ?>">
-                                                <?php foreach (\App\Models\PersonalEquipo::ROLES as $clave => $nombre): ?>
-                                                    <option value="<?= $escapar($clave) ?>" <?= $usuario['rol'] === $clave ? 'selected' : '' ?>><?= $escapar($nombre) ?></option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                        </label>
-                                        <button class="boton boton--contorno" type="submit" aria-label="Guardar permisos de <?= $escapar($usuario['nombre']) ?>">Guardar</button>
-                                    </form>
+                                    <?php if ($puedeEditarRoles && $usuario['estado'] === 'aprobado'): ?>
+                                        <form class="equipo-personal__cambio" method="post" action="<?= $url($rutaPersonal) ?>">
+                                            <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                                            <input type="hidden" name="id_usuario" value="<?= (int) $usuario['id_usuario'] ?>">
+                                            <input type="hidden" name="accion" value="cambiar_rol">
+                                            <label class="equipo-personal__campo equipo-personal__campo--cambio">
+                                                <select name="rol" aria-label="Nuevo rol para <?= $escapar($usuario['nombre']) ?>">
+                                                    <?php foreach (\App\Models\PersonalEquipo::ROLES as $clave => $nombre): ?>
+                                                        <option value="<?= $escapar($clave) ?>" <?= $usuario['rol'] === $clave ? 'selected' : '' ?>><?= $escapar($nombre) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </label>
+                                            <button class="boton boton--contorno" type="submit" aria-label="Guardar permisos de <?= $escapar($usuario['nombre']) ?>">Guardar</button>
+                                        </form>
                                     <?php else: ?>
-                                    <?= $escapar($usuario['funciones']) ?>
+                                        <?= $escapar($usuario['funciones']) ?>
                                     <?php endif; ?>
                                 </td>
+                                <td>
+                                    <ul class="equipo-personal__actividad" aria-label="Tareas realizadas por <?= $escapar($usuario['nombre']) ?>">
+                                        <li><span>Pedidos registrados</span><strong><?= (int) $usuario['pedidos_registrados'] ?></strong></li>
+                                        <li><span>Pedidos actualizados</span><strong><?= (int) $usuario['pedidos_actualizados'] ?></strong></li>
+                                        <li><span>Pedidos entregados</span><strong><?= (int) $usuario['pedidos_entregados'] ?></strong></li>
+                                        <li><span>Mercadería recibida</span><strong><?= (int) $usuario['mercaderia_registrada'] ?></strong></li>
+                                        <li><span>Pagos confirmados</span><strong><?= (int) $usuario['pagos_confirmados'] ?></strong></li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <span class="equipo-personal__estado <?= $usuario['estado'] === 'aprobado' ? 'equipo-personal__estado--activo' : 'equipo-personal__estado--inactivo' ?>">
+                                        <?= $escapar($usuario['nombre_estado']) ?>
+                                    </span>
+                                </td>
+                                <?php if ($puedeEditarRoles): ?>
+                                    <td>
+                                        <form method="post" action="<?= $url($rutaPersonal) ?>">
+                                            <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                                            <input type="hidden" name="id_usuario" value="<?= (int) $usuario['id_usuario'] ?>">
+                                            <input type="hidden" name="accion" value="<?= $usuario['estado'] === 'aprobado' ? 'desactivar' : 'reactivar' ?>">
+                                            <button class="boton boton--contorno" type="submit">
+                                                <?= $usuario['estado'] === 'aprobado' ? 'Desactivar' : 'Reactivar' ?>
+                                            </button>
+                                        </form>
+                                    </td>
+                                <?php endif; ?>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -107,5 +195,5 @@
         <?php endif; ?>
     </section>
 
-    <a class="enlace-texto" href="<?= $url('equipo-panel') ?>">← Volver al panel</a>
+    <a class="enlace-texto" href="<?= $url('equipo-panel') ?>">Volver al panel</a>
 </main>

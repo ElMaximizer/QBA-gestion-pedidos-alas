@@ -3,37 +3,115 @@ declare(strict_types=1);
 
 if (PHP_SAPI !== 'cli') {
     http_response_code(404);
-    exit;
+    exit();
 }
 
-$config = require dirname(__DIR__) . '/config/database.php';
-if (!preg_match('/^[a-zA-Z0-9_]+$/', $config['database'])) {
+$configuracion = require dirname(__DIR__) . '/config/database.php';
+if (!preg_match('/^[a-zA-Z0-9_]+$/', $configuracion['database'])) {
     fwrite(STDERR, "Nombre de base inválido. Usá letras, números y guion bajo.\n");
     exit(1);
 }
 try {
-    $db = new PDO("mysql:host={$config['host']};port={$config['port']};charset=utf8mb4",
-        $config['user'], $config['password'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-    $db->exec("CREATE DATABASE IF NOT EXISTS `{$config['database']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-    $db->exec("USE `{$config['database']}`");
-    $db->exec(file_get_contents(__DIR__ . '/estructura.sql'));
-    $db->exec(file_get_contents(__DIR__ . '/contenido-inicio.sql'));
-    $db->exec(file_get_contents(__DIR__ . '/contacto.sql'));
-    $columnaSena = $db->query("SHOW COLUMNS FROM pedidos LIKE 'sena_recibida'")->fetch();
+    $conexion = new PDO(
+        "mysql:host={$configuracion['host']};port={$configuracion['port']};charset=utf8mb4",
+        $configuracion['user'],
+        $configuracion['password'],
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION],
+    );
+    $conexion->exec(
+        "CREATE DATABASE IF NOT EXISTS `{$configuracion['database']}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+    );
+    $conexion->exec("USE `{$configuracion['database']}`");
+    $conexion->exec(file_get_contents(__DIR__ . '/estructura.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/catalogo-categorias.sql'));
+    $columnaModalidad = $conexion->query("SHOW COLUMNS FROM pedidos LIKE 'modalidad_entrega'")->fetch();
+    if ($columnaModalidad === false) {
+        $conexion->exec(
+            "ALTER TABLE pedidos ADD COLUMN modalidad_entrega VARCHAR(20) NOT NULL DEFAULT 'retiro' AFTER hora_retiro",
+        );
+    }
+    $columnaDireccion = $conexion->query("SHOW COLUMNS FROM pedidos LIKE 'direccion_entrega'")->fetch();
+    if ($columnaDireccion === false) {
+        $conexion->exec(
+            "ALTER TABLE pedidos ADD COLUMN direccion_entrega VARCHAR(250) NOT NULL DEFAULT '' AFTER modalidad_entrega",
+        );
+    }
+    $columnasPedido = [
+        'metodo_pago' => "ALTER TABLE pedidos ADD COLUMN metodo_pago VARCHAR(20) NOT NULL DEFAULT 'local' AFTER direccion_entrega",
+        'estado_pago' => "ALTER TABLE pedidos ADD COLUMN estado_pago VARCHAR(20) NOT NULL DEFAULT 'pendiente' AFTER metodo_pago",
+        'pago_confirmado_en' => 'ALTER TABLE pedidos ADD COLUMN pago_confirmado_en DATETIME NULL AFTER estado_pago',
+        'id_usuario_pago' => 'ALTER TABLE pedidos ADD COLUMN id_usuario_pago INT UNSIGNED NULL AFTER pago_confirmado_en',
+        'transferencia_enviada_en' => 'ALTER TABLE pedidos ADD COLUMN transferencia_enviada_en DATETIME NULL AFTER id_usuario_pago',
+        'entregado_en' => 'ALTER TABLE pedidos ADD COLUMN entregado_en DATETIME NULL AFTER id_usuario_pago',
+        'id_usuario_entrega' => 'ALTER TABLE pedidos ADD COLUMN id_usuario_entrega INT UNSIGNED NULL AFTER entregado_en',
+    ];
+    foreach ($columnasPedido as $nombre => $sql) {
+        if ($conexion->query("SHOW COLUMNS FROM pedidos LIKE '{$nombre}'")->fetch() === false) {
+            $conexion->exec($sql);
+        }
+    }
+    $columnaEstadoPago = $conexion->query("SHOW COLUMNS FROM pedidos LIKE 'estado_pago'")->fetch(PDO::FETCH_ASSOC);
+    if ($columnaEstadoPago !== false && str_starts_with(strtolower((string) $columnaEstadoPago['Type']), 'enum(')) {
+        $conexion->exec("ALTER TABLE pedidos MODIFY estado_pago VARCHAR(20) NOT NULL DEFAULT 'pendiente'");
+    }
+    $conexion->exec("UPDATE pedidos SET estado_pago = 'pagado' WHERE estado_pago = 'confirmado'");
+    $conexion->exec("UPDATE pedidos SET estado_pago = CASE
+        WHEN pago_confirmado_en IS NULL THEN 'pendiente' ELSE 'pagado' END WHERE estado_pago = ''");
+    $conexion->exec(file_get_contents(__DIR__ . '/contenido-inicio.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/contacto.sql'));
+    $columnaSena = $conexion->query("SHOW COLUMNS FROM pedidos LIKE 'sena_recibida'")->fetch();
     if ($columnaSena === false) {
-        $db->exec('ALTER TABLE pedidos ADD COLUMN sena_recibida TINYINT(1) NOT NULL DEFAULT 0 AFTER estado');
+        $conexion->exec(
+            'ALTER TABLE pedidos ADD COLUMN sena_recibida TINYINT(1) NOT NULL DEFAULT 0 AFTER estado',
+        );
     }
-    $db->exec(file_get_contents(__DIR__ . '/clientes.sql'));
-    $db->exec(file_get_contents(__DIR__ . '/acceso-clientes.sql'));
-    $db->exec(file_get_contents(__DIR__ . '/equipo.sql'));
-    $db->exec(file_get_contents(__DIR__ . '/pedidos-equipo.sql'));
-    $db->exec(file_get_contents(__DIR__ . '/pedido-cambios.sql'));
-    $db->exec(file_get_contents(__DIR__ . '/entregas-mercaderia.sql'));
-    $db->exec(file_get_contents(__DIR__ . '/acceso-equipo.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/clientes.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/cuenta-clientes.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/direcciones-clientes.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/contacto-clientes.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/codigo-password-clientes.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/codigo-eliminacion-clientes.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/acceso-clientes.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/equipo.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/comprobantes-transferencia.sql'));
+    $columnaClienteComprobante = $conexion->query("SHOW COLUMNS FROM comprobantes_transferencia LIKE 'id_cliente'")->fetch(PDO::FETCH_ASSOC);
+    if ($columnaClienteComprobante !== false && ($columnaClienteComprobante['Null'] ?? '') !== 'YES') {
+        $conexion->exec('ALTER TABLE comprobantes_transferencia MODIFY id_cliente INT UNSIGNED NULL');
+    }
+    if ($conexion->query("SHOW COLUMNS FROM comprobantes_transferencia LIKE 'id_usuario_equipo'")->fetch() === false) {
+        $conexion->exec('ALTER TABLE comprobantes_transferencia ADD COLUMN id_usuario_equipo INT UNSIGNED NULL AFTER id_cliente');
+    }
+    $foraneaComprobanteEquipo = $conexion->prepare('SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND CONSTRAINT_NAME = ?');
+    $foraneaComprobanteEquipo->execute(['comprobantes_transferencia', 'fk_comprobante_transferencia_usuario_equipo']);
+    if ((int) $foraneaComprobanteEquipo->fetchColumn() === 0) {
+        $conexion->exec('ALTER TABLE comprobantes_transferencia ADD CONSTRAINT fk_comprobante_transferencia_usuario_equipo
+            FOREIGN KEY (id_usuario_equipo) REFERENCES usuarios_equipo (id_usuario) ON DELETE SET NULL');
+    }
+    $estadoEquipo = $conexion->query("SHOW COLUMNS FROM usuarios_equipo LIKE 'estado'")->fetch(PDO::FETCH_ASSOC);
+    if ($estadoEquipo !== false && !str_contains((string) $estadoEquipo['Type'], 'desactivado')) {
+        $conexion->exec("ALTER TABLE usuarios_equipo MODIFY estado ENUM('pendiente', 'aprobado', 'rechazado', 'desactivado') NOT NULL DEFAULT 'pendiente'");
+    }
+    foreach ([
+        'fk_pedidos_usuario_pago' => 'id_usuario_pago',
+        'fk_pedidos_usuario_entrega' => 'id_usuario_entrega',
+    ] as $claveForanea => $columna) {
+        $consultaForanea = $conexion->prepare('SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND CONSTRAINT_NAME = ?');
+        $consultaForanea->execute(['pedidos', $claveForanea]);
+        if ((int) $consultaForanea->fetchColumn() === 0) {
+            $conexion->exec("ALTER TABLE pedidos ADD CONSTRAINT {$claveForanea}
+                FOREIGN KEY ({$columna}) REFERENCES usuarios_equipo (id_usuario) ON DELETE SET NULL");
+        }
+    }
+    $conexion->exec(file_get_contents(__DIR__ . '/pedidos-equipo.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/pedido-cambios.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/entregas-mercaderia.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/acceso-equipo.sql'));
     if (in_array('--demo', $argv, true)) {
-        $db->exec(file_get_contents(__DIR__ . '/productos_demo.sql'));
+        $conexion->exec(file_get_contents(__DIR__ . '/productos_demo.sql'));
     }
-    echo "Base {$config['database']} preparada.\n";
+    echo "Base {$configuracion['database']} preparada.\n";
 } catch (Throwable $error) {
     fwrite(STDERR, "No se pudo preparar la base: {$error->getMessage()}\n");
     exit(1);

@@ -1,35 +1,67 @@
-(() => {
-    const archivo = document.querySelector('[data-archivo-producto]');
-    const vista = document.querySelector('[data-imagen-producto]');
-    const categoria = document.querySelector('[data-categoria-producto]');
-    if (!archivo || !vista || !categoria) return;
+function iniciarVistaPreviaProducto() {
+    const campoArchivo = document.querySelector('[data-archivo-producto]');
+    const vistaPrevia = document.querySelector('[data-imagen-producto]');
+    const campoCategoria = document.querySelector('[data-categoria-producto]');
 
-    const imagenInicial = vista.src;
-    let temporal;
-    const actualizarCategoria = () => {
-        if (archivo.files?.length || !/\/(pan|croissant|torta)\.svg$/.test(vista.src)) return;
-        const ilustracion = categoria.value === 'Bizcochos' ? 'croissant.svg'
-            : ['Tortas', 'Especiales'].includes(categoria.value) ? 'torta.svg' : 'pan.svg';
-        vista.src = vista.src.replace(/[^/]+$/, ilustracion);
-    };
+    if (!campoArchivo || !vistaPrevia || !campoCategoria) {
+        return;
+    }
 
-    archivo.addEventListener('change', () => {
-        archivo.setCustomValidity('');
-        if (temporal) URL.revokeObjectURL(temporal);
-        vista.src = imagenInicial;
-        const imagen = archivo.files?.[0];
+    const imagenInicial = vistaPrevia.src;
+    const tiposPermitidos = ['image/jpeg', 'image/png'];
+    const maximoBytes = 4 * 1024 * 1024;
+    let direccionTemporal;
+
+    function actualizarIlustracionCategoria() {
+        const hayArchivo = campoArchivo.files && campoArchivo.files.length > 0;
+        const usaIlustracion = /\/(pan|croissant|torta)\.svg$/.test(vistaPrevia.src);
+
+        if (hayArchivo || !usaIlustracion) {
+            return;
+        }
+
+        let ilustracion = 'pan.svg';
+
+        if (campoCategoria.value === 'Bizcochos') {
+            ilustracion = 'croissant.svg';
+        } else if (['Tortas', 'Especiales'].includes(campoCategoria.value)) {
+            ilustracion = 'torta.svg';
+        }
+
+        vistaPrevia.src = vistaPrevia.src.replace(/[^/]+$/, ilustracion);
+    }
+
+    function liberarImagenTemporal() {
+        // La vista previa ocupa memoria hasta que se libera su dirección.
+        if (direccionTemporal) {
+            URL.revokeObjectURL(direccionTemporal);
+        }
+    }
+
+    campoArchivo.addEventListener('change', function () {
+        campoArchivo.setCustomValidity('');
+        liberarImagenTemporal();
+        vistaPrevia.src = imagenInicial;
+
+        const imagen = campoArchivo.files && campoArchivo.files[0];
+
         if (!imagen) {
-            actualizarCategoria();
+            actualizarIlustracionCategoria();
             return;
         }
-        if (!['image/jpeg', 'image/png'].includes(imagen.type) || imagen.size > 4 * 1024 * 1024) {
-            archivo.setCustomValidity('Elegí una imagen JPG o PNG de hasta 4 MB.');
-            archivo.reportValidity();
+
+        if (!tiposPermitidos.includes(imagen.type) || imagen.size > maximoBytes) {
+            campoArchivo.setCustomValidity('Elegí una imagen JPG o PNG de hasta 4 MB.');
+            campoArchivo.reportValidity();
             return;
         }
-        temporal = URL.createObjectURL(imagen);
-        vista.src = temporal;
+
+        direccionTemporal = URL.createObjectURL(imagen);
+        vistaPrevia.src = direccionTemporal;
     });
-    categoria.addEventListener('change', actualizarCategoria);
-    window.addEventListener('pagehide', () => { if (temporal) URL.revokeObjectURL(temporal); });
-})();
+
+    campoCategoria.addEventListener('change', actualizarIlustracionCategoria);
+    window.addEventListener('pagehide', liberarImagenTemporal);
+}
+
+iniciarVistaPreviaProducto();

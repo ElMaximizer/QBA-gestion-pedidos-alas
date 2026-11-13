@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 if (PHP_SAPI !== 'cli') {
     http_response_code(404);
-    exit;
+    exit();
 }
 
 function comprobar(bool $condicion, string $descripcion): void
@@ -54,17 +54,47 @@ final class EntornoPruebas
             throw new InvalidArgumentException('Historia de prueba inválida.');
         }
         $this->base = 'qba_' . $historia . '_test_' . bin2hex(random_bytes(6));
-        $this->directorio = sys_get_temp_dir() . '/qba-' . $historia . '-' . bin2hex(random_bytes(6));
+        $this->directorio =
+            sys_get_temp_dir() . '/qba-' . $historia . '-' . bin2hex(random_bytes(6));
         $config = require dirname(__DIR__) . '/config/database.php';
         try {
             mkdir($this->directorio);
-            $this->db = new PDO("mysql:host={$config['host']};port={$config['port']};charset=utf8mb4",
-                $config['user'], $config['password'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false]);
-            $this->db->exec("CREATE DATABASE `{$this->base}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            $this->db = new PDO(
+                "mysql:host={$config['host']};port={$config['port']};charset=utf8mb4",
+                $config['user'],
+                $config['password'],
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                ],
+            );
+            $this->db->exec(
+                "CREATE DATABASE `{$this->base}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+            );
             $this->baseCreada = true;
             $this->db->exec("USE `{$this->base}`");
-            foreach (['estructura.sql', 'contenido-inicio.sql', 'contacto.sql', 'clientes.sql', 'acceso-clientes.sql', 'equipo.sql', 'pedidos-equipo.sql', 'pedido-cambios.sql', 'acceso-equipo.sql', 'entregas-mercaderia.sql', 'productos_demo.sql'] as $archivo) {
+            foreach (
+                [
+                    'estructura.sql',
+                    'contenido-inicio.sql',
+                    'contacto.sql',
+                    'clientes.sql',
+                    'cuenta-clientes.sql',
+                    'direcciones-clientes.sql',
+                    'contacto-clientes.sql',
+                    'codigo-password-clientes.sql',
+                    'codigo-eliminacion-clientes.sql',
+                    'acceso-clientes.sql',
+                    'equipo.sql',
+                    'pedidos-equipo.sql',
+                    'pedido-cambios.sql',
+                    'acceso-equipo.sql',
+                    'entregas-mercaderia.sql',
+                    'productos_demo.sql',
+                ]
+                as $archivo
+            ) {
                 $this->db->exec(file_get_contents(dirname(__DIR__) . '/database/' . $archivo));
             }
         } catch (Throwable $error) {
@@ -81,13 +111,39 @@ final class EntornoPruebas
         }
         $this->direccion = stream_socket_get_name($socket, false);
         fclose($socket);
-        $this->servidor = proc_open([PHP_BINARY, '-d', 'session.save_path="' . $this->directorio . '"',
-            '-d', 'upload_tmp_dir="' . $this->directorio . '"',
-            '-d', 'session.serialize_handler=php',
-            '-S', $this->direccion, '-t', dirname(__DIR__) . '/public', dirname(__DIR__) . '/public/router.php'], [0 => ['pipe', 'r'],
+        $this->servidor = proc_open(
+            [
+                PHP_BINARY,
+                '-d',
+                'session.save_path="' . $this->directorio . '"',
+                '-d',
+                'upload_tmp_dir="' . $this->directorio . '"',
+                '-d',
+                'session.serialize_handler=php',
+                '-S',
+                $this->direccion,
+                '-t',
+                dirname(__DIR__) . '/public',
+                dirname(__DIR__) . '/public/router.php',
+            ],
+            [
+                0 => ['pipe', 'r'],
                 1 => ['file', $this->directorio . '/servidor.log', 'a'],
-                2 => ['file', $this->directorio . '/errores.log', 'a']], $tuberias, dirname(__DIR__),
-            array_replace(getenv(), ['QBA_DB_NAME' => $this->base, 'QBA_MAIL_TRANSPORT' => 'local'], $this->correo), ['bypass_shell' => true]);
+                2 => ['file', $this->directorio . '/errores.log', 'a'],
+            ],
+            $tuberias,
+            dirname(__DIR__),
+            array_replace(
+                getenv(),
+                [
+                    'QBA_DB_NAME' => $this->base,
+                    'QBA_MAIL_TRANSPORT' => 'local',
+                    'QBA_EQUIPO_WHITELIST' => $this->directorio . '/whitelist.json',
+                ],
+                $this->correo,
+            ),
+            ['bypass_shell' => true],
+        );
         if (!is_resource($this->servidor)) {
             throw new RuntimeException('No se pudo iniciar el servidor de pruebas.');
         }
@@ -106,17 +162,31 @@ final class EntornoPruebas
     public function solicitar(string $ruta, ?array $campos = null, ?string $sesion = null): array
     {
         $curl = curl_init($this->url() . '/' . ltrim($ruta, '/'));
-        curl_setopt_array($curl, [CURLOPT_RETURNTRANSFER => true, CURLOPT_HEADER => true,
-            CURLOPT_CONNECTTIMEOUT => 1, CURLOPT_TIMEOUT => 5, CURLOPT_FOLLOWLOCATION => false]);
+        curl_setopt_array($curl, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => true,
+            CURLOPT_CONNECTTIMEOUT => 1,
+            CURLOPT_TIMEOUT => 5,
+            CURLOPT_FOLLOWLOCATION => false,
+        ]);
         if ($sesion === null) {
-            curl_setopt_array($curl, [CURLOPT_COOKIEFILE => $this->directorio . '/cookies',
-                CURLOPT_COOKIEJAR => $this->directorio . '/cookies']);
+            curl_setopt_array($curl, [
+                CURLOPT_COOKIEFILE => $this->directorio . '/cookies',
+                CURLOPT_COOKIEJAR => $this->directorio . '/cookies',
+            ]);
         } else {
             curl_setopt($curl, CURLOPT_COOKIE, 'QBA_SESSION=' . $sesion);
         }
         if ($campos !== null) {
-            $multipart = (bool) array_filter($campos, static fn (mixed $valor): bool => $valor instanceof CURLFile);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $multipart ? $campos : http_build_query($campos));
+            $multipart = (bool) array_filter(
+                $campos,
+                static fn(mixed $valor): bool => $valor instanceof CURLFile,
+            );
+            curl_setopt(
+                $curl,
+                CURLOPT_POSTFIELDS,
+                $multipart ? $campos : http_build_query($campos),
+            );
         }
         $respuesta = curl_exec($curl);
         $estado = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
@@ -162,9 +232,18 @@ final class EntornoPruebas
 
     public function cli(string $archivo, array $argumentos): array
     {
-        $proceso = proc_open([PHP_BINARY, dirname(__DIR__) . '/' . $archivo, ...$argumentos],
-            [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $tuberias, dirname(__DIR__),
-            array_replace(getenv(), ['QBA_DB_NAME' => $this->base, 'QBA_MAIL_TRANSPORT' => 'local'], $this->correo), ['bypass_shell' => true]);
+        $proceso = proc_open(
+            [PHP_BINARY, dirname(__DIR__) . '/' . $archivo, ...$argumentos],
+            [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $tuberias,
+            dirname(__DIR__),
+            array_replace(
+                getenv(),
+                ['QBA_DB_NAME' => $this->base, 'QBA_MAIL_TRANSPORT' => 'local'],
+                $this->correo,
+            ),
+            ['bypass_shell' => true],
+        );
         fclose($tuberias[0]);
         $salida = stream_get_contents($tuberias[1]);
         $error = stream_get_contents($tuberias[2]);
@@ -175,7 +254,9 @@ final class EntornoPruebas
 
     public function errores(): string
     {
-        return is_file($this->directorio . '/errores.log') ? file_get_contents($this->directorio . '/errores.log') : '';
+        return is_file($this->directorio . '/errores.log')
+            ? file_get_contents($this->directorio . '/errores.log')
+            : '';
     }
 
     public function cerrar(): void
@@ -188,7 +269,10 @@ final class EntornoPruebas
             proc_terminate($this->servidor);
             proc_close($this->servidor);
         }
-        if ($this->baseCreada && preg_match('/^qba_(?:hu[0-9]{2}|equipo)_test_[a-f0-9]{12}$/D', $this->base)) {
+        if (
+            $this->baseCreada &&
+            preg_match('/^qba_(?:hu[0-9]{2}|equipo)_test_[a-f0-9]{12}$/D', $this->base)
+        ) {
             $this->db->exec("DROP DATABASE `{$this->base}`");
         }
         if (is_dir($this->directorio)) {

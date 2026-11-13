@@ -40,7 +40,12 @@ final class Sesion
 
     public static function requerirEquipo(): array
     {
-        return self::equipo() ?? Http::redirigir('equipo-login');
+        $equipo = self::equipo();
+        if ($equipo === null) {
+            Http::redirigir('equipo-login');
+        }
+
+        return $equipo;
     }
 
     public static function administraProductos(): bool
@@ -74,19 +79,32 @@ final class Sesion
             self::cerrarCliente();
             return null;
         }
-        self::$clienteActual = (new AccesoCliente(Conexion::obtener()))->buscarVerificado($idCliente);
-        if (self::$clienteActual === null) {
+        self::$clienteActual = (new AccesoCliente(Conexion::obtener()))->buscarVerificado(
+            $idCliente,
+        );
+        $version = $_SESSION['qba']['cliente_version'] ?? null;
+        if (
+            self::$clienteActual === null ||
+            !is_string($version) ||
+            !hash_equals(self::$clienteActual['version_acceso'], $version)
+        ) {
             self::cerrarCliente();
             return null;
         }
+        unset(self::$clienteActual['version_acceso']);
         $_SESSION['qba']['cliente_ultimo_acceso'] = time();
         return self::$clienteActual;
     }
 
-    public static function iniciarCliente(int $idCliente): void
+    public static function iniciarCliente(int $idCliente, string $version): void
     {
+        $cliente = (new AccesoCliente(Conexion::obtener()))->buscarVerificado($idCliente);
+        if ($cliente === null || !hash_equals($cliente['version_acceso'], $version)) {
+            throw new DomainException('Tu cuenta cambió. Volvé a iniciar sesión para continuar.');
+        }
         self::renovarIdentidad();
         $_SESSION['qba']['cliente_id'] = $idCliente;
+        $_SESSION['qba']['cliente_version'] = $cliente['version_acceso'];
         $_SESSION['qba']['cliente_ultimo_acceso'] = time();
     }
 
@@ -111,20 +129,25 @@ final class Sesion
 
     public static function csrf(): string
     {
-        return $_SESSION['qba']['csrf'] ??= bin2hex(random_bytes(32));
+        if (!isset($_SESSION['qba']['csrf'])) {
+            $_SESSION['qba']['csrf'] = bin2hex(random_bytes(32));
+        }
+
+        return $_SESSION['qba']['csrf'];
     }
 
     public static function validarCsrf(mixed $token): void
     {
         if (!is_string($token) || !hash_equals(self::csrf(), $token)) {
-            throw new DomainException('La sesión del formulario venció. Recargá la página e intentá nuevamente.');
+            throw new DomainException(
+                'La sesión del formulario venció. Recargá la página e intentá nuevamente.',
+            );
         }
     }
 
     public static function nuevoFormulario(string $firma): string
     {
-        $formularios = array_filter($_SESSION['qba']['formularios'] ?? [],
-            static fn (array $formulario): bool => $formulario['creado'] >= time() - 1800);
+        $formularios = self::formulariosVigentes('formularios');
         $formularios = array_slice($formularios, -9, null, true);
         $token = bin2hex(random_bytes(32));
         $formularios[$token] = ['creado' => time(), 'firma' => $firma, 'pedido' => null];
@@ -132,11 +155,26 @@ final class Sesion
         return $token;
     }
 
+    /** Conserva las claves originales para poder reconocer cada formulario al recibirlo. */
+    public static function formulariosVigentes(string $claveSesion): array
+    {
+        $formularios = $_SESSION['qba'][$claveSesion] ?? [];
+        foreach ($formularios as $token => $formulario) {
+            if ($formulario['creado'] < time() - 1800) {
+                unset($formularios[$token]);
+            }
+        }
+
+        return $formularios;
+    }
+
     public static function formulario(string $token): array
     {
         $formulario = $_SESSION['qba']['formularios'][$token] ?? null;
         if (!$formulario || $formulario['creado'] < time() - 1800) {
-            throw new DomainException('El formulario venció. Volvé al carrito para revisar y confirmar el pedido.');
+            throw new DomainException(
+                'El formulario venció. Volvé al carrito para revisar y confirmar el pedido.',
+            );
         }
         return $formulario;
     }
