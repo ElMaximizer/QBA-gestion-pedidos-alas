@@ -19,7 +19,7 @@
                 'css/equipo-stock.css' => '?v=20261113-2',
                 'css/equipo-ventas.css' => '?v=20261113-1',
                 'css/mercaderia.css' => '?v=20261113-1',
-                'css/equipo-personal.css' => '?v=20261113-2',
+                'css/equipo-personal.css' => '?v=20261113-3',
                 'css/equipo-pedido-form.css' => '?v=20261113-1',
                 'css/equipo-catalogo.css' => '?v=20261113-1',
                 'css/transferencia-pedido.css' => '?v=20261113-1',

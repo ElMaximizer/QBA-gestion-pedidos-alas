@@ -281,7 +281,8 @@
 }
 
 /* Alta directa de personal (HU21) */
-.equipo-personal__crear {
+.equipo-personal .tarjeta.equipo-personal__crear {
+    padding: 0;
     margin-block: 1.75rem 2.25rem;
     overflow: hidden;
     border: 1px solid #e5d9ca;
@@ -306,6 +307,7 @@
 }
 .equipo-personal__crear-intro {
     display: grid;
+    min-width: 0;
     gap: .35rem;
 }
 .equipo-personal__crear-intro .etiqueta { color: #a84d35; }
@@ -335,6 +337,7 @@
 .equipo-personal__crear[open] .equipo-personal__crear-cerrar { display: inline; }
 .equipo-personal__crear-icono {
     position: relative;
+    flex-shrink: 0;
     width: 2rem;
     height: 2rem;
     border: 1px solid #ddcfbf;
@@ -382,9 +385,20 @@
     line-height: 1.45;
 }
 .equipo-personal__crear-ayuda { grid-column: 1; font-size: .85rem; }
-.equipo-personal__crear-boton { grid-column: 2; justify-self: end; align-self: end; }
+.equipo-personal__crear-boton {
+    grid-column: 2;
+    justify-self: end;
+    align-self: end;
+    min-width: 0;
+    white-space: normal;
+}
+.equipo-personal__crear-formulario input { font-size: 16px; }
 @media (max-width: 560px) {
-    .equipo-personal__crear-resumen { align-items: flex-start; }
+    .equipo-personal__crear-resumen {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
     .equipo-personal__crear-accion { gap: .4rem; font-size: .78rem; }
     .equipo-personal__crear-icono { width: 1.7rem; height: 1.7rem; }
     .equipo-personal__crear-contenido { padding-inline: 1rem; }
