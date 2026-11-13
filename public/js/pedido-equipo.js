@@ -162,6 +162,13 @@ function iniciarFormularioPedidoEquipo() {
     const maximaCantidad = Number(formulario.dataset.cantidadMaxima);
     const avisoError = document.querySelector('[data-pedido-error]');
     const listaErrores = avisoError.querySelector('[data-pedido-errores-lista]');
+    const contadorLineas = formulario.querySelector('[data-pedido-contador]');
+    const clienteResumen = formulario.querySelector('[data-pedido-cliente]');
+    const pagoResumen = formulario.querySelector('[data-pedido-pago-resumen]');
+    const esPedidoNuevo = formulario.dataset.pedidoNuevo === 'true';
+    const registroHabilitado = !botonRegistrar.disabled;
+    const textoRegistrar = botonRegistrar.textContent;
+    formulario.classList.add('pedido-equipo__formulario--interactivo');
 
     function actualizarErrores() {
         listaErrores.replaceChildren();
@@ -251,6 +258,10 @@ function iniciarFormularioPedidoEquipo() {
         const metodo =
             formulario.querySelector('input[name="metodo_pago"]:checked')?.value || 'local';
         const requiereComprobante = metodo === 'transferencia';
+        if (pagoResumen) {
+            pagoResumen.textContent = requiereComprobante
+                ? 'Transferencia pendiente de revisión' : 'Efectivo en el local';
+        }
         bloqueComprobante.hidden = !requiereComprobante;
         campoComprobante.required = requiereComprobante;
         if (!requiereComprobante) campoComprobante.value = '';
@@ -267,6 +278,10 @@ function iniciarFormularioPedidoEquipo() {
     });
 
     function actualizarDatosRetiro() {
+        if (clienteResumen) {
+            clienteResumen.textContent = formulario.elements.cliente_nombre.value.trim()
+                || 'Completá el nombre del cliente';
+        }
         const fecha = formulario.elements.fecha_retiro.value;
         const hora = formulario.elements.hora_retiro.value;
         const modalidad =
@@ -371,6 +386,11 @@ function iniciarFormularioPedidoEquipo() {
         }
 
         botonAgregar.disabled = filas.length >= maximoProductos || botonRegistrar.disabled;
+        if (contadorLineas) {
+            const texto = `${filas.length} de ${maximoProductos} líneas en el pedido.`
+                + (filas.length >= maximoProductos ? ' Llegaste al máximo permitido.' : '');
+            if (contadorLineas.textContent !== texto) contadorLineas.textContent = texto;
+        }
         avisoIncompleto.hidden = pedidoCompleto;
         textoTotal.textContent = pedidoCompleto ? formatearDinero(totalCentavos) : '—';
         actualizarDatosRetiro();
@@ -381,7 +401,7 @@ function iniciarFormularioPedidoEquipo() {
     botonAgregar.addEventListener('click', function (evento) {
         evento.preventDefault();
 
-        if (contenedorLineas.children.length >= maximoProductos) {
+        if (formulario.dataset.registrando === 'true' || contenedorLineas.children.length >= maximoProductos) {
             return;
         }
 
@@ -410,13 +430,15 @@ function iniciarFormularioPedidoEquipo() {
 
         evento.preventDefault();
 
-        if (contenedorLineas.children.length <= 1) {
+        if (formulario.dataset.registrando === 'true' || contenedorLineas.children.length <= 1) {
             return;
         }
 
-        botonQuitar.closest('fieldset').remove();
+        const fila = botonQuitar.closest('fieldset');
+        const siguiente = fila.nextElementSibling || fila.previousElementSibling;
+        fila.remove();
         actualizarPedido();
-        botonAgregar.focus();
+        siguiente.querySelector('select').focus();
     });
 
     function cambiarCampo(evento) {
@@ -432,11 +454,34 @@ function iniciarFormularioPedidoEquipo() {
     formulario.addEventListener('change', cambiarCampo);
     formulario.addEventListener('keydown', function (evento) {
         // Enter registra el pedido; los botones para agregar o quitar requieren un clic.
-        if (evento.key === 'Enter' && evento.target.matches('input')) {
+        if (evento.key === 'Enter' && evento.target.matches('input:not([type="file"])')) {
             evento.preventDefault();
             formulario.requestSubmit(botonRegistrar);
         }
     });
+
+    if (esPedidoNuevo) {
+        formulario.addEventListener('submit', function (evento) {
+            if (evento.defaultPrevented) return;
+            if (formulario.dataset.registrando === 'true') {
+                evento.preventDefault();
+                return;
+            }
+            if (evento.submitter !== botonRegistrar || !registroHabilitado) return;
+            formulario.dataset.registrando = 'true';
+            formulario.setAttribute('aria-busy', 'true');
+            // El botón envía accion=registrar y debe conservarse habilitado.
+            botonRegistrar.setAttribute('aria-disabled', 'true');
+            botonRegistrar.textContent = 'Registrando pedido…';
+        });
+        window.addEventListener('pageshow', function () {
+            delete formulario.dataset.registrando;
+            formulario.removeAttribute('aria-busy');
+            botonRegistrar.removeAttribute('aria-disabled');
+            botonRegistrar.textContent = textoRegistrar;
+            actualizarPedido();
+        });
+    }
 
     actualizarPedido();
 

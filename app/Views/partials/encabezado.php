@@ -19,13 +19,14 @@
                 'css/equipo-ventas.css' => '?v=20261113-1',
                 'css/mercaderia.css' => '?v=20261113-1',
                 'css/equipo-personal.css' => '?v=20261113-2',
+                'css/equipo-pedido-form.css' => '?v=20261113-1',
                 default => '',
             };
             ?>
             <link rel="stylesheet" href="<?= $escapar($recurso($estilo) . $versionEstilo) ?>">
         <?php endforeach; ?>
         <?php foreach ($scripts as $script): ?>
-            <?php $versionScript = in_array($script, ['js/productos.js', 'js/mercaderia.js'], true) ? '?v=20261113-1' : ''; ?>
+            <?php $versionScript = in_array($script, ['js/productos.js', 'js/mercaderia.js', 'js/pedido-equipo.js'], true) ? '?v=20261113-1' : ''; ?>
             <script src="<?= $escapar($recurso($script) . $versionScript) ?>" defer></script>
         <?php endforeach; ?>
         <?php if (!$esPanel): ?>

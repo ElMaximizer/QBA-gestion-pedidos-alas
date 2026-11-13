@@ -20,7 +20,7 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
 ?>
 <main id="contenido" class="contenedor panel pedido-equipo">
     <div class="titulo-pagina">
-        <span class="etiqueta">ADMINISTRACIÓN · PEDIDOS</span>
+        <span class="etiqueta"><?= $esEdicion ? 'ADMINISTRACIÓN' : 'ATENCIÓN DEL EQUIPO' ?> · PEDIDOS</span>
         <h1 class="titulo-pagina__titulo"><?= $esEdicion ? 'Modificar pedido #' . $pedido['id_pedido'] : 'Registrar pedido' ?></h1>
         <p class="titulo-pagina__descripcion"> <?= $esEdicion ? 'Consultá el detalle y corregí la información del pedido. Cada modificación se conserva en el historial.' : 'Completá los datos del cliente y revisá el pedido antes de guardarlo.' ?> </p>
     </div>
@@ -37,8 +37,12 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
     <?php if (!$productos): ?>
         <section class="tarjeta vacio pedido-equipo__vacio">
             <h2 class="vacio__titulo">No hay productos disponibles</h2>
-            <p class="vacio__descripcion">Agregá o activá productos del catálogo para registrar un pedido.</p>
-            <a class="boton boton--dorado" href="<?= $url('equipo-productos') ?>">Administrar productos</a>
+            <?php if ($administraProductos): ?>
+                <p class="vacio__descripcion">Agregá o activá productos del catálogo para registrar un pedido.</p>
+                <a class="boton boton--dorado" href="<?= $url('equipo-productos') ?>">Administrar productos</a>
+            <?php else: ?>
+                <p class="vacio__descripcion">Pedile al administrador o al dueño que agregue o active los productos del catálogo.</p>
+            <?php endif; ?>
         </section>
     <?php else: ?>
         <?php if ($esEdicion && in_array($pedido['estado'], ['Entregado', 'Cancelado'], true)): ?>
@@ -46,7 +50,7 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
         <?php endif; ?>
         <form class="pedido-equipo__formulario" method="post" enctype="multipart/form-data"
             action="<?= $escapar($url($rutaFormulario, $parametrosFormulario)) ?>"
-            data-pedido-equipo data-maximo="<?= $maximoProductos ?>" data-cantidad-maxima="<?= $maximaCantidad ?>">
+            data-pedido-equipo data-pedido-nuevo="<?= $esEdicion ? 'false' : 'true' ?>" data-maximo="<?= $maximoProductos ?>" data-cantidad-maxima="<?= $maximaCantidad ?>">
             <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
             <input type="hidden" name="pedido_token" value="<?= $escapar($token) ?>">
             <section class="tarjeta pila pedido-equipo__datos" aria-labelledby="pedido-cliente">
@@ -83,8 +87,7 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
                     </label>
                     <?= $errorCampo('modalidad_entrega') ?>
                 </fieldset>
-                <div class="campo pedido-equipo__direccion" data-direccion-envio
-                    <?= ($valores['modalidad_entrega'] ?? 'retiro') !== 'domicilio' && !isset($erroresCampos['direccion_entrega']) ? 'hidden' : '' ?>>
+                <div class="campo pedido-equipo__direccion" data-direccion-envio>
                     <label for="direccion-entrega-equipo">Dirección de entrega <span class="campo-obligatorio" aria-hidden="true">*</span></label>
                     <input class="campo__entrada" name="direccion_entrega" <?= $atributosCampo('direccion_entrega') ?>
                         maxlength="250" autocomplete="street-address"
@@ -124,17 +127,15 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
                         </label>
                         <?= $errorCampo('metodo_pago') ?>
                     </fieldset>
-                    <div class="pedido-equipo__comprobante" data-comprobante-equipo
-                        <?= ($valores['metodo_pago'] ?? 'local') !== 'transferencia' ? 'hidden' : '' ?>>
+                    <div class="pedido-equipo__comprobante" data-comprobante-equipo>
                         <div class="pedido-equipo__comprobante-intro">
                             <label class="pedido-equipo__comprobante-titulo" for="comprobante-equipo">
                                 Comprobante de transferencia <span class="campo-obligatorio" aria-hidden="true">*</span>
                             </label>
-                            <p>Adjuntá la imagen para que el administrador o el dueño revise el pago.</p>
+                            <p>Obligatorio si elegís transferencia. Adjuntá la imagen para que el administrador o el dueño revise el pago.</p>
                         </div>
-                        <input class="pedido-equipo__archivo-input" type="file" name="comprobante" <?= $atributosCampo('comprobante') ?>
-                            accept="image/jpeg,image/png,image/webp"
-                            <?= ($valores['metodo_pago'] ?? 'local') === 'transferencia' ? 'required' : '' ?>>
+                        <input class="pedido-equipo__archivo-input" type="file" name="comprobante" <?= $atributosCampo('comprobante', 'pedido-comprobante-ayuda') ?>
+                            accept="image/jpeg,image/png,image/webp">
                         <label class="pedido-equipo__archivo-zona" for="comprobante-equipo">
                             <span class="pedido-equipo__archivo-icono" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" focusable="false">
@@ -148,7 +149,7 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
                             <span class="pedido-equipo__archivo-boton">Seleccionar archivo</span>
                         </label>
                         <?= $errorCampo('comprobante') ?>
-                        <p class="pedido-equipo__comprobante-nota">El pago quedará pendiente hasta que el equipo revise el comprobante.</p>
+                        <p class="pedido-equipo__comprobante-nota" id="pedido-comprobante-ayuda">JPG, PNG o WebP, hasta 2 MB. El pago quedará pendiente hasta que el equipo revise el comprobante.</p>
                     </div>
                 <?php else: ?>
                     <p class="pedido-equipo__ayuda">Forma de pago: <strong><?= $valores['metodo_pago'] === 'transferencia' ? 'Transferencia bancaria' : 'Efectivo en el local' ?></strong></p>
@@ -156,6 +157,9 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
                 <hr class="separador pedido-equipo__separador">
                 <h2 class="pedido-equipo__titulo" id="pedido-productos">2. Productos</h2>
                 <p class="pedido-equipo__ayuda">Seleccioná cada producto una sola vez. El precio corresponde a la presentación indicada.</p>
+                <?php if (!$esEdicion): ?>
+                    <p class="pedido-equipo__ayuda">Hasta <?= $maximoProductos ?> productos distintos, de 1 a <?= $maximaCantidad ?> unidades por producto.</p>
+                <?php endif; ?>
                 <?php if ($esEdicion): ?>
                     <p class="pedido-equipo__ayuda">Los productos que ya estaban en el pedido conservan su nombre y precio originales. Los productos nuevos usan el precio actual del catálogo.</p>
                 <?php endif; ?>
@@ -195,6 +199,9 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
                 </div>
                 <button class="boton boton--contorno" type="submit" name="accion" value="agregar-linea" formnovalidate
                     <?= count($valores['lineas']) >= $maximoProductos || !$puedeConfirmar ? 'disabled' : '' ?>>+ Agregar otra línea</button>
+                <?php if (!$esEdicion): ?>
+                    <p class="pedido-equipo__contador" role="status" data-pedido-contador><?= count($valores['lineas']) ?> de <?= $maximoProductos ?> líneas en el pedido.</p>
+                <?php endif; ?>
                 <label class="campo">Notas del pedido (opcional) <textarea class="campo__entrada campo__entrada--multilinea" name="notas" rows="4" maxlength="2000" <?= $atributosCampo('notas') ?>
                         placeholder="Indicaciones para preparar el pedido"><?= $escapar($valores['notas']) ?></textarea>
                     <?= $errorCampo('notas') ?>
@@ -217,6 +224,12 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
             </section>
             <aside class="tarjeta pedido-equipo__resumen" aria-labelledby="pedido-resumen">
                 <h2 class="pedido-equipo__titulo" id="pedido-resumen">Resumen</h2>
+                <?php if (!$esEdicion): ?>
+                    <dl class="pedido-equipo__confirmacion-datos">
+                        <div><dt>Cliente</dt><dd data-pedido-cliente><?= $escapar($valores['cliente_nombre'] !== '' ? $valores['cliente_nombre'] : 'Completá el nombre del cliente') ?></dd></div>
+                        <div><dt>Forma de pago</dt><dd data-pedido-pago-resumen><?= $valores['metodo_pago'] === 'transferencia' ? 'Transferencia pendiente de revisión' : 'Efectivo en el local' ?></dd></div>
+                    </dl>
+                <?php endif; ?>
                 <ul class="pedido-equipo__detalle" data-pedido-resumen>
                     <?php foreach ($resumen as $linea): ?>
                         <li class="pedido-equipo__articulo">
@@ -227,7 +240,10 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
                 <p class="pedido-equipo__ayuda" data-pedido-incompleto <?= $resumenCompleto ? 'hidden' : '' ?>>Completá las líneas para ver el total del pedido.</p>
                 <p class="pedido-equipo__total">Total <strong data-pedido-total aria-live="polite" aria-atomic="true"><?= $resumenCompleto ? $dinero($total) : '—' ?></strong>
                 </p>
-                <p class="pedido-equipo__ayuda" data-pedido-retiro>Retiro · <?= $escapar($valores['fecha_retiro']) ?> · <?= $escapar($valores['hora_retiro']) ?></p>
+                <p class="pedido-equipo__ayuda" data-pedido-retiro><?= $valores['modalidad_entrega'] === 'domicilio' ? 'Envío a domicilio' : 'Retiro' ?> · <?= $escapar($valores['fecha_retiro']) ?> · <?= $escapar($valores['hora_retiro']) ?></p>
+                <?php if (!$esEdicion): ?>
+                    <p class="pedido-equipo__ayuda">Registrar el pedido conserva el pago como pendiente.</p>
+                <?php endif; ?>
                 <span class="insignia insignia--neutra"
                     data-pedido-estado-resumen><?= $esEdicion ? 'Estado: ' . $escapar($valores['estado']) : 'Estado inicial: Pendiente' ?></span>
                 <div class="pedido-equipo__acciones">
@@ -242,6 +258,9 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
                 <p class="pedido-equipo__ayuda"> <?= $esEdicion ? 'Los cambios se aplicarán al pedido #' . $pedido['id_pedido'] . '.' : 'El número de pedido se asigna automáticamente al guardar.' ?> </p>
                 <noscript>
                     <p class="pedido-equipo__ayuda">Podés agregar o quitar líneas para actualizar el resumen antes de registrar.</p>
+                    <?php if (!$esEdicion): ?>
+                        <p class="pedido-equipo__ayuda">Si elegiste un comprobante y después agregás o quitás líneas, volvé a seleccionar el archivo antes de registrar.</p>
+                    <?php endif; ?>
                 </noscript>
             </aside>
         </form>
