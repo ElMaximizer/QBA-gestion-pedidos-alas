@@ -655,7 +655,7 @@ campo, conservación de valores, comprobante y reenvío sin duplicados en una ba
 `id_usuario_registro` identifica a la cuenta del equipo que tomó el pedido;
 `id_cliente` conserva NULL para estos pedidos. Ambos identificadores, el total
 y el estado se deciden en el servidor. Los pedidos web conservan su asociación
-al cliente. La creación para empleados queda pendiente de HU11.
+al cliente. HU11 habilita el mismo formulario para las cuentas de empleado.
 
 Para actualizar una instalación existente, ejecutar el instalador habitual:
 
@@ -665,6 +665,22 @@ También se puede ejecutar `database/pedidos-equipo.sql` desde MySQL sobre la ba
 del proyecto, después de `estructura.sql` y `equipo.sql`. Agrega la columna del
 responsable y su clave foránea sin modificar los pedidos existentes y admite
 ejecuciones repetidas. No se necesita cargar nuevamente los datos de demostración.
+
+## HU11 — Registrar pedidos como empleado
+
+Las cuentas aprobadas de empleado usan el mismo acceso **Nuevo pedido** y el
+formulario del equipo que administrador y dueño. El resumen de un pedido nuevo
+muestra el cliente, la forma de pago y la modalidad de entrega antes de guardar.
+El registro conserva el pago pendiente; una transferencia requiere el comprobante
+y su revisión posterior.
+
+Se muestran los límites de productos y cantidades y el número de líneas del
+pedido. JavaScript actualiza el resumen, conserva el foco al quitar una línea y
+muestra el registro en curso, manteniendo la acción del botón y la protección
+contra duplicados del servidor. Sin JavaScript, la dirección y el selector nativo
+del comprobante quedan disponibles para completar los datos de envío o pago.
+Si el catálogo está vacío, al empleado se le indica pedir la habilitación de
+productos al administrador o al dueño. No requiere cambios de SQL.
 
 ## HU02 — Cambiar el estado de un pedido
 
