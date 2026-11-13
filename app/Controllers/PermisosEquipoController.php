@@ -32,17 +32,38 @@ final class PermisosEquipoController
         $rol = '';
         $aviso = '';
         $error = '';
+        $nuevoNombre = '';
+        $nuevaCedula = '';
+        $nuevoEmail = '';
 
         try {
             $busqueda = Http::texto($_GET, 'q');
             $rol = Http::texto($_GET, 'rol');
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 Sesion::validarCsrf($_POST['csrf'] ?? null);
+                $accion = Http::texto($_POST, 'accion', 'cambiar_rol');
+
+                if ($accion === 'crear_empleado') {
+                    $nuevoNombre = Http::texto($_POST, 'nombre');
+                    $nuevaCedula = Http::texto($_POST, 'cedula');
+                    $nuevoEmail = Http::texto($_POST, 'email');
+                    PermisosEquipo::gestion()->crearEmpleado(
+                        (int) $dueno['id_usuario'],
+                        $nuevoNombre,
+                        $nuevaCedula,
+                        $nuevoEmail,
+                        Http::cadena($_POST, 'password'),
+                        Http::cadena($_POST, 'confirmacion'),
+                    );
+                    $_SESSION['qba']['aviso_permisos'] =
+                        'La cuenta de empleado fue creada y ya puede iniciar sesión.';
+                    Http::redirigir('equipo-permisos');
+                }
+
                 $idUsuario = filter_var(Http::cadena($_POST, 'id_usuario'), FILTER_VALIDATE_INT, [
                     'options' => ['min_range' => 1],
                 ]);
                 $rolNuevo = Http::texto($_POST, 'rol');
-                $accion = Http::texto($_POST, 'accion', 'cambiar_rol');
                 if ($idUsuario === false) {
                     throw new DomainException('Seleccioná una cuenta válida.');
                 }
@@ -72,7 +93,7 @@ final class PermisosEquipoController
             http_response_code(422);
             $error = $excepcion->getMessage();
         } catch (Throwable $excepcion) {
-            error_log('HU22: falló la gestión de permisos (' . $excepcion::class . ').');
+            error_log('HU21/HU22: falló la gestión de personal y permisos (' . $excepcion::class . ').');
             http_response_code(503);
             $error = 'No pudimos actualizar los permisos en este momento. Intentá nuevamente.';
         }
@@ -84,7 +105,7 @@ final class PermisosEquipoController
             $error = $error !== '' ? $error : $excepcion->getMessage();
             $usuarios = [];
         } catch (Throwable $excepcion) {
-            error_log('HU22: falló la consulta de cuentas (' . $excepcion::class . ').');
+            error_log('HU21/HU22: falló la consulta de cuentas (' . $excepcion::class . ').');
             http_response_code(503);
             $error = 'No pudimos cargar las cuentas en este momento. Intentá nuevamente.';
             $usuarios = [];
@@ -105,6 +126,9 @@ final class PermisosEquipoController
             'rutaPersonal' => 'equipo-permisos',
             'aviso' => $aviso,
             'error' => $error,
+            'nuevoNombre' => $nuevoNombre,
+            'nuevaCedula' => $nuevaCedula,
+            'nuevoEmail' => $nuevoEmail,
         ]);
     }
 }
