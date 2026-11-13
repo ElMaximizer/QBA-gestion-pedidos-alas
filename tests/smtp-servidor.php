@@ -4,7 +4,7 @@ declare(strict_types=1);
 // Receptor SMTP exclusivo de pruebas: solo escucha en la interfaz local.
 if (PHP_SAPI !== 'cli') {
     http_response_code(404);
-    exit();
+    exit;
 }
 $directorio = $argv[1] ?? '';
 if (!is_dir($directorio)) {
@@ -24,11 +24,7 @@ while ($conexion = @stream_socket_accept($servidor, 30)) {
         clearstatcache(true, $directorio . '/recuperado');
         if ($comando === 'EHLO' || $comando === 'HELO') {
             fwrite($conexion, "250-localhost\r\n250 8BITMIME\r\n");
-        } elseif (
-            $comando === 'RCPT' &&
-            str_contains($linea, 'fallo@example.test') &&
-            !is_file($directorio . '/recuperado')
-        ) {
+        } elseif ($comando === 'RCPT' && str_contains($linea, 'fallo@example.test') && !is_file($directorio . '/recuperado')) {
             fwrite($conexion, "550 rechazo de prueba sin-datos-privados\r\n");
         } elseif ($comando === 'DATA') {
             fwrite($conexion, "354 terminar con punto\r\n");

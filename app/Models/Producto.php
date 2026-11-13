@@ -10,13 +10,10 @@ use Throwable;
 
 final class Producto
 {
-    public const CATEGORIAS = ['Rolls y cups', 'Hojaldres y medialunas', 'Budines', 'Panes', 'Bizcochos', 'Tortas', 'Especiales'];
+    public const CATEGORIAS = ['Panes', 'Bizcochos', 'Tortas', 'Especiales'];
 
-    private readonly PDO $conexion;
-
-    public function __construct(PDO $conexion)
+    public function __construct(private readonly PDO $db)
     {
-        $this->conexion = $conexion;
     }
 
     public static function catalogo(): self
@@ -26,29 +23,15 @@ final class Producto
 
     public function resumenActivos(): array
     {
-        $resumen = $this->conexion
-            ->query(
-                'SELECT COUNT(*) AS productos, COUNT(DISTINCT categoria) AS categorias
-            FROM productos WHERE activo = 1 AND eliminado_en IS NULL',
-            )
-            ->fetch();
-        return [
-            'productos' => (int) $resumen['productos'],
-            'categorias' => (int) $resumen['categorias'],
-        ];
+        $resumen = $this->db->query('SELECT COUNT(*) AS productos, COUNT(DISTINCT categoria) AS categorias
+            FROM productos WHERE activo = 1 AND eliminado_en IS NULL')->fetch();
+        return ['productos' => (int) $resumen['productos'], 'categorias' => (int) $resumen['categorias']];
     }
 
-    public function listarGestion(
-        string $busqueda = '',
-        string $estado = '',
-        int $pagina = 1,
-    ): array {
-        if (
-            !mb_check_encoding($busqueda, 'UTF-8') ||
-            mb_strlen($busqueda) > 120 ||
-            !in_array($estado, ['', '0', '1'], true) ||
-            $pagina < 1
-        ) {
+    public function listarGestion(string $busqueda = '', string $estado = '', int $pagina = 1): array
+    {
+        if (!mb_check_encoding($busqueda, 'UTF-8') || mb_strlen($busqueda) > 120
+            || !in_array($estado, ['', '0', '1'], true) || $pagina < 1) {
             throw new DomainException('Revisá la búsqueda, el estado y la página seleccionada.');
         }
         $condiciones = 'eliminado_en IS NULL';
@@ -62,42 +45,25 @@ final class Producto
             $condiciones .= ' AND activo = ?';
             $parametros[] = $estado;
         }
-        $consulta = $this->conexion->prepare(
-            'SELECT COUNT(*) FROM productos WHERE ' . $condiciones,
-        );
+        $consulta = $this->db->prepare('SELECT COUNT(*) FROM productos WHERE ' . $condiciones);
         $consulta->execute($parametros);
         $total = (int) $consulta->fetchColumn();
         $paginas = max(1, (int) ceil($total / 25));
         $pagina = min($pagina, $paginas);
-        $consulta = $this->conexion->prepare(
-            'SELECT * FROM productos WHERE ' .
-                $condiciones .
-                ' ORDER BY id_producto LIMIT 25 OFFSET ?',
-        );
+        $consulta = $this->db->prepare('SELECT * FROM productos WHERE ' . $condiciones . ' ORDER BY id_producto LIMIT 25 OFFSET ?');
         foreach ($parametros as $indice => $valor) {
             $consulta->bindValue($indice + 1, $valor);
         }
         $consulta->bindValue(count($parametros) + 1, ($pagina - 1) * 25, PDO::PARAM_INT);
         $consulta->execute();
-        $productos = [];
-        foreach ($consulta->fetchAll() as $fila) {
-            $productos[] = self::normalizar($fila);
-        }
-
-        return [
-            'productos' => $productos,
-            'total' => $total,
-            'pagina' => $pagina,
-            'paginas' => $paginas,
-        ];
+        return ['productos' => array_map(self::normalizar(...), $consulta->fetchAll()),
+            'total' => $total, 'pagina' => $pagina, 'paginas' => $paginas];
     }
 
     public function buscarGestion(int $id, bool $bloquear = false): ?array
     {
-        $consulta = $this->conexion->prepare(
-            'SELECT * FROM productos WHERE id_producto = ? AND eliminado_en IS NULL' .
-                ($bloquear ? ' FOR UPDATE' : ''),
-        );
+        $consulta = $this->db->prepare('SELECT * FROM productos WHERE id_producto = ? AND eliminado_en IS NULL'
+            . ($bloquear ? ' FOR UPDATE' : ''));
         $consulta->execute([$id]);
         $producto = $consulta->fetch();
         return $producto ? self::normalizar($producto) : null;
@@ -106,33 +72,16 @@ final class Producto
     public static function validar(array $datos): array
     {
         $validos = [];
-        foreach (
-            [
-                'nombre' => 120,
-                'descripcion' => 280,
-                'presentacion' => 80,
-                'ingredientes' => 5000,
-                'alergenos' => 500,
-            ]
-            as $campo => $maximo
-        ) {
+        foreach (['nombre' => 120, 'descripcion' => 280, 'presentacion' => 80, 'ingredientes' => 5000, 'alergenos' => 500] as $campo => $maximo) {
             $texto = $datos[$campo] ?? null;
-            if (
-                !is_string($texto) ||
-                !mb_check_encoding($texto, 'UTF-8') ||
-                mb_strlen($texto) > $maximo ||
-                (in_array($campo, ['nombre', 'presentacion'], true) && trim($texto) === '')
-            ) {
-                throw new DomainException(
-                    'Completá nombre y presentación y respetá las longitudes máximas de los campos.',
-                );
+            if (!is_string($texto) || !mb_check_encoding($texto, 'UTF-8') || mb_strlen($texto) > $maximo
+                || (in_array($campo, ['nombre', 'presentacion'], true) && trim($texto) === '')) {
+                throw new DomainException('Completá nombre y presentación y respetá las longitudes máximas de los campos.');
             }
             $validos[$campo] = trim($texto);
         }
-        if (
-            !in_array($datos['categoria'] ?? null, self::CATEGORIAS, true) ||
-            !in_array($datos['activo'] ?? null, ['0', '1'], true)
-        ) {
+        if (!in_array($datos['categoria'] ?? null, self::CATEGORIAS, true)
+            || !in_array($datos['activo'] ?? null, ['0', '1'], true)) {
             throw new DomainException('Seleccioná una categoría y un estado válidos.');
         }
         $precio = $datos['precio'] ?? null;
@@ -144,105 +93,48 @@ final class Producto
         if ($centavos < 1) {
             throw new DomainException('Ingresá un precio mayor que cero, con hasta dos decimales.');
         }
-        return $validos + [
-            'categoria' => $datos['categoria'],
-            'activo' => (int) $datos['activo'],
-            'precio' => sprintf('%d.%02d', intdiv($centavos, 100), $centavos % 100),
-        ];
+        return $validos + ['categoria' => $datos['categoria'], 'activo' => (int) $datos['activo'],
+            'precio' => sprintf('%d.%02d', intdiv($centavos, 100), $centavos % 100)];
     }
 
     /** Huella del estado leído: evita sobrescribir cambios de otro formulario. */
     public static function version(array $producto): string
     {
-        return hash(
-            'sha256',
-            serialize(
-                array_intersect_key(
-                    $producto,
-                    array_flip([
-                        'id_producto',
-                        'nombre',
-                        'descripcion',
-                        'precio',
-                        'categoria',
-                        'presentacion',
-                        'ingredientes',
-                        'alergenos',
-                        'activo',
-                        'destacado',
-                        'imagen_guardada',
-                    ]),
-                ),
-            ),
-        );
+        return hash('sha256', serialize(array_intersect_key($producto, array_flip([
+            'id_producto', 'nombre', 'descripcion', 'precio', 'categoria', 'presentacion', 'ingredientes',
+            'alergenos', 'activo', 'destacado', 'imagen_guardada',
+        ]))));
     }
 
     /** Recibe exclusivamente el resultado de validar(), coordinado por GestionProducto. */
-    public function guardarValidado(
-        array $datos,
-        ?string $imagen,
-        ?int $id = null,
-        string $version = '',
-    ): array {
-        $this->conexion->beginTransaction();
+    public function guardarValidado(array $datos, ?string $imagen, ?int $id = null, string $version = ''): array
+    {
+        $this->db->beginTransaction();
         try {
             $anterior = $id === null ? null : $this->exigirVersion($id, $version);
             $imagenGuardada = $imagen ?? ($anterior['imagen_guardada'] ?? '');
             if (in_array($imagenGuardada, ['pan.svg', 'croissant.svg', 'torta.svg'], true)) {
                 $imagenGuardada = '';
             }
-            $parametros = [
-                $datos['nombre'],
-                $datos['descripcion'],
-                $datos['precio'],
-                $datos['categoria'],
-                $datos['presentacion'],
-                $datos['ingredientes'],
-                $datos['alergenos'],
-                $datos['activo'],
-                $imagenGuardada,
-            ];
+            $parametros = [$datos['nombre'], $datos['descripcion'], $datos['precio'], $datos['categoria'],
+                $datos['presentacion'], $datos['ingredientes'], $datos['alergenos'], $datos['activo'],
+                $imagenGuardada];
             if ($id === null) {
-                $consulta = $this->conexion->prepare('INSERT INTO productos
+                $consulta = $this->db->prepare('INSERT INTO productos
                     (nombre, descripcion, precio, categoria, presentacion, ingredientes, alergenos, activo, imagen)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
             } else {
-                $consulta = $this->conexion
-                    ->prepare('UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, categoria = ?,
+                $consulta = $this->db->prepare('UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, categoria = ?,
                     presentacion = ?, ingredientes = ?, alergenos = ?, activo = ?, imagen = ? WHERE id_producto = ?');
                 $parametros[] = $id;
             }
             $consulta->execute($parametros);
-            if ($id === null) {
-                $id = (int) $this->conexion->lastInsertId();
-            }
-            $this->conexion->commit();
+            $id ??= (int) $this->db->lastInsertId();
+            $this->db->commit();
             return ['id_producto' => $id, 'imagen_anterior' => $anterior['imagen_guardada'] ?? ''];
         } catch (Throwable $error) {
-            if ($this->conexion->inTransaction()) {
-                $this->conexion->rollBack();
-            }
-            throw $error;
-        }
-    }
-
-    public function cambiarEstado(int $id, string $activo, string $version): void
-    {
-        if (!in_array($activo, ['0', '1'], true)) {
-            throw new DomainException('Seleccioná un estado válido para el producto.');
-        }
-
-        $this->conexion->beginTransaction();
-        try {
-            $this->exigirVersion($id, $version);
-            $consulta = $this->conexion->prepare(
-                'UPDATE productos SET activo = ? WHERE id_producto = ?',
-            );
-            $consulta->execute([(int) $activo, $id]);
-            $this->conexion->commit();
-        } catch (Throwable $error) {
-            if ($this->conexion->inTransaction()) {
-                $this->conexion->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
             }
             throw $error;
         }
@@ -250,18 +142,16 @@ final class Producto
 
     public function archivar(int $id, string $version): string
     {
-        $this->conexion->beginTransaction();
+        $this->db->beginTransaction();
         try {
             $producto = $this->exigirVersion($id, $version);
-            $consulta = $this->conexion->prepare(
-                'UPDATE productos SET activo = 0, eliminado_en = UTC_TIMESTAMP() WHERE id_producto = ?',
-            );
+            $consulta = $this->db->prepare('UPDATE productos SET activo = 0, eliminado_en = UTC_TIMESTAMP() WHERE id_producto = ?');
             $consulta->execute([$id]);
-            $this->conexion->commit();
+            $this->db->commit();
             return $producto['imagen_guardada'];
         } catch (Throwable $error) {
-            if ($this->conexion->inTransaction()) {
-                $this->conexion->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
             }
             throw $error;
         }
@@ -271,9 +161,7 @@ final class Producto
     {
         $producto = $this->buscarGestion($id, true);
         if (!$producto || !hash_equals(self::version($producto), $version)) {
-            throw new DomainException(
-                'El producto cambió o fue eliminado. Volvé al listado y abrilo nuevamente.',
-            );
+            throw new DomainException('El producto cambió o fue eliminado. Volvé al listado y abrilo nuevamente.');
         }
         return $producto;
     }
@@ -281,61 +169,35 @@ final class Producto
     public static function imagen(array $producto): string
     {
         $imagen = $producto['imagen'] ?? '';
-        if (
-            in_array($imagen, ['pan.svg', 'croissant.svg', 'torta.svg'], true) ||
-            (is_string($imagen) && preg_match('~^productos/[a-f0-9]{32}\.(?:jpg|png)$~D', $imagen))
-        ) {
+        if (in_array($imagen, ['pan.svg', 'croissant.svg', 'torta.svg'], true)
+            || (is_string($imagen) && preg_match('~^productos/[a-f0-9]{32}\.(?:jpg|png)$~D', $imagen))) {
             return $imagen;
         }
-        $categoria = $producto['categoria'] ?? '';
-        if ($categoria === 'Bizcochos') {
-            return 'croissant.svg';
-        }
-        if ($categoria === 'Tortas' || $categoria === 'Especiales') {
-            return 'torta.svg';
-        }
-
-        return 'pan.svg';
+        return match ($producto['categoria'] ?? '') {
+            'Bizcochos' => 'croissant.svg', 'Tortas', 'Especiales' => 'torta.svg', default => 'pan.svg',
+        };
     }
 
     public function listarPortada(): array
     {
         try {
-            $filas = $this->conexion
-                ->query(
-                    'SELECT * FROM productos WHERE activo = 1 AND eliminado_en IS NULL
-                AND portada_orden IS NOT NULL ORDER BY portada_orden, id_producto LIMIT 5',
-                )
-                ->fetchAll();
+            $filas = $this->db->query('SELECT * FROM productos WHERE activo = 1 AND eliminado_en IS NULL
+                AND portada_orden IS NOT NULL ORDER BY portada_orden, id_producto LIMIT 5')->fetchAll();
         } catch (\PDOException $error) {
             // La portada sigue disponible mientras se aplica la migración del editor.
-            if ((int) ($error->errorInfo[1] ?? 0) !== 1054) {
-                throw $error;
-            }
+            if ((int) ($error->errorInfo[1] ?? 0) !== 1054) throw $error;
             $filas = [];
         }
-        if (!$filas) {
-            return $this->listar(destacados: true);
-        }
-
-        $productos = [];
-        foreach ($filas as $fila) {
-            $productos[] = self::normalizar($fila);
-        }
-
-        return $productos;
+        return $filas ? array_map(self::normalizar(...), $filas) : $this->listar(destacados: true);
     }
 
-    public function listar(
-        string $busqueda = '',
-        string $categoria = '',
-        bool $destacados = false,
-    ): array {
+    public function listar(string $busqueda = '', string $categoria = '', bool $destacados = false): array
+    {
         $sql = 'SELECT * FROM productos WHERE activo = 1 AND eliminado_en IS NULL';
         $parametros = [];
         if ($busqueda !== '') {
-            $sql .= ' AND nombre LIKE ?';
-            $parametros[] = '%' . $busqueda . '%';
+            $sql .= ' AND (nombre LIKE ? OR descripcion LIKE ? OR ingredientes LIKE ?)';
+            $parametros = array_fill(0, 3, '%' . $busqueda . '%');
         }
         if (in_array($categoria, self::CATEGORIAS, true)) {
             $sql .= ' AND categoria = ?';
@@ -344,16 +206,9 @@ final class Producto
         if ($destacados) {
             $sql .= ' AND destacado = 1';
         }
-        $consulta = $this->conexion->prepare(
-            $sql . ' ORDER BY destacado DESC, id_producto' . ($destacados ? ' LIMIT 3' : ''),
-        );
+        $consulta = $this->db->prepare($sql . ' ORDER BY destacado DESC, id_producto' . ($destacados ? ' LIMIT 3' : ''));
         $consulta->execute($parametros);
-        $productos = [];
-        foreach ($consulta->fetchAll() as $fila) {
-            $productos[] = self::normalizar($fila);
-        }
-
-        return $productos;
+        return array_map(self::normalizar(...), $consulta->fetchAll());
     }
 
     /** Una sola consulta para todas las líneas; el bloqueo se usa dentro de la transacción. */
@@ -364,11 +219,8 @@ final class Producto
         }
         sort($ids, SORT_NUMERIC);
         $marcadores = implode(',', array_fill(0, count($ids), '?'));
-        $consulta = $this->conexion->prepare(
-            "SELECT * FROM productos WHERE id_producto IN ($marcadores)
-            AND activo = 1 AND eliminado_en IS NULL ORDER BY id_producto" .
-                ($bloquear ? ' FOR UPDATE' : ''),
-        );
+        $consulta = $this->db->prepare("SELECT * FROM productos WHERE id_producto IN ($marcadores)
+            AND activo = 1 AND eliminado_en IS NULL ORDER BY id_producto" . ($bloquear ? ' FOR UPDATE' : ''));
         $consulta->execute($ids);
         $productos = [];
         foreach ($consulta->fetchAll() as $fila) {

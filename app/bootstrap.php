@@ -4,17 +4,10 @@ declare(strict_types=1);
 date_default_timezone_set('America/Montevideo');
 
 spl_autoload_register(static function (string $clase): void {
-    // Cada prefijo indica la carpeta donde se buscan sus clases.
-    $directorios = [
-        'App\\' => __DIR__,
-        'PHPMailer\\PHPMailer\\' => dirname(__DIR__) . '/lib/PHPMailer/src',
-    ];
-
-    foreach ($directorios as $prefijo => $directorio) {
+    foreach (['App\\' => __DIR__,
+        'PHPMailer\\PHPMailer\\' => dirname(__DIR__) . '/lib/PHPMailer/src'] as $prefijo => $directorio) {
         if (str_starts_with($clase, $prefijo)) {
-            $nombreRelativo = substr($clase, strlen($prefijo));
-            $rutaRelativa = str_replace('\\', '/', $nombreRelativo);
-            $archivo = $directorio . '/' . $rutaRelativa . '.php';
+            $archivo = $directorio . '/' . str_replace('\\', '/', substr($clase, strlen($prefijo))) . '.php';
             if (is_file($archivo)) {
                 require_once $archivo;
             }

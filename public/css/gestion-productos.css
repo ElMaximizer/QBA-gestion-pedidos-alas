@@ -32,7 +32,7 @@
 
 .gestion-producto {
     display: grid;
-    grid-template-columns: minmax(0, 2fr) 0.6fr 0.9fr repeat(3, minmax(0, 0.8fr));
+    grid-template-columns: minmax(0, 2fr) .6fr .9fr .8fr .8fr;
     align-items: center;
     gap: 24px;
     width: 100%;
@@ -51,36 +51,6 @@
 
 .gestion-producto__boton {
     min-width: 0;
-}
-
-.gestion-producto__cambio-estado {
-    position: relative;
-    min-width: 0;
-}
-
-.gestion-producto__cambio-estado > summary {
-    width: 100%;
-    list-style: none;
-    cursor: pointer;
-}
-
-.gestion-producto__cambio-estado > summary::-webkit-details-marker {
-    display: none;
-}
-
-.gestion-producto__formulario-estado {
-    position: absolute;
-    z-index: 2;
-    top: calc(100% + 8px);
-    right: 0;
-    display: grid;
-    gap: 12px;
-    width: min(250px, calc(100vw - 64px));
-    padding: 16px;
-    border: 1px solid var(--gold);
-    border-radius: var(--radius);
-    background: var(--white, #fff);
-    box-shadow: 0 8px 24px #0002;
 }
 
 .producto-formulario {
@@ -168,12 +138,15 @@
     }
 
     .gestion-producto {
-        grid-template-columns: minmax(0, 1.6fr) 0.6fr 0.8fr;
+        grid-template-columns: minmax(0, 1.6fr) .6fr .8fr;
     }
 
-    .gestion-producto > .gestion-producto__boton,
-    .gestion-producto__cambio-estado {
+    .gestion-producto__boton {
         grid-row: 2;
+    }
+
+    .gestion-producto__boton:last-child {
+        grid-column: 2 / 4;
     }
 
     .gestion-busqueda {
@@ -203,13 +176,12 @@
         justify-self: end;
     }
 
-    .gestion-producto > .gestion-producto__boton,
-    .gestion-producto__cambio-estado {
+    .gestion-producto__boton {
         grid-row: auto;
     }
 
     .gestion-producto__boton:last-child {
-        grid-column: 1 / -1;
+        grid-column: auto;
     }
 
     .gestion-busqueda {

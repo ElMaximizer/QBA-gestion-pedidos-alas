@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS clientes (
     nombre VARCHAR(120) NOT NULL,
     email VARCHAR(190) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    version_sesion CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL DEFAULT '',
     verificado TINYINT(1) NOT NULL DEFAULT 0,
     codigo_verificacion_hash VARCHAR(255) NULL,
     codigo_verificacion_vence DATETIME NULL,

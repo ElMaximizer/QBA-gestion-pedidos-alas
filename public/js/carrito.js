@@ -1,118 +1,35 @@
-function iniciarPanelCarrito() {
+(() => {
     'use strict';
 
     const panel = document.querySelector('[data-carrito-panel]');
-
-    if (!panel || typeof panel.showModal !== 'function' || !window.fetch) {
-        return;
-    }
+    if (!panel || typeof panel.showModal !== 'function' || !window.fetch) return;
 
     const contenido = panel.querySelector('[data-carrito-contenido]');
-    const textoEstado = panel.querySelector('[data-carrito-estado]');
-    const avisoError = panel.querySelector('[data-carrito-error]');
-    const botonCerrar = panel.querySelector('[data-carrito-cerrar]');
-    let cargando = false;
-    let elementoOrigen;
+    const estado = panel.querySelector('[data-carrito-estado]');
+    const error = panel.querySelector('[data-carrito-error]');
+    const cerrar = panel.querySelector('[data-carrito-cerrar]');
+    let ocupado = false;
+    let origen;
 
-    function enlaceCarritoVisible() {
-        for (const enlace of document.querySelectorAll('[data-carrito-abrir]')) {
-            if (enlace.getClientRects().length > 0) {
-                return enlace;
-            }
-        }
-        return null;
-    }
-
-    function abrirPanel() {
-        if (panel.open) {
-            return;
-        }
-
-        elementoOrigen =
-            document.activeElement === document.body
-                ? enlaceCarritoVisible()
-                : document.activeElement;
+    const abrir = () => {
+        if (panel.open) return;
+        origen = document.activeElement;
         panel.showModal();
         document.body.classList.add('pagina--carrito-abierto');
-    }
+    };
 
-    function valorCampo(formulario, nombre) {
-        if (!formulario) {
-            return undefined;
-        }
-
-        const campo = formulario.elements.namedItem(nombre);
-
-        if (campo) {
-            return campo.value;
-        }
-
-        return undefined;
-    }
-
-    function actualizarPagina(datos) {
-        contenido.innerHTML = datos.html;
-
-        const carritoEnPagina = document.querySelector('[data-carrito-pagina]');
-
-        if (carritoEnPagina) {
-            carritoEnPagina.innerHTML = datos.html;
-        }
-
-        for (const contador of document.querySelectorAll('.carrito__cantidad')) {
-            contador.textContent = String(datos.unidades);
-        }
-
-        for (const campo of document.querySelectorAll('[data-carrito-form] input[name="csrf"]')) {
-            campo.value = datos.csrf;
-        }
-    }
-
-    function recuperarFoco(accion, idProducto) {
-        // El servidor reemplaza el contenido: buscamos el control equivalente en el HTML nuevo.
-        let destinoFoco;
-
-        for (const formulario of contenido.querySelectorAll('[data-carrito-form]')) {
-            const mismaAccion = valorCampo(formulario, 'accion') === accion;
-            const mismoProducto = valorCampo(formulario, 'id_producto') === idProducto;
-
-            if (mismaAccion && mismoProducto) {
-                destinoFoco = formulario.querySelector('input[name="cantidad"], button');
-                break;
-            }
-        }
-
-        if (!destinoFoco) {
-            destinoFoco = contenido.querySelector('button, a') || botonCerrar;
-        }
-
-        destinoFoco.focus();
-    }
-
-    async function cargarCarrito(formulario = null) {
-        if (cargando) {
-            return;
-        }
-
-        cargando = true;
-
-        const accion = valorCampo(formulario, 'accion');
-        const idProducto = valorCampo(formulario, 'id_producto');
+    const cargar = async (formulario = null) => {
+        if (ocupado) return;
+        ocupado = true;
+        const accion = formulario?.elements.namedItem('accion')?.value;
+        const producto = formulario?.elements.namedItem('id_producto')?.value;
         const conservarFoco = formulario && panel.contains(formulario);
-        let botones = [];
-
-        if (formulario) {
-            botones = Array.from(formulario.querySelectorAll('button'));
-        }
-
-        for (const boton of botones) {
-            boton.disabled = true;
-        }
-
+        const botones = formulario ? [...formulario.querySelectorAll('button')] : [];
+        botones.forEach((boton) => { boton.disabled = true; });
         contenido.inert = true;
         contenido.setAttribute('aria-busy', 'true');
-        textoEstado.textContent = formulario ? 'Actualizando tu carrito…' : 'Cargando tu carrito…';
-        avisoError.hidden = true;
+        estado.textContent = formulario ? 'Actualizando tu carrito…' : 'Cargando tu carrito…';
+        error.hidden = true;
 
         try {
             const respuesta = await fetch(panel.dataset.carritoUrl, {
@@ -122,150 +39,77 @@ function iniciarPanelCarrito() {
                 credentials: 'same-origin',
                 cache: 'no-store',
             });
-
-            const tipoContenido = respuesta.headers.get('Content-Type');
-            const esJson = tipoContenido && tipoContenido.includes('application/json');
-            const estadoAceptado = [200, 422].includes(respuesta.status);
-
-            if (!estadoAceptado || !esJson) {
+            if (![200, 422].includes(respuesta.status)
+                || !respuesta.headers.get('Content-Type')?.includes('application/json')) {
                 throw new Error('Respuesta no disponible');
             }
-
             const datos = await respuesta.json();
-
             if (typeof datos.html !== 'string' || !Number.isInteger(datos.unidades)) {
                 throw new Error('Carrito no disponible');
             }
-
-            actualizarPagina(datos);
-
-            const mensajes = {
-                agregar: 'Producto agregado al carrito.',
-                actualizar: 'Cantidad actualizada.',
-                quitar: 'Producto quitado del carrito.',
-                vaciar: 'Carrito vacío.',
-            };
-
-            textoEstado.textContent = mensajes[accion] || 'Carrito actualizado.';
-
-            if (datos.error) {
-                textoEstado.textContent = 'Revisá el aviso del carrito.';
-            }
-
+            contenido.innerHTML = datos.html;
+            const pagina = document.querySelector('[data-carrito-pagina]');
+            if (pagina) pagina.innerHTML = datos.html;
+            document.querySelectorAll('.carrito__cantidad').forEach((contador) => {
+                contador.textContent = String(datos.unidades);
+            });
+            document.querySelectorAll('[data-carrito-form] input[name="csrf"]').forEach((entrada) => {
+                entrada.value = datos.csrf;
+            });
+            const mensajes = { agregar: 'Producto agregado al carrito.', actualizar: 'Cantidad actualizada.',
+                quitar: 'Producto quitado del carrito.', vaciar: 'Carrito vacío.' };
+            estado.textContent = datos.error ? 'Revisá el aviso del carrito.' : (mensajes[accion] || 'Carrito actualizado.');
             contenido.inert = false;
-
             if (conservarFoco && panel.open) {
-                recuperarFoco(accion, idProducto);
+                const nuevo = [...contenido.querySelectorAll('[data-carrito-form]')].find((form) =>
+                    form.elements.namedItem('accion')?.value === accion
+                    && form.elements.namedItem('id_producto')?.value === producto);
+                (nuevo?.querySelector('input[name="cantidad"], button')
+                    || contenido.querySelector('button, a') || cerrar).focus();
             }
         } catch {
-            textoEstado.textContent = '';
-            avisoError.hidden = false;
+            estado.textContent = '';
+            error.hidden = false;
         } finally {
-            cargando = false;
+            ocupado = false;
             contenido.inert = false;
             contenido.removeAttribute('aria-busy');
-
-            for (const boton of botones) {
-                boton.disabled = false;
-            }
+            botones.forEach((boton) => { boton.disabled = false; });
         }
-    }
+    };
 
-    for (const enlace of document.querySelectorAll('[data-carrito-abrir]')) {
+    document.querySelectorAll('[data-carrito-abrir]').forEach((enlace) => {
         enlace.setAttribute('aria-haspopup', 'dialog');
         enlace.setAttribute('aria-controls', panel.id);
-    }
+    });
 
-    // Sin JavaScript se conserva el carrito completo como alternativa accesible.
-    for (const enlace of document.querySelectorAll('[data-carrito-volver]')) {
-        enlace.href = enlace.dataset.carritoInicio;
-    }
-
-    document.addEventListener('click', function (evento) {
+    document.addEventListener('click', (evento) => {
         const enlace = evento.target.closest('[data-carrito-abrir]');
-        const usaModificador = evento.ctrlKey || evento.metaKey || evento.shiftKey || evento.altKey;
-
-        if (!enlace || evento.button !== 0 || usaModificador) {
-            return;
-        }
-
+        if (!enlace || evento.button !== 0 || evento.ctrlKey || evento.metaKey || evento.shiftKey || evento.altKey) return;
         evento.preventDefault();
-        abrirPanel();
-        cargarCarrito();
+        abrir();
+        cargar();
     });
 
-    document.addEventListener('submit', function (evento) {
+    document.addEventListener('submit', (evento) => {
         const formulario = evento.target.closest('[data-carrito-form]');
-
-        if (!formulario) {
-            return;
-        }
-
+        if (!formulario) return;
         evento.preventDefault();
-
-        if (cargando) {
-            return;
-        }
-
-        abrirPanel();
-        cargarCarrito(formulario);
+        if (ocupado) return;
+        abrir();
+        cargar(formulario);
     });
 
-    botonCerrar.addEventListener('click', function () {
-        panel.close();
-    });
-
-    panel.querySelector('[data-carrito-reintentar]').addEventListener('click', function () {
-        cargarCarrito();
-    });
-
-    panel.addEventListener('click', function (evento) {
-        if (evento.target !== panel) {
-            return;
-        }
-
+    cerrar.addEventListener('click', () => panel.close());
+    panel.querySelector('[data-carrito-reintentar]').addEventListener('click', () => cargar());
+    panel.addEventListener('click', (evento) => {
+        if (evento.target !== panel) return;
         const limites = panel.getBoundingClientRect();
-        const clicFuera =
-            evento.clientX < limites.left ||
-            evento.clientX > limites.right ||
-            evento.clientY < limites.top ||
-            evento.clientY > limites.bottom;
-
-        if (clicFuera) {
-            panel.close();
-        }
+        if (evento.clientX < limites.left || evento.clientX > limites.right
+            || evento.clientY < limites.top || evento.clientY > limites.bottom) panel.close();
     });
-
-    panel.addEventListener('close', function () {
+    panel.addEventListener('close', () => {
         document.body.classList.remove('pagina--carrito-abierto');
-
-        let destinoFoco = enlaceCarritoVisible();
-
-        if (elementoOrigen && elementoOrigen.isConnected) {
-            destinoFoco = elementoOrigen;
-        }
-
-        if (destinoFoco && destinoFoco.getClientRects().length === 0) {
-            destinoFoco = enlaceCarritoVisible() || document.querySelector('[data-menu-boton]');
-        }
-
-        if (destinoFoco) {
-            destinoFoco.focus();
-        }
+        (origen?.isConnected ? origen : document.querySelector('[data-carrito-abrir]'))?.focus();
     });
-
-    const direccionActual = new URL(window.location.href);
-    if (direccionActual.searchParams.get('carrito') === 'abierto') {
-        abrirPanel();
-        cargarCarrito();
-        // La indicación es de una sola apertura: recargar o volver no reabre el panel.
-        direccionActual.searchParams.delete('carrito');
-        window.history.replaceState(
-            window.history.state,
-            '',
-            direccionActual.pathname + direccionActual.search + direccionActual.hash,
-        );
-    }
-}
-
-iniciarPanelCarrito();
+})();

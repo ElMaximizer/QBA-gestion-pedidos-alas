@@ -7,11 +7,8 @@ use DomainException;
 
 final class Carrito
 {
-    private readonly Producto $productos;
-
-    public function __construct(Producto $productos)
+    public function __construct(private readonly Producto $productos)
     {
-        $this->productos = $productos;
     }
 
     public static function unidades(): int
@@ -38,18 +35,14 @@ final class Carrito
             unset($_SESSION['qba']['carrito'][$idProducto]);
             return;
         }
-        $unidades = filter_var($cantidad, FILTER_VALIDATE_INT, [
-            'options' => ['min_range' => 1, 'max_range' => 99],
-        ]);
+        $unidades = filter_var($cantidad, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 99]]);
         if (!$unidades || !$this->productos->buscarVarios([$idProducto])) {
             throw new DomainException('Revisá el producto y la cantidad (entre 1 y 99).');
         }
         $carrito = $_SESSION['qba']['carrito'] ?? [];
         $final = $accion === 'agregar' ? ($carrito[$idProducto] ?? 0) + $unidades : $unidades;
         if ($final > 99 || (!isset($carrito[$idProducto]) && count($carrito) >= 50)) {
-            throw new DomainException(
-                'El máximo es 99 unidades por producto y 50 productos distintos.',
-            );
+            throw new DomainException('El máximo es 99 unidades por producto y 50 productos distintos.');
         }
         $_SESSION['qba']['carrito'][$idProducto] = $final;
     }
@@ -59,20 +52,12 @@ final class Carrito
         $cantidades = $_SESSION['qba']['carrito'] ?? [];
         $productos = $this->productos->buscarVarios(array_keys($cantidades));
         if ($exigirDisponibilidad && count($cantidades) !== count($productos)) {
-            throw new DomainException(
-                'Uno de los productos ya no está disponible. Quitalo del carrito antes de continuar.',
-            );
+            throw new DomainException('Uno de los productos ya no está disponible. Quitalo del carrito antes de continuar.');
         }
         $articulos = [];
         foreach ($cantidades as $id => $cantidad) {
-            $producto = $productos[$id] ?? [
-                'id_producto' => $id,
-                'nombre' => 'Producto no disponible',
-                'categoria' => 'No disponible',
-                'precio' => 0,
-                'presentacion' => '',
-                'imagen' => 'pan.svg',
-            ];
+            $producto = $productos[$id] ?? ['id_producto' => $id, 'nombre' => 'Producto no disponible',
+                'categoria' => 'No disponible', 'precio' => 0, 'presentacion' => '', 'imagen' => 'pan.svg'];
             $producto['disponible'] = isset($productos[$id]);
             $producto['cantidad'] = $cantidad;
             $producto['subtotal'] = $producto['precio'] * $producto['cantidad'];
