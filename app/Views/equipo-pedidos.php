@@ -6,7 +6,7 @@
     $fechasVisibles = ['hoy' => 'Hoy', 'proximos' => 'Por entregar desde hoy', 'anteriores' => 'Anteriores'];
     ?>
     <div class="titulo-pagina">
-        <span class="etiqueta">ADMINISTRACIÓN</span>
+        <span class="etiqueta">ATENCIÓN DEL EQUIPO</span>
         <h1 class="titulo-pagina__titulo">Consultar pedidos</h1>
         <p class="titulo-pagina__descripcion">Buscá pedidos y revisá los datos del cliente, la entrega, los productos y el estado.</p>
     </div>
@@ -65,6 +65,8 @@
         </nav>
     </div>
 
+    <p class="equipo-pedidos__criterio">Las fechas corresponden al retiro o envío del pedido. El listado se ordena por registro, del más reciente al más antiguo.</p>
+
     <div class="pila equipo-pedidos__resultados <?= $modoVista === 'lista' ? 'equipo-pedidos__resultados--lista' : 'equipo-pedidos__resultados--cuadricula' ?>">
         <?php foreach ($pedidos as $pedido): ?>
             <?php
@@ -73,9 +75,9 @@
                 $claseEstado = 'insignia--exito';
             }
             ?>
-            <article class="tarjeta equipo-pedido">
+            <article class="tarjeta equipo-pedido" aria-labelledby="pedido-titulo-<?= (int) $pedido['id_pedido'] ?>">
                 <div class="equipo-pedido__titulo">
-                    <h2>Pedido #<?= $pedido['id_pedido'] ?></h2>
+                    <h2 id="pedido-titulo-<?= (int) $pedido['id_pedido'] ?>">Pedido #<?= $pedido['id_pedido'] ?></h2>
                     <span class="insignia <?= $claseEstado ?>"><?= $escapar($pedido['estado']) ?></span>
                 </div>
                 <dl class="equipo-pedido__datos">
@@ -87,9 +89,9 @@
                         <dt>Teléfono </dt>
                         <dd><?= $pedido['telefono'] !== '' ? $escapar($pedido['telefono']) : 'No informado' ?> </dd>
                     </div>
-                    <div>
+                    <div class="equipo-pedido__fecha-programada">
                         <dt><?= ($pedido['modalidad_entrega'] ?? 'retiro') === 'domicilio' ? 'Entrega' : 'Retiro' ?> </dt>
-                        <dd><?= $escapar(date('d/m/Y', strtotime($pedido['fecha_retiro']))) ?> · <?= $escapar(substr((string) $pedido['hora_retiro'], 0, 5)) ?> </dd>
+                        <dd><time datetime="<?= $escapar($pedido['fecha_retiro'] . 'T' . substr((string) $pedido['hora_retiro'], 0, 5)) ?>"><?= $escapar(date('d/m/Y', strtotime($pedido['fecha_retiro']))) ?> · <?= $escapar(substr((string) $pedido['hora_retiro'], 0, 5)) ?></time></dd>
                     </div>
                     <div>
                         <dt>Modalidad</dt>
@@ -260,7 +262,8 @@
                 <?php endif; ?>
                 <div class="equipo-pedido__acciones">
                     <a class="boton boton--contorno"
-                        href="<?= $escapar($url('equipo-pedido-detalle', ['id' => $pedido['id_pedido']] + $filtrosListado)) ?>">Ver detalle</a>
+                        href="<?= $escapar($url('equipo-pedido-detalle', ['id' => $pedido['id_pedido']] + $filtrosListado)) ?>"
+                        aria-label="Ver productos y detalle del pedido #<?= (int) $pedido['id_pedido'] ?>">Ver productos y detalle</a>
                     <?php if ($pedido['puede_cancelar']): ?>
                         <form class="equipo-pedido__cancelar-form" method="post"
                             action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>"

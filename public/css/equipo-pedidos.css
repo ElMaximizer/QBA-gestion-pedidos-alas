@@ -1,3 +1,15 @@
+.equipo-pedidos__criterio {
+    margin: 0 0 18px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.equipo-pedido__fecha-programada dd {
+    color: #7e2525;
+    font-weight: 700;
+}
+
 .equipo-pedidos__filtros {
     display: grid;
     grid-template-columns: minmax(220px, 2fr) repeat(2, minmax(150px, 1fr)) auto;
