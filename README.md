@@ -826,6 +826,16 @@ cantidades y estado. El empleado no tiene acceso a esta acción. Los permisos se
 comprueban en el listado, el formulario y el guardado con el rol real de la cuenta.
 
 Permite corregir cliente, teléfono, retiro, notas, productos, cantidades y estado.
+La edición comparte los errores por campo del alta: conserva los datos enviados,
+asocia cada mensaje con su control y ofrece enlaces desde el resumen de errores.
+También identifica errores de estado y motivo, respetando el teléfono opcional de
+los pedidos web y las fechas históricas válidas.
+
+El acceso desde el listado, el guardado y las opciones para volver conservan la
+búsqueda, el estado, la fecha, la vista y la página. El contexto se mantiene por
+formulario, incluso ante errores, reenvíos o conflictos con otra pantalla. Paginar
+el historial y reabrir un pedido también conservan esa consulta de origen.
+
 El dueño también puede corregir pedidos **Entregados** y **Cancelados**,
 conservando los datos anteriores. El administrador puede cerrar un pedido activo,
 pero una corrección posterior al cierre queda a cargo del dueño. Al editar se aceptan fechas de
