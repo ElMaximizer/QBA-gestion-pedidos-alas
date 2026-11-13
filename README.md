@@ -6,6 +6,9 @@ conservando los flujos de pedidos y cuentas de la base del proyecto.
 La [guía para leer y mantener el código](docs/codigo.md) explica las carpetas,
 las convenciones y cómo aplicar el formato compartido de PHP, CSS y JavaScript.
 
+Las [24 historias de usuario vigentes](docs/historias-usuario.md) definen la
+numeración, los actores y el alcance indicado por el usuario para cada HU.
+
 ## Rediseño Rustic y contenido del inicio
 
 Desde **Panel → Contenido del inicio**, administrador y dueño pueden elegir hasta
@@ -681,6 +684,19 @@ contra duplicados del servidor. Sin JavaScript, la dirección y el selector nati
 del comprobante quedan disponibles para completar los datos de envío o pago.
 Si el catálogo está vacío, al empleado se le indica pedir la habilitación de
 productos al administrador o al dueño. No requiere cambios de SQL.
+
+## HU12 — Consultar pedidos como empleado
+
+El equipo consulta los productos a preparar y la fecha de retiro o envío desde
+**Pedidos**, usando la búsqueda y los filtros de estado y fecha del listado.
+El listado destaca la fecha programada e indica que su orden corresponde
+a la fecha de registro, del más reciente al más antiguo.
+
+**Ver productos y detalle** abre la fecha y modalidad programadas, el estado,
+las indicaciones del cliente y las cantidades por producto. Se mantienen los
+subtotales y el total del pedido. Los pedidos cancelados o entregados se
+identifican expresamente. El regreso al listado conserva sus
+filtros y página. La consulta funciona sin JavaScript y no requiere cambios SQL.
 
 ## HU02 — Cambiar el estado de un pedido
 

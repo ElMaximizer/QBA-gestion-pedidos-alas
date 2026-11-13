@@ -1,3 +1,4 @@
+<?php $unidadesTotales = (int) array_sum(array_column($pedido['lineas'], 'cantidad')); ?>
 <main id="contenido" class="contenedor panel pedido-detalle">
     <a class="enlace-texto" href="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>"> Volver a pedidos</a>
 
@@ -5,17 +6,49 @@
         <span class="etiqueta">PEDIDO DEL CLIENTE</span>
         <h1 class="titulo-pagina__titulo">Pedido #<?= (int) $pedido['id_pedido'] ?></h1>
         <p class="titulo-pagina__descripcion">
-            Consultá los datos de contacto, entrega e indicaciones del pedido.
+            Revisá los productos, sus cantidades y la fecha prevista para organizar la preparación.
         </p>
     </div>
 
-    <section class="tarjeta pedido-detalle__tarjeta" aria-labelledby="pedido-datos-titulo">
+    <section class="tarjeta pedido-detalle__tarjeta pedido-detalle__planificacion" aria-labelledby="pedido-fecha-titulo">
         <div class="pedido-detalle__cabecera">
-            <h2 id="pedido-datos-titulo">Datos del pedido</h2>
-            <span class="insignia <?= $pedido['estado'] === 'Entregado' ? 'insignia--exito' : 'insignia--neutra' ?>">
-                <?= $escapar($pedido['estado']) ?>
-            </span>
+            <h2 id="pedido-fecha-titulo"><?= $pedido['modalidad_entrega'] === 'domicilio' ? 'Entrega a domicilio' : 'Retiro en el local' ?></h2>
+            <span class="insignia <?= $pedido['estado'] === 'Entregado' ? 'insignia--exito' : 'insignia--neutra' ?>"><?= $escapar($pedido['estado']) ?></span>
         </div>
+        <p class="pedido-detalle__fecha"><time datetime="<?= $escapar($pedido['fecha_retiro'] . 'T' . $pedido['hora_retiro']) ?>"><?= $escapar(date('d/m/Y', strtotime($pedido['fecha_retiro']))) ?> · <?= $escapar($pedido['hora_retiro']) ?></time></p>
+        <p class="pedido-detalle__ayuda">Cliente: <strong><?= $escapar($pedido['cliente_nombre']) ?></strong></p>
+        <?php if ($pedido['estado'] === 'Cancelado'): ?>
+            <p class="pedido-detalle__nota-estado">Este pedido está cancelado. Los productos se muestran como parte de su historial.</p>
+        <?php elseif ($pedido['estado'] === 'Entregado'): ?>
+            <p class="pedido-detalle__nota-estado">Este pedido ya fue entregado.</p>
+        <?php endif; ?>
+    </section>
+
+    <section class="tarjeta pedido-detalle__tarjeta" aria-labelledby="pedido-productos-titulo">
+        <h2 id="pedido-productos-titulo">Productos del pedido</h2>
+        <p class="pedido-detalle__ayuda"><?= count($pedido['lineas']) ?> <?= count($pedido['lineas']) === 1 ? 'línea' : 'líneas' ?> · <?= $unidadesTotales ?> <?= $unidadesTotales === 1 ? 'unidad' : 'unidades' ?> en total.</p>
+        <?php if (trim((string) $pedido['notas']) !== ''): ?>
+            <aside class="pedido-detalle__notas" aria-labelledby="pedido-indicaciones-titulo">
+                <h3 id="pedido-indicaciones-titulo">Indicaciones del cliente</h3>
+                <p><?= nl2br($escapar($pedido['notas'])) ?></p>
+            </aside>
+        <?php endif; ?>
+        <ul class="pedido-detalle__lineas">
+            <?php foreach ($pedido['lineas'] as $linea): ?>
+                <li class="pedido-detalle__linea">
+                    <div class="pedido-detalle__producto">
+                        <h3><?= $escapar($linea['nombre']) ?></h3>
+                    </div>
+                    <div class="pedido-detalle__cantidad"><span>Cantidad</span><strong><?= (int) $linea['cantidad'] ?></strong></div>
+                    <div class="pedido-detalle__subtotal"><span>Subtotal</span><strong><?= $dinero((int) $linea['precio'] * (int) $linea['cantidad']) ?></strong></div>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+        <p class="pedido-detalle__total"><span>Total</span><strong><?= $dinero((int) $pedido['total_centavos']) ?></strong></p>
+    </section>
+
+    <section class="tarjeta pedido-detalle__tarjeta" aria-labelledby="pedido-datos-titulo">
+        <h2 id="pedido-datos-titulo">Contacto y datos de entrega</h2>
 
         <dl class="pedido-detalle__datos">
             <div>
@@ -25,10 +58,6 @@
             <div>
                 <dt>Teléfono</dt>
                 <dd><?php if ($pedido['telefono'] !== ''): ?><a href="tel:<?= $escapar($pedido['telefono']) ?>"><?= $escapar($pedido['telefono']) ?></a><?php else: ?>No informado<?php endif; ?></dd>
-            </div>
-            <div>
-                <dt><?= ($pedido['modalidad_entrega'] ?? 'retiro') === 'domicilio' ? 'Fecha de entrega' : 'Fecha de retiro' ?></dt>
-                <dd><?= $escapar(date('d/m/Y', strtotime($pedido['fecha_retiro']))) ?> · <?= $escapar(substr((string) $pedido['hora_retiro'], 0, 5)) ?></dd>
             </div>
             <div>
                 <dt>Modalidad</dt>
@@ -61,25 +90,8 @@
                     <dd><?= $escapar(date('d/m/Y H:i', strtotime($pedido['entregado_en']))) ?></dd>
                 </div>
             <?php endif; ?>
-            <?php if (trim((string) $pedido['notas']) !== ''): ?>
-                <div class="pedido-detalle__notas">
-                    <dt>Indicaciones del cliente</dt>
-                    <dd><?= nl2br($escapar($pedido['notas'])) ?></dd>
-                </div>
-            <?php endif; ?>
         </dl>
     </section>
 
-    <section class="tarjeta pedido-detalle__tarjeta" aria-labelledby="pedido-productos-titulo">
-        <h2 id="pedido-productos-titulo">Productos</h2>
-        <div class="pedido-detalle__lineas">
-            <?php foreach ($pedido['lineas'] as $linea): ?>
-                <div class="pedido-detalle__linea">
-                    <span><?= $escapar($linea['nombre']) ?> × <?= (int) $linea['cantidad'] ?></span>
-                    <strong><?= $dinero((int) $linea['precio'] * (int) $linea['cantidad']) ?></strong>
-                </div>
-            <?php endforeach; ?>
-        </div>
-        <p class="pedido-detalle__total"><span>Total</span><strong><?= $dinero((int) $pedido['total_centavos']) ?></strong></p>
-    </section>
+    <a class="enlace-texto" href="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>">Volver a pedidos</a>
 </main>
