@@ -177,7 +177,7 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
                                         <option value="<?= $escapar($linea['id_producto']) ?>" selected>Producto no disponible · elegí otro</option>
                                     <?php endif; ?>
                                     <?php foreach ($productos as $producto): ?>
-                                        <option value="<?= $escapar($producto['id_producto']) ?>" data-precio="<?= $producto['precio'] ?>" data-nombre="<?= $escapar($producto['nombre']) ?>" <?= (string) $producto['id_producto'] === $linea['id_producto'] ? 'selected' : '' ?>> <?= $escapar($producto['nombre'] . ' · ' . $producto['presentacion']) ?> · <?= $dinero($producto['precio']) ?></option>
+                                        <option value="<?= $escapar($producto['id_producto']) ?>" data-precio="<?= $producto['precio'] ?>" data-nombre="<?= $escapar($producto['nombre']) ?>" <?= (string) $producto['id_producto'] === $linea['id_producto'] ? 'selected' : '' ?>> <?= $escapar($producto['nombre'] . ' · ' . $producto['presentacion']) ?> · <?= $dinero($producto['precio'], true) ?></option>
                                     <?php endforeach; ?>
                                 </select>
                                 <?= $errorCampo('lineas-' . $indice . '-id_producto') ?>
@@ -233,12 +233,12 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
                 <ul class="pedido-equipo__detalle" data-pedido-resumen>
                     <?php foreach ($resumen as $linea): ?>
                         <li class="pedido-equipo__articulo">
-                            <span><?= $escapar($linea['nombre']) ?> × <?= $linea['cantidad'] ?></span><strong><?= $dinero($linea['subtotal']) ?></strong>
+                            <span><?= $escapar($linea['nombre']) ?> × <?= $linea['cantidad'] ?></span><strong><?= $dinero($linea['subtotal'], true) ?></strong>
                         </li>
                     <?php endforeach; ?>
                 </ul>
                 <p class="pedido-equipo__ayuda" data-pedido-incompleto <?= $resumenCompleto ? 'hidden' : '' ?>>Completá las líneas para ver el total del pedido.</p>
-                <p class="pedido-equipo__total">Total <strong data-pedido-total aria-live="polite" aria-atomic="true"><?= $resumenCompleto ? $dinero($total) : '—' ?></strong>
+                <p class="pedido-equipo__total">Total <strong data-pedido-total aria-live="polite" aria-atomic="true"><?= $resumenCompleto ? $dinero($total, true) : '—' ?></strong>
                 </p>
                 <p class="pedido-equipo__ayuda" data-pedido-retiro><?= $valores['modalidad_entrega'] === 'domicilio' ? 'Envío a domicilio' : 'Retiro' ?> · <?= $escapar($valores['fecha_retiro']) ?> · <?= $escapar($valores['hora_retiro']) ?></p>
                 <?php if (!$esEdicion): ?>

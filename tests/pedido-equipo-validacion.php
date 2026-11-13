@@ -18,6 +18,8 @@ try {
     $entorno = new EntornoPruebas('hu01');
     $db = $entorno->db;
     $db->exec(file_get_contents(dirname(__DIR__) . '/database/comprobantes-transferencia.sql'));
+    $db->exec('UPDATE productos SET precio = 123.45 WHERE id_producto = 1');
+    $db->exec('UPDATE productos SET precio = 65.10 WHERE id_producto = 2');
     $password = 'ValidacionPedidoPrueba01!';
     $cuenta = (new UsuarioEquipo($db))->solicitar(
         'Administración de prueba',
@@ -55,6 +57,43 @@ try {
         'notas' => '<Indicaciones de prueba>',
         'lineas' => [['id_producto' => '1', 'cantidad' => '2']],
     ];
+    comprobar(
+        str_contains($html, '$ 123,45</option>') &&
+            str_contains($html, '$ 65,10</option>') &&
+            str_contains($html, '$ 1.200</option>'),
+        'El selector muestra precios exactos y conserva los importes enteros sin decimales',
+    );
+    $camposImportes = array_replace($campos, [
+        'telefono' => 'inválido',
+        'lineas' => [
+            ['id_producto' => '1', 'cantidad' => '2'],
+            ['id_producto' => '2', 'cantidad' => '3'],
+        ],
+    ]);
+    [$estado, $htmlImportes] = $solicitar('/equipo/pedidos/registrar', $camposImportes);
+    $documentoImportes = new DOMDocument();
+    @$documentoImportes->loadHTML('<?xml encoding="UTF-8">' . $htmlImportes);
+    $xpathImportes = new DOMXPath($documentoImportes);
+    $subtotales = $xpathImportes->query('//*[@data-pedido-resumen]/li/strong');
+    comprobar(
+        $estado === 422 && $subtotales->length === 2 &&
+            trim($subtotales->item(0)->textContent) === '$ 246,90' &&
+            trim($subtotales->item(1)->textContent) === '$ 195,30' &&
+            trim($xpathImportes->query('//*[@data-pedido-total]')->item(0)->textContent) === '$ 442,20',
+        'Un error conserva varios productos y presenta subtotales y total exactos sin JavaScript',
+    );
+    [$estado, $htmlImportes] = $solicitar(
+        '/equipo/pedidos/registrar',
+        $camposImportes + ['quitar_linea' => '1'],
+    );
+    @$documentoImportes->loadHTML('<?xml encoding="UTF-8">' . $htmlImportes);
+    $xpathImportes = new DOMXPath($documentoImportes);
+    comprobar(
+        $estado === 200 &&
+            $xpathImportes->query('//*[@data-pedido-resumen]/li')->length === 1 &&
+            trim($xpathImportes->query('//*[@data-pedido-total]')->item(0)->textContent) === '$ 246,90',
+        'Quitar una línea sin JavaScript recalcula el total sin redondear centavos',
+    );
     $comprobarCampos = static function (string $html, array $campos) use (&$comprobaciones): void {
         $documento = new DOMDocument();
         @$documento->loadHTML('<?xml encoding="UTF-8">' . $html);
@@ -158,6 +197,10 @@ try {
     comprobar(
         $solicitar('/equipo/pedidos/registrar', $campos)[0] === 303,
         'Permite corregir y guardar con el mismo token',
+    );
+    comprobar(
+        $db->query('SELECT total FROM pedidos')->fetchColumn() === '246.90',
+        'Guarda el mismo total exacto que muestra el formulario',
     );
     comprobar(
         $solicitar('/equipo/pedidos/registrar', $campos)[0] === 303 &&
