@@ -40,11 +40,11 @@
                         <h3><?= $escapar($linea['nombre']) ?></h3>
                     </div>
                     <div class="pedido-detalle__cantidad"><span>Cantidad</span><strong><?= (int) $linea['cantidad'] ?></strong></div>
-                    <div class="pedido-detalle__subtotal"><span>Subtotal</span><strong><?= $dinero((int) $linea['precio'] * (int) $linea['cantidad']) ?></strong></div>
+                    <div class="pedido-detalle__subtotal"><span>Subtotal</span><strong><?= $dinero((int) $linea['precio'] * (int) $linea['cantidad'], true) ?></strong></div>
                 </li>
             <?php endforeach; ?>
         </ul>
-        <p class="pedido-detalle__total"><span>Total</span><strong><?= $dinero((int) $pedido['total_centavos']) ?></strong></p>
+        <p class="pedido-detalle__total"><span>Total</span><strong><?= $dinero((int) $pedido['total_centavos'], true) ?></strong></p>
     </section>
 
     <section class="tarjeta pedido-detalle__tarjeta" aria-labelledby="pedido-datos-titulo">
