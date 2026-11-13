@@ -21,6 +21,34 @@
     font-size: 14px;
 }
 
+.equipo-pedidos__filtros-activos {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 20px;
+    padding: 14px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--cream, #f6f2ea);
+}
+
+.equipo-pedidos__filtros-activos p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    min-width: 0;
+    flex: 1 1 240px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+}
+
+.equipo-pedidos__filtros-activos span {
+    min-width: 0;
+}
+
 .equipo-pedido {
     display: grid;
     gap: 18px;

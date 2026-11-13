@@ -1,5 +1,10 @@
 <main id="contenido" class="contenedor panel equipo-pedidos">
-    <?php $datosCuentaTransferencia = \App\Core\Transferencia::configuracion(); ?>
+    <?php
+    $datosCuentaTransferencia = \App\Core\Transferencia::configuracion();
+    $hayFiltros = $busqueda !== '' || $estado !== '' || $fecha !== '';
+    $filtrosLimpios = $modoVista === 'lista' ? ['vista' => 'lista'] : [];
+    $fechasVisibles = ['hoy' => 'Hoy', 'proximos' => 'Por entregar desde hoy', 'anteriores' => 'Anteriores'];
+    ?>
     <div class="titulo-pagina">
         <span class="etiqueta">ADMINISTRACIÓN</span>
         <h1 class="titulo-pagina__titulo">Consultar pedidos</h1>
@@ -22,6 +27,7 @@
     <?php endif; ?>
 
     <form class="equipo-pedidos__filtros" method="get" action="<?= $escapar($url('equipo-pedidos')) ?>">
+        <input type="hidden" name="vista" value="<?= $escapar($modoVista) ?>">
         <label class="campo equipo-pedidos__busqueda">Buscar pedido <input class="campo__entrada" type="search" name="q" maxlength="100" value="<?= $escapar($busqueda) ?>"
                 placeholder="Número, cliente, teléfono o producto">
         </label>
@@ -34,18 +40,28 @@
         <label class="campo">Fecha de retiro o entrega <select class="campo__entrada" name="fecha">
                 <option value="" <?= $fecha === '' ? 'selected' : '' ?>>Todas las fechas</option>
                 <option value="hoy" <?= $fecha === 'hoy' ? 'selected' : '' ?>>Hoy</option>
-                <option value="proximos" <?= $fecha === 'proximos' ? 'selected' : '' ?>>Desde hoy</option>
+                <option value="proximos" <?= $fecha === 'proximos' ? 'selected' : '' ?>>Por entregar desde hoy</option>
                 <option value="anteriores" <?= $fecha === 'anteriores' ? 'selected' : '' ?>>Anteriores</option>
             </select>
         </label>
         <button class="boton boton--contorno equipo-pedidos__buscar">Aplicar filtros</button>
     </form>
+    <?php if ($hayFiltros): ?>
+        <div class="equipo-pedidos__filtros-activos" role="group" aria-label="Filtros aplicados">
+            <p>Filtros aplicados:
+                <?php if ($busqueda !== ''): ?><span>Búsqueda: «<?= $escapar($busqueda) ?>»</span><?php endif; ?>
+                <?php if ($estado !== ''): ?><span>Estado: <?= $escapar($estado) ?></span><?php endif; ?>
+                <?php if ($fecha !== ''): ?><span>Fecha: <?= $escapar($fechasVisibles[$fecha]) ?></span><?php endif; ?>
+            </p>
+            <a class="boton boton--contorno" href="<?= $escapar($url('equipo-pedidos', $filtrosLimpios)) ?>">Limpiar filtros</a>
+        </div>
+    <?php endif; ?>
 
     <div class="equipo-pedidos__barra-listado">
         <p class="equipo-pedidos__cantidad"><?= $total ?> <?= $total === 1 ? 'pedido encontrado' : 'pedidos encontrados' ?></p>
-        <nav class="equipo-pedidos__selector-vista" aria-label="Modo de visualizacion de pedidos">
-            <a href="<?= $escapar($url('equipo-pedidos', ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha, 'vista' => 'cuadricula'])) ?>" <?= $modoVista === 'cuadricula' ? 'aria-current="page"' : '' ?>>Cuadr&#xED;cula</a>
-            <a href="<?= $escapar($url('equipo-pedidos', ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha, 'vista' => 'lista'])) ?>" <?= $modoVista === 'lista' ? 'aria-current="page"' : '' ?>>Lista</a>
+        <nav class="equipo-pedidos__selector-vista" aria-label="Modo de visualización de pedidos">
+            <a href="<?= $escapar($url('equipo-pedidos', array_replace($filtrosListado, ['vista' => 'cuadricula']))) ?>" <?= $modoVista === 'cuadricula' ? 'aria-current="page"' : '' ?>>Cuadr&#xED;cula</a>
+            <a href="<?= $escapar($url('equipo-pedidos', array_replace($filtrosListado, ['vista' => 'lista']))) ?>" <?= $modoVista === 'lista' ? 'aria-current="page"' : '' ?>>Lista</a>
         </nav>
     </div>
 
@@ -69,7 +85,7 @@
                     </div>
                     <div>
                         <dt>Teléfono </dt>
-                        <dd><?= $escapar($pedido['telefono']) ?> </dd>
+                        <dd><?= $pedido['telefono'] !== '' ? $escapar($pedido['telefono']) : 'No informado' ?> </dd>
                     </div>
                     <div>
                         <dt><?= ($pedido['modalidad_entrega'] ?? 'retiro') === 'domicilio' ? 'Entrega' : 'Retiro' ?> </dt>
@@ -119,7 +135,7 @@
                             </span>
                             <?php if (!$esTransferencia && $pedido['estado_pago'] !== 'pagado' && $puedeRegistrarPagoLocal): ?>
                                 <div class="equipo-pedido__transferencia-acciones">
-                                    <form method="post" action="<?= $escapar($url('equipo-pedidos')) ?>">
+                                    <form method="post" action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>">
                                         <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
                                         <input type="hidden" name="id_pedido" value="<?= (int) $pedido['id_pedido'] ?>">
                                         <input type="hidden" name="accion" value="registrar_pago_local">
@@ -157,14 +173,14 @@
                                 <div class="equipo-pedido__transferencia-acciones">
                                     <a class="boton boton--contorno" href="<?= $escapar($url('equipo-comprobante-transferencia', ['id' => $pedido['id_pedido']])) ?>" target="_blank" rel="noopener">Ver comprobante</a>
                                     <?php if ($puedeDecidirTransferencias && $transferenciaInformada): ?>
-                                        <form method="post" action="<?= $escapar($url('equipo-pedidos')) ?>">
+                                        <form method="post" action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>">
                                             <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
                                             <input type="hidden" name="id_pedido" value="<?= (int) $pedido['id_pedido'] ?>">
                                             <input type="hidden" name="accion" value="revisar_transferencia">
                                             <input type="hidden" name="decision" value="aprobar">
                                             <button class="boton boton--dorado" type="submit">Aprobar pago</button>
                                         </form>
-                                        <form method="post" action="<?= $escapar($url('equipo-pedidos')) ?>">
+                                        <form method="post" action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>">
                                             <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
                                             <input type="hidden" name="id_pedido" value="<?= (int) $pedido['id_pedido'] ?>">
                                             <input type="hidden" name="accion" value="revisar_transferencia">
@@ -199,7 +215,7 @@
                     }
                     $idControlEstado = 'pedido-estado-' . $pedido['id_pedido'];
                     ?>
-                    <form class="equipo-pedido__estado-form" method="post" action="<?= $escapar($url('equipo-pedidos')) ?>"
+                    <form class="equipo-pedido__estado-form" method="post" action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>"
                         data-confirmar-estado data-numero-pedido="<?= (int) $pedido['id_pedido'] ?>"
                         data-cliente-pedido="<?= $escapar($pedido['cliente_nombre']) ?>"
                         data-estado-actual="<?= $escapar($pedido['estado']) ?>" aria-label="Cambiar estado del pedido #<?= (int) $pedido['id_pedido'] ?>">
@@ -230,10 +246,10 @@
                 <?php endif; ?>
                 <div class="equipo-pedido__acciones">
                     <a class="boton boton--contorno"
-                        href="<?= $escapar($url('equipo-pedido-detalle', ['id' => $pedido['id_pedido']])) ?>">Ver detalle</a>
+                        href="<?= $escapar($url('equipo-pedido-detalle', ['id' => $pedido['id_pedido']] + $filtrosListado)) ?>">Ver detalle</a>
                     <?php if ($pedido['puede_cancelar']): ?>
                         <form class="equipo-pedido__cancelar-form" method="post"
-                            action="<?= $escapar($url('equipo-pedidos')) ?>"
+                            action="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>"
                             data-confirmar-cancelacion data-numero-pedido="<?= (int) $pedido['id_pedido'] ?>"
                             data-cliente-pedido="<?= $escapar($pedido['cliente_nombre']) ?>" data-estado-actual="<?= $escapar($pedido['estado']) ?>">
                             <input type="hidden" name="csrf" value="<?= $escapar($csrf) ?>">
@@ -251,9 +267,11 @@
         <?php endforeach; ?>
         <?php if (!$pedidos): ?>
             <section class="tarjeta vacio">
-                <h2 class="vacio__titulo">No encontramos pedidos</h2>
-                <p class="vacio__descripcion">Probá con otra búsqueda o quitá alguno de los filtros.</p>
-                <a class="boton boton--contorno" href="<?= $escapar($url('equipo-pedidos')) ?>">Ver todos los pedidos</a>
+                <h2 class="vacio__titulo"><?= $hayFiltros ? 'No encontramos pedidos con estos filtros' : 'Todavía no hay pedidos' ?></h2>
+                <p class="vacio__descripcion"><?= $hayFiltros ? 'Probá con otra búsqueda o limpiá los filtros para ver todos los pedidos.' : 'Los pedidos registrados aparecerán acá.' ?></p>
+                <?php if ($hayFiltros): ?>
+                    <a class="boton boton--contorno" href="<?= $escapar($url('equipo-pedidos', $filtrosLimpios)) ?>">Ver todos los pedidos</a>
+                <?php endif; ?>
             </section>
         <?php endif; ?>
     </div>
@@ -262,12 +280,12 @@
         <nav class="paginacion" aria-label="Páginas de pedidos">
             <?php if ($pagina > 1): ?>
                 <a class="boton boton--contorno"
-                    href="<?= $escapar($url('equipo-pedidos', ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha, 'pagina' => $pagina - 1])) ?>"> Anterior</a>
+                    href="<?= $escapar($url('equipo-pedidos', array_replace($filtrosListado, ['pagina' => $pagina - 1]))) ?>"> Anterior</a>
             <?php endif; ?>
             <span>Página <?= $pagina ?> de <?= $paginas ?></span>
             <?php if ($pagina < $paginas): ?>
                 <a class="boton boton--contorno"
-                    href="<?= $escapar($url('equipo-pedidos', ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha, 'pagina' => $pagina + 1])) ?>">Siguiente </a>
+                    href="<?= $escapar($url('equipo-pedidos', array_replace($filtrosListado, ['pagina' => $pagina + 1]))) ?>">Siguiente </a>
             <?php endif; ?>
         </nav>
     <?php endif; ?>

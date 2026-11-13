@@ -13,7 +13,7 @@
                 continue;
             }
             ?>
-            <link rel="stylesheet" href="<?= $escapar($recurso($estilo) . ($estilo === 'css/equipo-pedidos.css' ? '?v=20261112-3' : '')) ?>">
+            <link rel="stylesheet" href="<?= $escapar($recurso($estilo) . ($estilo === 'css/equipo-pedidos.css' ? '?v=20261113-1' : '')) ?>">
         <?php endforeach; ?>
         <?php foreach ($scripts as $script): ?>
             <script src="<?= $escapar($recurso($script)) ?>" defer></script>

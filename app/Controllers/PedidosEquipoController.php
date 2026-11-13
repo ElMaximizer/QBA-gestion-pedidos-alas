@@ -18,6 +18,7 @@ final class PedidosEquipoController
     {
         header('Cache-Control: no-store');
         $usuario = Sesion::requerirEquipo();
+        $filtrosListado = $this->leerFiltrosListado();
         $puedeVerTransferencias = in_array($usuario['rol'] ?? null, ['empleado', 'administrador', 'dueno'], true);
         $puedeRegistrarPagoLocal = in_array($usuario['rol'] ?? null, ['empleado', 'administrador', 'dueno'], true);
         $puedeDecidirTransferencias = in_array($usuario['rol'] ?? null, ['administrador', 'dueno'], true);
@@ -70,7 +71,7 @@ final class PedidosEquipoController
                     }
                     $estadoNuevo = Http::texto($_POST, 'estado_nuevo');
                     $estadoEnviado = $estadoNuevo;
-                    if ($estadoNuevo === 'Cancelado' && $this->pedirConfirmacionCancelacion($idPedido, $accion, $usuario['rol'])) {
+                    if ($estadoNuevo === 'Cancelado' && $this->pedirConfirmacionCancelacion($idPedido, $accion, $usuario['rol'], $filtrosListado)) {
                         return;
                     }
                     (new Pedido(Conexion::obtener()))->actualizarEstadoEquipo(
@@ -85,7 +86,7 @@ final class PedidosEquipoController
                         http_response_code(403);
                         throw new DomainException('Solo administrador y dueño pueden cancelar pedidos.');
                     }
-                    if ($this->pedirConfirmacionCancelacion($idPedido, $accion, $usuario['rol'])) {
+                    if ($this->pedirConfirmacionCancelacion($idPedido, $accion, $usuario['rol'], $filtrosListado)) {
                         return;
                     }
                     (new Pedido(Conexion::obtener()))->cancelarDesdeEquipo(
@@ -96,7 +97,7 @@ final class PedidosEquipoController
                 } else {
                     throw new DomainException('Seleccioná una acción válida.');
                 }
-                Http::redirigir('equipo-pedidos');
+                Http::redirigir('equipo-pedidos', $filtrosListado);
             } catch (DomainException $excepcion) {
                 if (http_response_code() < 400) {
                     http_response_code(422);
@@ -114,19 +115,11 @@ final class PedidosEquipoController
             unset($_SESSION['qba']['aviso_pedidos']);
         }
 
-        $busqueda = Http::texto($_GET, 'q');
-        $estado = Http::texto($_GET, 'estado');
-        $fecha = Http::texto($_GET, 'fecha');
-        $modoVista = Http::texto($_GET, 'vista', 'cuadricula');
-        if (!in_array($modoVista, ['cuadricula', 'lista'], true)) {
-            $modoVista = 'cuadricula';
-        }
-        $pagina = filter_var(Http::texto($_GET, 'pagina', '1'), FILTER_VALIDATE_INT, [
-            'options' => ['min_range' => 1],
-        ]);
-        if (!$pagina) {
-            throw new \DomainException('Seleccioná una página válida.');
-        }
+        $busqueda = $filtrosListado['q'] ?? '';
+        $estado = $filtrosListado['estado'] ?? '';
+        $fecha = $filtrosListado['fecha'] ?? '';
+        $modoVista = $filtrosListado['vista'] ?? 'cuadricula';
+        $pagina = $filtrosListado['pagina'] ?? 1;
 
         $resultado = (new ConsultaPedidos(Conexion::obtener()))->listar(
             $busqueda,
@@ -134,6 +127,11 @@ final class PedidosEquipoController
             $fecha,
             $pagina,
         );
+        if ($resultado['pagina'] > 1) {
+            $filtrosListado['pagina'] = $resultado['pagina'];
+        } else {
+            unset($filtrosListado['pagina']);
+        }
         foreach ($resultado['pedidos'] as $indice => $pedido) {
             $resultado['pedidos'][$indice] = $pedido + [
                 'puede_modificar' => Pedido::puedeModificar($usuario['rol'], $pedido['estado']),
@@ -155,6 +153,7 @@ final class PedidosEquipoController
                 'estado' => $estado,
                 'fecha' => $fecha,
                 'modoVista' => $modoVista,
+                'filtrosListado' => $filtrosListado,
                 'puedeVerTransferencias' => $puedeVerTransferencias,
                 'puedeRegistrarPagoLocal' => $puedeRegistrarPagoLocal,
                 'puedeDecidirTransferencias' => $puedeDecidirTransferencias,
@@ -178,7 +177,39 @@ final class PedidosEquipoController
         );
     }
 
-    private function pedirConfirmacionCancelacion(int $idPedido, string $accion, string $rol): bool
+    private function leerFiltrosListado(): array
+    {
+        $busqueda = Http::texto($_GET, 'q');
+        $estado = Http::texto($_GET, 'estado');
+        $fecha = Http::texto($_GET, 'fecha');
+        $vista = Http::texto($_GET, 'vista', 'cuadricula');
+        $pagina = filter_var(Http::texto($_GET, 'pagina', '1'), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1],
+        ]);
+        if (
+            !$pagina ||
+            !mb_check_encoding($busqueda, 'UTF-8') ||
+            mb_strlen($busqueda) > 100 ||
+            !in_array($estado, ['', ...Pedido::ESTADOS], true) ||
+            !in_array($fecha, ['', 'hoy', 'proximos', 'anteriores'], true)
+        ) {
+            throw new DomainException('Revisá la búsqueda y los filtros seleccionados.');
+        }
+        // Solo se conservan parámetros conocidos; nunca una URL de retorno enviada por el navegador.
+        $filtros = array_filter(
+            ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha],
+            static fn(string $valor): bool => $valor !== '',
+        );
+        if ($vista === 'lista') {
+            $filtros['vista'] = 'lista';
+        }
+        if ($pagina > 1) {
+            $filtros['pagina'] = $pagina;
+        }
+        return $filtros;
+    }
+
+    private function pedirConfirmacionCancelacion(int $idPedido, string $accion, string $rol, array $filtrosListado): bool
     {
         if (Http::texto($_POST, 'confirmar_cancelacion') === '1') {
             return false;
@@ -199,6 +230,7 @@ final class PedidosEquipoController
             'layoutEquipo' => true,
             'pedido' => $pedido,
             'accion' => $accion,
+            'filtrosListado' => $filtrosListado,
         ]);
         return true;
     }
@@ -207,6 +239,7 @@ final class PedidosEquipoController
     {
         header('Cache-Control: no-store');
         Sesion::requerirEquipo();
+        $filtrosListado = $this->leerFiltrosListado();
         $idPedido = filter_var(Http::texto($_GET, 'id'), FILTER_VALIDATE_INT, [
             'options' => ['min_range' => 1],
         ]);
@@ -218,6 +251,7 @@ final class PedidosEquipoController
                 'layoutEquipo' => true,
                 'rutaVolver' => 'equipo-pedidos',
                 'textoVolver' => 'Volver a pedidos',
+                'parametrosVolver' => $filtrosListado,
             ]);
             return;
         }
@@ -231,6 +265,7 @@ final class PedidosEquipoController
                 'layoutEquipo' => true,
                 'rutaVolver' => 'equipo-pedidos',
                 'textoVolver' => 'Volver a pedidos',
+                'parametrosVolver' => $filtrosListado,
             ]);
             return;
         }
@@ -240,6 +275,7 @@ final class PedidosEquipoController
             'seccionActiva' => 'pedidos',
             'layoutEquipo' => true,
             'pedido' => $pedido,
+            'filtrosListado' => $filtrosListado,
         ]);
     }
 }
