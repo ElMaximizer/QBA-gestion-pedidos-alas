@@ -248,6 +248,14 @@ campos no editables, como id, destacado, imagen y eliminado_en enviados como
 texto, no cambian los valores que decide el servidor. El id a editar o eliminar
 sale de la URL; la imagen se obtiene exclusivamente de la subida del archivo.
 
+Alta y edición muestran todos los errores detectados junto a sus campos y en
+un resumen con enlaces para corregirlos con teclado. Los datos válidos se
+conservan; si se había adjuntado una imagen, se indica volver a seleccionarla.
+Las reglas de validación son las mismas con y sin JavaScript. Los precios del
+listado administrativo, las tarjetas públicas y la ficha muestran los centavos
+cuando corresponden, sin redondearlos. Las pruebas se mantienen solo en `tests/`
+del entorno local, excluido del seguimiento de Git.
+
 **Inactivo** oculta temporalmente el producto y permite editarlo o reactivarlo.
 El botón **Cambiar estado**, junto a Editar y Eliminar, permite elegir Activo o Inactivo
 y guardar desde el listado, incluso sin JavaScript. Conserva la búsqueda, el

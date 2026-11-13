@@ -105,7 +105,35 @@ final class Producto
 
     public static function validar(array $datos): array
     {
+        $errores = self::erroresValidacion($datos);
+        if ($errores) {
+            throw new DomainException(reset($errores));
+        }
         $validos = [];
+        foreach (['nombre', 'descripcion', 'presentacion', 'ingredientes', 'alergenos'] as $campo) {
+            $validos[$campo] = trim($datos[$campo]);
+        }
+        $precio = str_replace(',', '.', trim($datos['precio']));
+        preg_match('/^([0-9]{1,8})(?:\.([0-9]{1,2}))?$/D', $precio, $partes);
+        $centavos = (int) $partes[1] * 100 + (int) str_pad($partes[2] ?? '', 2, '0');
+        return $validos + [
+            'categoria' => $datos['categoria'],
+            'activo' => (int) $datos['activo'],
+            'precio' => sprintf('%d.%02d', intdiv($centavos, 100), $centavos % 100),
+        ];
+    }
+
+    /** Comparte las reglas de guardado con los mensajes por campo del formulario. */
+    public static function erroresValidacion(array $datos): array
+    {
+        $errores = [];
+        $etiquetas = [
+            'nombre' => 'un nombre válido',
+            'descripcion' => 'una descripción válida',
+            'presentacion' => 'una presentación válida',
+            'ingredientes' => 'una lista de ingredientes válida',
+            'alergenos' => 'información de alérgenos válida',
+        ];
         foreach (
             [
                 'nombre' => 120,
@@ -123,32 +151,26 @@ final class Producto
                 mb_strlen($texto) > $maximo ||
                 (in_array($campo, ['nombre', 'presentacion'], true) && trim($texto) === '')
             ) {
-                throw new DomainException(
-                    'Completá nombre y presentación y respetá las longitudes máximas de los campos.',
-                );
+                $errores[$campo] = 'Ingresá ' . $etiquetas[$campo] . ' de hasta ' . $maximo . ' caracteres.';
             }
-            $validos[$campo] = trim($texto);
         }
-        if (
-            !in_array($datos['categoria'] ?? null, self::CATEGORIAS, true) ||
-            !in_array($datos['activo'] ?? null, ['0', '1'], true)
-        ) {
-            throw new DomainException('Seleccioná una categoría y un estado válidos.');
+        if (!in_array($datos['categoria'] ?? null, self::CATEGORIAS, true)) {
+            $errores['categoria'] = 'Seleccioná una categoría disponible.';
+        }
+        if (!in_array($datos['activo'] ?? null, ['0', '1'], true)) {
+            $errores['activo'] = 'Seleccioná Activo o Inactivo.';
         }
         $precio = $datos['precio'] ?? null;
         $precio = is_string($precio) ? str_replace(',', '.', trim($precio)) : '';
         if (!preg_match('/^([0-9]{1,8})(?:\.([0-9]{1,2}))?$/D', $precio, $partes)) {
-            throw new DomainException('Ingresá un precio mayor que cero, con hasta dos decimales.');
+            $errores['precio'] = 'Ingresá un precio mayor que cero, con coma o punto y hasta dos decimales.';
+        } else {
+            $centavos = (int) $partes[1] * 100 + (int) str_pad($partes[2] ?? '', 2, '0');
+            if ($centavos < 1) {
+                $errores['precio'] = 'Ingresá un precio mayor que cero, con coma o punto y hasta dos decimales.';
+            }
         }
-        $centavos = (int) $partes[1] * 100 + (int) str_pad($partes[2] ?? '', 2, '0');
-        if ($centavos < 1) {
-            throw new DomainException('Ingresá un precio mayor que cero, con hasta dos decimales.');
-        }
-        return $validos + [
-            'categoria' => $datos['categoria'],
-            'activo' => (int) $datos['activo'],
-            'precio' => sprintf('%d.%02d', intdiv($centavos, 100), $centavos % 100),
-        ];
+        return $errores;
     }
 
     /** Huella del estado leído: evita sobrescribir cambios de otro formulario. */
