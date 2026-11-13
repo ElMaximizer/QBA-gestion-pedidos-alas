@@ -1,1 +1,280 @@
-.equipo-ventas__filtros{display:flex;flex-wrap:wrap;align-items:end;gap:1rem;padding:1.25rem;margin:1.5rem 0}.equipo-ventas__filtros .campo{flex:1 1 220px}.equipo-ventas__resumen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin:1.5rem 0}.equipo-ventas__indicador{padding:1.25rem}.equipo-ventas__indicador h2{font-size:1rem;margin:0 0 .8rem}.equipo-ventas__indicador strong{display:block;color:var(--color-texto,#18334f);font-size:1.6rem}.equipo-ventas__indicador p,.equipo-ventas__nota{color:#65758a}.equipo-ventas__detalle{margin:2rem 0}.equipo-ventas__tabla-contenedor{overflow-x:auto}.equipo-ventas__tabla{width:100%;border-collapse:collapse;min-width:720px}.equipo-ventas__tabla th,.equipo-ventas__tabla td{text-align:left;padding:.85rem;border-bottom:1px solid #e4ddd2;vertical-align:top}.equipo-ventas__tabla th{color:#52677e;font-size:.9rem}.equipo-ventas__nota{margin-top:.7rem}@media(max-width:760px){.equipo-ventas__resumen{grid-template-columns:1fr}.equipo-ventas__filtros .boton{width:100%}}
+/* HU08. Consulta de ventas y detalle de pagos confirmados. */
+.equipo-ventas__periodos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.equipo-ventas .boton {
+    min-width: 0;
+    white-space: normal;
+    text-align: center;
+}
+
+.equipo-ventas .equipo-ventas__periodo--activo {
+    border-color: #7e2525;
+    background: #f5e8e4;
+    color: #7e2525;
+}
+
+.equipo-ventas__filtros {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+    align-items: end;
+    gap: 18px;
+    padding: 24px;
+    margin: 20px 0;
+}
+
+.equipo-ventas .campo,
+.equipo-ventas .campo__entrada {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.equipo-ventas__ayuda {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
+.equipo-ventas__ayuda,
+.equipo-ventas__criterio,
+.equipo-ventas__nota,
+.equipo-ventas__indicador p,
+.equipo-ventas__indicador small {
+    color: var(--muted, #665f55);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.equipo-ventas__periodo-consultado {
+    margin: 24px 0 8px;
+    line-height: 1.6;
+}
+
+.equipo-ventas__criterio {
+    max-width: 85ch;
+    margin: 0;
+}
+
+.equipo-ventas__resumen {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin: 24px 0;
+}
+
+.equipo-ventas__resumen > * {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.equipo-ventas .equipo-ventas__indicador {
+    align-self: stretch;
+    padding: 22px;
+}
+
+.equipo-ventas__indicador h2 {
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0 0 16px;
+}
+
+.equipo-ventas__indicador > strong {
+    display: block;
+    color: #7e2525;
+    font-size: clamp(26px, 2.4vw, 34px);
+    line-height: 1.25;
+}
+
+.equipo-ventas__indicador p {
+    margin: 12px 0 0;
+}
+
+.equipo-ventas__indicador small {
+    display: block;
+    margin-top: 10px;
+}
+
+.equipo-ventas__medios {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+}
+
+.equipo-ventas__medios > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.equipo-ventas__medios dt {
+    font-size: 14px;
+}
+
+.equipo-ventas__medios dd {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.equipo-ventas__detalle {
+    margin: 32px 0;
+    min-width: 0;
+}
+
+.equipo-ventas__detalle > h2 {
+    margin: 0 0 18px;
+    font-size: 24px;
+}
+
+.equipo-ventas__tabla-contenedor {
+    overflow-x: auto;
+}
+
+.equipo-ventas__tabla-contenedor:focus-visible,
+.equipo-ventas [data-ventas-error]:focus {
+    outline: 3px solid #7e2525;
+    outline-offset: 4px;
+}
+
+.equipo-ventas__tabla {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 760px;
+}
+
+.equipo-ventas__tabla caption {
+    padding-bottom: 18px;
+    color: var(--muted, #665f55);
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.equipo-ventas__tabla th,
+.equipo-ventas__tabla td {
+    text-align: left;
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border, #e4ddd2);
+    vertical-align: top;
+    overflow-wrap: anywhere;
+}
+
+.equipo-ventas__tabla th {
+    color: var(--muted, #665f55);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.equipo-ventas__tabla td {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.equipo-ventas__tabla .equipo-ventas__total {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.equipo-ventas__tabla th:last-child {
+    text-align: right;
+}
+
+.equipo-ventas__etiqueta-movil {
+    display: none;
+}
+
+.equipo-ventas__nota {
+    margin-top: 14px;
+}
+
+@media (max-width: 760px) {
+    .equipo-ventas__resumen {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .equipo-ventas__filtros {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        padding: 20px;
+    }
+
+    .equipo-ventas__filtros .boton {
+        grid-column: 1 / -1;
+        width: 100%;
+    }
+
+    .equipo-ventas .tarjeta.equipo-ventas__tabla-contenedor {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .equipo-ventas__tabla,
+    .equipo-ventas__tabla caption {
+        display: block;
+        min-width: 0;
+    }
+
+    .equipo-ventas__tabla thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+    }
+
+    .equipo-ventas__tabla tbody {
+        display: grid;
+        gap: 16px;
+    }
+
+    .equipo-ventas__tabla tbody tr {
+        display: block;
+        padding: 10px 18px;
+        border: 1px solid var(--border, #e4ddd2);
+        border-radius: 5px;
+        background: var(--white, #fff);
+    }
+
+    .equipo-ventas__tabla td {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+        gap: 14px;
+        padding: 12px 0;
+    }
+
+    .equipo-ventas__tabla td > * {
+        min-width: 0;
+    }
+
+    .equipo-ventas__etiqueta-movil {
+        display: block;
+        color: var(--muted, #665f55);
+        font-size: 13px;
+    }
+
+    .equipo-ventas__tabla .equipo-ventas__total {
+        text-align: left;
+        white-space: normal;
+        border-bottom: 0;
+    }
+
+    .equipo-ventas__total strong {
+        color: #7e2525;
+    }
+
+    .equipo-ventas__vacio .vacio__titulo {
+        font-size: 26px;
+    }
+}
+
+@media (max-width: 480px) {
+    .equipo-ventas__filtros {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

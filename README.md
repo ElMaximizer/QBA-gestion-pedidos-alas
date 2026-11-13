@@ -306,6 +306,24 @@ intentar otro ajuste. JavaScript agrega el indicador
 de guardado, evita envíos repetidos y lleva el foco al aviso. Los formularios y
 el despliegue del alta funcionan sin JavaScript. No requiere cambios de SQL.
 
+## HU08 — Consultar ventas
+
+Desde **Panel → Ventas**, administrador y dueño consultan un período con ambas
+fechas incluidas. Los accesos **Hoy**, **Últimos 7 días** y **Este mes** cargan las
+fechas correspondientes; también se puede elegir un rango personalizado.
+
+Los ingresos cuentan los pagos confirmados en el período según su fecha de pago.
+Los pendientes corresponden a pedidos creados en el período que aún no se
+pagaron. Se excluyen los pedidos cancelados. Los medios de pago muestran
+cantidades de pedidos pagados, separadas de los importes.
+
+El detalle indica cuántos pagos muestra y los ordena del más reciente al más
+antiguo. Conserva el límite de 100 registros; si hay más, aclara que el resumen
+incluye todo el período y sugiere acotar las fechas para reducir los resultados.
+En celular, cada fila se presenta como una ficha con sus etiquetas. JavaScript
+agrega el indicador de consulta y el foco en los errores; los filtros y accesos
+rápidos funcionan sin JavaScript. No requiere cambios de SQL.
+
 ## HU09 — Registrar entregas de mercadería
 
 Desde **Panel → Registrar mercadería** o **Stock → Registrar mercadería**, una

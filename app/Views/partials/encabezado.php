@@ -16,6 +16,7 @@
                 'css/equipo-pedidos.css' => '?v=20261113-2',
                 'css/gestion-productos.css' => '?v=20261113-1',
                 'css/equipo-stock.css' => '?v=20261113-2',
+                'css/equipo-ventas.css' => '?v=20261113-1',
                 default => '',
             };
             ?>
