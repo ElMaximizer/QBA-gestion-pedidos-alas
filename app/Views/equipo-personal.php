@@ -44,7 +44,7 @@
             Se muestran cuentas activas y desactivadas. Revisá las cuentas pendientes en
             <a class="enlace-texto" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso</a>.
         </p>
-        <details class="tarjeta equipo-personal__crear" id="crear-empleado" <?= $error !== '' ? 'open' : '' ?>>
+        <details class="tarjeta equipo-personal__crear" id="crear-empleado" <?= ($mostrarAltaEmpleado ?? false) ? 'open' : '' ?>>
             <summary class="equipo-personal__crear-resumen">
                 <span class="equipo-personal__crear-intro">
                     <span class="etiqueta">ALTA DIRECTA</span>
@@ -170,7 +170,7 @@
                                 <td role="cell">
                                     <span class="equipo-personal__etiqueta-movil" aria-hidden="true"><?= $puedeEditarRoles ? 'Permisos nuevos' : 'Responsabilidades del rol' ?></span>
                                     <?php if ($puedeEditarRoles && $usuario['estado'] === 'aprobado'): ?>
-                                        <form class="equipo-personal__cambio" method="post" action="<?= $url($rutaPersonal) ?>">
+                                        <form class="equipo-personal__cambio" method="post" action="<?= $escapar($url($rutaPersonal, $filtrosPersonal ?? [])) ?>">
                                             <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                             <input type="hidden" name="id_usuario" value="<?= (int) $usuario['id_usuario'] ?>">
                                             <input type="hidden" name="accion" value="cambiar_rol">
@@ -209,7 +209,7 @@
                                 <?php if ($puedeEditarRoles): ?>
                                     <td role="cell">
                                         <span class="equipo-personal__etiqueta-movil" aria-hidden="true">Acción</span>
-                                        <form method="post" action="<?= $url($rutaPersonal) ?>">
+                                        <form method="post" action="<?= $escapar($url($rutaPersonal, $filtrosPersonal ?? [])) ?>">
                                             <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                             <input type="hidden" name="id_usuario" value="<?= (int) $usuario['id_usuario'] ?>">
                                             <input type="hidden" name="accion" value="<?= $usuario['estado'] === 'aprobado' ? 'desactivar' : 'reactivar' ?>">

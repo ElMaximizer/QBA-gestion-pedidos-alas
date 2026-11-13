@@ -35,13 +35,20 @@ final class PermisosEquipoController
         $nuevoNombre = '';
         $nuevaCedula = '';
         $nuevoEmail = '';
+        $mostrarAltaEmpleado = false;
+        $filtrosPersonal = [];
 
         try {
             $busqueda = Http::texto($_GET, 'q');
             $rol = Http::texto($_GET, 'rol');
+            $filtrosPersonal = array_filter(
+                ['q' => $busqueda, 'rol' => $rol],
+                static fn(string $valor): bool => $valor !== '',
+            );
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-                Sesion::validarCsrf($_POST['csrf'] ?? null);
                 $accion = Http::texto($_POST, 'accion', 'cambiar_rol');
+                $mostrarAltaEmpleado = $accion === 'crear_empleado';
+                Sesion::validarCsrf($_POST['csrf'] ?? null);
 
                 if ($accion === 'crear_empleado') {
                     $nuevoNombre = Http::texto($_POST, 'nombre');
@@ -87,7 +94,7 @@ final class PermisosEquipoController
                 } else {
                     throw new DomainException('Seleccioná una acción válida.');
                 }
-                Http::redirigir('equipo-permisos');
+                Http::redirigir('equipo-permisos', $filtrosPersonal);
             }
         } catch (DomainException $excepcion) {
             http_response_code(422);
@@ -129,6 +136,8 @@ final class PermisosEquipoController
             'nuevoNombre' => $nuevoNombre,
             'nuevaCedula' => $nuevaCedula,
             'nuevoEmail' => $nuevoEmail,
+            'mostrarAltaEmpleado' => $mostrarAltaEmpleado,
+            'filtrosPersonal' => $filtrosPersonal,
         ]);
     }
 }

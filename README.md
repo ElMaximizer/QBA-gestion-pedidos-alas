@@ -804,6 +804,18 @@ transferencia. La confirmación conserva la búsqueda, los filtros y la vista.
 importes exactos, contexto del listado, permisos y reenvíos con datos ficticios
 en una base temporal. Las pruebas se conservan solo en el entorno local.
 
+## HU22 — Administrar usuarios y permisos
+
+Desde **Personal y permisos**, el dueño puede asignar roles a las cuentas del
+equipo. Al guardar un rol, desactivar o reactivar una cuenta, se conservan la
+búsqueda y el filtro de rol del listado. Si el nuevo rol deja de coincidir con el
+filtro, se muestra la confirmación junto al resultado vacío y la opción de
+restablecer los filtros.
+
+Los errores de permisos o de búsqueda no abren el formulario de alta de empleados.
+Ese formulario se abre cuando falla la creación de una cuenta, conservando los
+datos de identificación para corregirlos. Las pruebas se mantienen solo en local.
+
 ## HU23 — Administrar pedidos como dueño
 
 Administrador y dueño consultan el listado de HU04 y acceden a **Ver / modificar pedido**.
