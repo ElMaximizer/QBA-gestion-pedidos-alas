@@ -126,8 +126,16 @@ body.pagina:not(.pagina--equipo) {
     font-size: 14px;
 }
 
-.encabezado--publico .encabezado__carrito-movil {
+.encabezado--publico .encabezado__carrito-movil,
+.encabezado--publico .encabezado__cuenta-movil {
     display: none;
+}
+
+.encabezado__cuenta-icono {
+    width: 24px;
+    height: 24px;
+    background-color: currentColor;
+    mask: url('../images/cuenta.svg') center / contain no-repeat;
 }
 
 .encabezado--publico .carrito__cantidad {
@@ -141,11 +149,17 @@ body.pagina:not(.pagina--equipo) {
 }
 
 .encabezado--publico .encabezado__acceso {
-    min-width: 110px;
-    border: 1px solid var(--navy);
-    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
     color: var(--navy);
-    border-radius: 0;
+}
+
+.encabezado--publico .encabezado__acceso:hover {
+    color: var(--gold);
 }
 
 .encabezado--publico .cuenta__activador {
@@ -893,6 +907,20 @@ body.pagina:not(.pagina--equipo) {
         height: 22px;
     }
 
+    .encabezado--publico .encabezado__cuenta-movil {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        color: var(--navy);
+    }
+
+    .encabezado--publico .encabezado__cuenta-movil:hover {
+        color: var(--gold);
+    }
+
     .encabezado--publico .navegacion .carrito {
         display: none;
     }
@@ -914,9 +942,7 @@ body.pagina:not(.pagina--equipo) {
     }
 
     .encabezado--publico .encabezado__acceso {
-        width: 100%;
-        background: var(--navy);
-        color: var(--cream);
+        display: none;
     }
 }
 
@@ -1221,13 +1247,18 @@ body.pagina:not(.pagina--equipo) {
     }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 440px) {
+    .pagina:not(.pagina--equipo) .encabezado--publico .encabezado__contenido {
+        width: calc(100% - 24px);
+        gap: 0 4px;
+    }
+
     .encabezado--publico .marca {
-        gap: 6px;
+        gap: 4px;
     }
 
     .marca__logo-marco {
-        width: 42px;
+        width: 34px;
         height: 44px;
     }
 
@@ -1237,7 +1268,7 @@ body.pagina:not(.pagina--equipo) {
     }
 
     .marca-rustic__nombre {
-        font-size: 24px;
+        font-size: 20px;
     }
 
     .marca-rustic__nombre > span {

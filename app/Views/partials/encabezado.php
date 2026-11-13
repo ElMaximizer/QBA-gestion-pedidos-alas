@@ -37,7 +37,7 @@
             <script src="<?= $escapar($recurso($script) . $versionScript) ?>" defer></script>
         <?php endforeach; ?>
         <?php if (!$esPanel): ?>
-            <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-nuevo.css')) ?>?v=20261112-1">
+            <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-nuevo.css')) ?>?v=20261113-1">
         <?php endif; ?>
         <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-identidad.css')) ?>?v=3">
         <link rel="stylesheet" href="<?= $escapar($recurso('css/campos-obligatorios.css')) ?>?v=1">
@@ -60,6 +60,13 @@
                             width="20" height="20" alt="Carrito">
                         <span class="carrito__cantidad"><?= $cantidadCarrito ?></span>
                     </a>
+                    <?php if (!$equipoActual): ?>
+                        <a class="encabezado__cuenta-movil" href="<?= $url($clienteActual ? 'cliente-cuenta' : 'cliente-login') ?>"
+                            aria-label="<?= $clienteActual ? 'Mi cuenta' : 'Iniciar sesión o registrarse' ?>"
+                            title="<?= $clienteActual ? 'Mi cuenta' : 'Iniciar sesión o registrarse' ?>">
+                            <span class="encabezado__cuenta-icono" aria-hidden="true"></span>
+                        </a>
+                    <?php endif; ?>
                     <button class="encabezado__menu-boton" type="button" aria-label="Abrir menú de navegación"
                         aria-expanded="false" aria-controls="menu-principal" data-menu-boton hidden>
                         <span class="encabezado__menu-icono" aria-hidden="true"></span>
@@ -104,7 +111,10 @@
                                 </details>
                             </div>
                         <?php else: ?>
-                            <a class="boton boton--dorado encabezado__acceso" href="<?= $url('cliente-login') ?>">Mi cuenta </a>
+                            <a class="encabezado__acceso" href="<?= $url('cliente-login') ?>"
+                                aria-label="Iniciar sesión o registrarse" title="Iniciar sesión o registrarse">
+                                <span class="encabezado__cuenta-icono" aria-hidden="true"></span>
+                            </a>
                         <?php endif; ?>
                     </div>
                 </div>
