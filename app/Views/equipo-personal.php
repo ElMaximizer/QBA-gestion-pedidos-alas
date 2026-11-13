@@ -34,6 +34,62 @@
             Solo se muestran cuentas aprobadas. Revisá las cuentas pendientes en
             <a class="enlace-texto" href="<?= $url('equipo-solicitudes') ?>">Solicitudes de acceso</a>.
         </p>
+        <details class="tarjeta equipo-personal__crear" id="crear-empleado" <?= $error !== '' ? 'open' : '' ?>>
+            <summary class="equipo-personal__crear-resumen">
+                <span class="equipo-personal__crear-intro">
+                    <span class="etiqueta">ALTA DIRECTA</span>
+                    <strong>Crear cuenta de empleado</strong>
+                    <span>Agregá una persona al equipo sin pasar por una solicitud de acceso.</span>
+                </span>
+                <span class="equipo-personal__crear-accion">
+                    <span class="equipo-personal__crear-abrir">Abrir formulario</span>
+                    <span class="equipo-personal__crear-cerrar">Cerrar formulario</span>
+                    <span class="equipo-personal__crear-icono" aria-hidden="true"></span>
+                </span>
+            </summary>
+            <div class="equipo-personal__crear-contenido">
+                <form class="equipo-personal__crear-formulario" method="post" action="<?= $url('equipo-permisos') ?>">
+                    <input type="hidden" name="csrf" value="<?= $csrf ?>">
+                    <input type="hidden" name="accion" value="crear_empleado">
+                    <div class="equipo-personal__crear-columna">
+                        <label class="equipo-personal__campo">
+                            <span>Nombre completo</span>
+                            <input name="nombre" maxlength="120" autocomplete="name" required
+                                value="<?= $escapar($nuevoNombre) ?>">
+                        </label>
+                        <label class="equipo-personal__campo">
+                            <span>Cédula</span>
+                            <input name="cedula" inputmode="numeric" pattern="[0-9]{6,8}" minlength="6" maxlength="8"
+                                autocomplete="off" aria-describedby="equipo-personal-cedula-ayuda" required
+                                value="<?= $escapar($nuevaCedula) ?>">
+                            <small id="equipo-personal-cedula-ayuda">De 6 a 8 dígitos, sin puntos ni guiones.</small>
+                        </label>
+                        <label class="equipo-personal__campo">
+                            <span>Correo electrónico</span>
+                            <input type="email" name="email" maxlength="190" autocomplete="email" required
+                                value="<?= $escapar($nuevoEmail) ?>">
+                        </label>
+                    </div>
+                    <div class="equipo-personal__crear-columna">
+                        <label class="equipo-personal__campo">
+                            <span>Contraseña inicial</span>
+                            <input type="password" name="password" minlength="8" maxlength="72"
+                                autocomplete="new-password" required>
+                            <small>Debe tener al menos 8 caracteres.</small>
+                        </label>
+                        <label class="equipo-personal__campo">
+                            <span>Repetir contraseña</span>
+                            <input type="password" name="confirmacion" minlength="8" maxlength="72"
+                                autocomplete="new-password" required>
+                        </label>
+                    </div>
+
+                    <button class="boton boton--dorado equipo-personal__crear-boton" type="submit">
+                        Crear cuenta de empleado
+                    </button>
+                </form>
+            </div>
+        </details>
     <?php else: ?>
     <?php endif; ?>
 
