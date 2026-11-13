@@ -285,6 +285,27 @@ los datos; GestionProducto coordina el guardado con ImagenProducto. Las vistas
 reutilizan la estructura interna del panel y gestion-productos.css contiene sus
 estilos específicos.
 
+## HU07 — Controlar stock
+
+Desde **Panel → Stock**, administrador y dueño consultan y ajustan el inventario
+de materias primas. El alta se despliega desde **Agregar materia prima** y queda
+abierta si el servidor informa un error. Las cantidades admiten cero, coma o
+punto y hasta tres decimales, sin separadores de miles.
+
+**Guardar stock** reemplaza la cantidad disponible y el mínimo de reposición;
+**Registrar mercadería** suma una recepción de proveedor mediante su propio flujo.
+Una materia prima necesita reposición cuando su cantidad disponible es igual o
+menor que el mínimo. Cada tarjeta muestra los valores guardados y la unidad.
+
+La búsqueda, la disponibilidad y la página se conservan al guardar. Se pueden
+restablecer los filtros desde el listado. Si falla un ajuste, la tarjeta conserva
+las cantidades ingresadas y su versión original. Si la materia prima ya no
+aparece en esa página, el aviso muestra las cantidades enviadas y un enlace al
+inventario completo. También permite recargar los valores guardados antes de
+intentar otro ajuste. JavaScript agrega el indicador
+de guardado, evita envíos repetidos y lleva el foco al aviso. Los formularios y
+el despliegue del alta funcionan sin JavaScript. No requiere cambios de SQL.
+
 ## HU09 — Registrar entregas de mercadería
 
 Desde **Panel → Registrar mercadería** o **Stock → Registrar mercadería**, una
