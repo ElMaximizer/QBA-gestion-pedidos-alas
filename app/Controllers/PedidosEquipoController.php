@@ -9,6 +9,7 @@ use App\Core\Sesion;
 use App\Core\Vista;
 use App\Models\ConsultaPedidos;
 use App\Models\Pedido;
+use App\Services\FiltrosPedidos;
 use DomainException;
 use Throwable;
 
@@ -185,34 +186,7 @@ final class PedidosEquipoController
 
     private function leerFiltrosListado(): array
     {
-        $busqueda = Http::texto($_GET, 'q');
-        $estado = Http::texto($_GET, 'estado');
-        $fecha = Http::texto($_GET, 'fecha');
-        $vista = Http::texto($_GET, 'vista', 'cuadricula');
-        $pagina = filter_var(Http::texto($_GET, 'pagina', '1'), FILTER_VALIDATE_INT, [
-            'options' => ['min_range' => 1],
-        ]);
-        if (
-            !$pagina ||
-            !mb_check_encoding($busqueda, 'UTF-8') ||
-            mb_strlen($busqueda) > 100 ||
-            !in_array($estado, ['', ...Pedido::ESTADOS], true) ||
-            !in_array($fecha, ['', 'hoy', 'proximos', 'anteriores'], true)
-        ) {
-            throw new DomainException('Revisá la búsqueda y los filtros seleccionados.');
-        }
-        // Solo se conservan parámetros conocidos; nunca una URL de retorno enviada por el navegador.
-        $filtros = array_filter(
-            ['q' => $busqueda, 'estado' => $estado, 'fecha' => $fecha],
-            static fn(string $valor): bool => $valor !== '',
-        );
-        if ($vista === 'lista') {
-            $filtros['vista'] = 'lista';
-        }
-        if ($pagina > 1) {
-            $filtros['pagina'] = $pagina;
-        }
-        return $filtros;
+        return FiltrosPedidos::leer($_GET);
     }
 
     private function pedirConfirmacionCancelacion(int $idPedido, string $accion, string $rol, array $filtrosListado): bool

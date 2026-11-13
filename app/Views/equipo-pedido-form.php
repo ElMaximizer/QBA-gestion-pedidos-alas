@@ -24,7 +24,7 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
         <h1 class="titulo-pagina__titulo"><?= $esEdicion ? 'Modificar pedido #' . $pedido['id_pedido'] : 'Registrar pedido' ?></h1>
         <p class="titulo-pagina__descripcion"> <?= $esEdicion ? 'Consultá el detalle y corregí la información del pedido. Cada modificación se conserva en el historial.' : 'Completá los datos del cliente y revisá el pedido antes de guardarlo.' ?> </p>
     </div>
-    <a class="enlace-volver" href="<?= $url('equipo-pedidos') ?>"> Volver a pedidos</a>
+    <a class="enlace-volver" href="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>"> Volver a pedidos</a>
     <div class="aviso aviso--error pedido-equipo__errores" role="alert" tabindex="-1" data-pedido-error
         data-error-general="<?= $errorGeneral ? 'true' : 'false' ?>" <?= $error === '' ? 'hidden' : '' ?>>
         <p data-pedido-error-texto><?= $escapar($error) ?></p>
@@ -210,15 +210,17 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
                     <label class="campo">
                         <span class="campo-obligatorio__etiqueta">Estado del pedido <span class="campo-obligatorio"
                                 aria-hidden="true" title="Campo obligatorio">*</span></span>
-                        <select class="campo__entrada" name="estado" required data-pedido-estado>
+                        <select class="campo__entrada" name="estado" required data-pedido-estado <?= $atributosCampo('estado') ?>>
                             <?php foreach ($estados as $opcionEstado): ?>
                                 <option value="<?= $escapar($opcionEstado) ?>" <?= $valores['estado'] === $opcionEstado ? 'selected' : '' ?>> <?= $escapar($opcionEstado) ?></option>
                             <?php endforeach; ?>
                         </select>
+                        <?= $errorCampo('estado') ?>
                     </label>
                     <label class="campo">Motivo de la modificación (opcional) <textarea class="campo__entrada campo__entrada--multilinea" name="motivo" rows="2"
                             maxlength="500"
-                            placeholder="Explicá la corrección para dejarla en el historial"><?= $escapar($valores['motivo']) ?></textarea>
+                            placeholder="Explicá la corrección para dejarla en el historial" <?= $atributosCampo('motivo') ?>><?= $escapar($valores['motivo']) ?></textarea>
+                        <?= $errorCampo('motivo') ?>
                     </label>
                 <?php endif; ?>
             </section>
@@ -253,7 +255,7 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $idCampo, $es
                         <a class="boton boton--contorno boton--completo"
                             href="<?= $escapar($url($rutaFormulario, $parametrosFormulario)) ?>"><?= $esEdicion ? 'Volver a abrir el pedido' : 'Abrir un nuevo pedido' ?></a>
                     <?php endif; ?>
-                    <a class="boton boton--contorno boton--completo" href="<?= $url('equipo-pedidos') ?>">Volver sin guardar</a>
+                    <a class="boton boton--contorno boton--completo" href="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>">Volver sin guardar</a>
                 </div>
                 <p class="pedido-equipo__ayuda"> <?= $esEdicion ? 'Los cambios se aplicarán al pedido #' . $pedido['id_pedido'] . '.' : 'El número de pedido se asigna automáticamente al guardar.' ?> </p>
                 <noscript>

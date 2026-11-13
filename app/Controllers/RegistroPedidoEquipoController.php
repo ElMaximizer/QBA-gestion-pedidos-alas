@@ -10,6 +10,7 @@ use App\Core\Vista;
 use App\Models\Carrito;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Services\FiltrosPedidos;
 use DomainException;
 use Throwable;
 
@@ -29,6 +30,7 @@ final class RegistroPedidoEquipoController
     {
         header('Cache-Control: no-store');
         $usuario = Sesion::requerirEquipo();
+        $filtrosListado = $esEdicion ? FiltrosPedidos::leer($_GET) : [];
         if (!in_array($usuario['rol'], ['empleado', 'administrador', 'dueno'], true)) {
             http_response_code(403);
             Vista::mostrar('error', [
@@ -38,6 +40,7 @@ final class RegistroPedidoEquipoController
                     ? 'Solo administrador y dueño pueden modificar pedidos.'
                     : 'El registro de pedidos está disponible para el equipo aprobado.',
                 'rutaVolver' => 'equipo-pedidos',
+                'parametrosVolver' => $filtrosListado,
                 'textoVolver' => 'Volver a pedidos',
             ]);
             return;
@@ -62,6 +65,7 @@ final class RegistroPedidoEquipoController
                     'layoutEquipo' => true,
                     'mensaje' => 'No encontramos ese pedido.',
                     'rutaVolver' => 'equipo-pedidos',
+                    'parametrosVolver' => $filtrosListado,
                     'textoVolver' => 'Volver a pedidos',
                 ]);
                 return;
@@ -85,6 +89,7 @@ final class RegistroPedidoEquipoController
                         'mensaje' =>
                             'Solo el dueño puede corregir pedidos entregados o cancelados.',
                         'rutaVolver' => 'equipo-pedidos',
+                        'parametrosVolver' => $filtrosListado,
                         'textoVolver' => 'Volver a pedidos',
                     ]);
                     return;
@@ -146,8 +151,9 @@ final class RegistroPedidoEquipoController
                         'El formulario venció. Volvé a abrir un nuevo pedido.',
                     );
                 }
+                $filtrosListado = $formulario['filtros_listado'] ?? $filtrosListado;
                 if ($formulario['pedido'] !== null) {
-                    $this->confirmar((int) $formulario['pedido'], $esEdicion);
+                    $this->confirmar((int) $formulario['pedido'], $esEdicion, $filtrosListado);
                 }
                 $puedeConfirmar = true;
                 foreach (
@@ -195,40 +201,52 @@ final class RegistroPedidoEquipoController
                     }
                     $valores['lineas'][] = ['id_producto' => '', 'cantidad' => '1'];
                 } elseif (Http::texto($_POST, 'accion', 'registrar') === 'registrar') {
-                    if (!$esEdicion) {
-                        $erroresCampos = Pedido::erroresValidacion($valores);
-                        $seleccionados = [];
-                        foreach ($valores['lineas'] as $indice => $linea) {
-                            $campoProducto = 'lineas-' . $indice . '-id_producto';
-                            $campoCantidad = 'lineas-' . $indice . '-cantidad';
-                            if (!isset($precios[$linea['id_producto']])) {
-                                $erroresCampos[$campoProducto] =
-                                    'Seleccioná un producto disponible.';
-                            } elseif (isset($seleccionados[$linea['id_producto']])) {
-                                $mensaje =
-                                    'Este producto está repetido. Usá una sola línea y ajustá su cantidad.';
-                                $erroresCampos[$campoProducto] = $mensaje;
-                                $erroresCampos[$seleccionados[$linea['id_producto']]] = $mensaje;
-                            } else {
-                                $seleccionados[$linea['id_producto']] = $campoProducto;
-                            }
-                            if (
-                                filter_var($linea['cantidad'], FILTER_VALIDATE_INT, [
-                                    'options' => [
-                                        'min_range' => 1,
-                                        'max_range' => Pedido::MAXIMA_CANTIDAD,
-                                    ],
-                                ]) === false
-                            ) {
-                                $erroresCampos[$campoCantidad] =
-                                    'Ingresá una cantidad entera entre 1 y 99.';
-                            }
+                    $erroresCampos = Pedido::erroresValidacion(
+                        $valores,
+                        !$esEdicion,
+                        $esEdicion && $pedido['id_cliente'] !== null,
+                    );
+                    if ($esEdicion) {
+                        if (!in_array($valores['estado'], Pedido::ESTADOS, true)) {
+                            $erroresCampos['estado'] = 'Seleccioná un estado válido para el pedido.';
                         }
-                        if ($erroresCampos) {
-                            throw new DomainException(
-                                'Revisá los campos indicados antes de registrar el pedido.',
-                            );
+                        if (!mb_check_encoding($valores['motivo'], 'UTF-8') || mb_strlen($valores['motivo']) > 500) {
+                            $erroresCampos['motivo'] = 'El motivo admite hasta 500 caracteres.';
                         }
+                    }
+                    $seleccionados = [];
+                    foreach ($valores['lineas'] as $indice => $linea) {
+                        $campoProducto = 'lineas-' . $indice . '-id_producto';
+                        $campoCantidad = 'lineas-' . $indice . '-cantidad';
+                        if (!isset($precios[$linea['id_producto']])) {
+                            $erroresCampos[$campoProducto] =
+                                'Seleccioná un producto disponible.';
+                        } elseif (isset($seleccionados[$linea['id_producto']])) {
+                            $mensaje =
+                                'Este producto está repetido. Usá una sola línea y ajustá su cantidad.';
+                            $erroresCampos[$campoProducto] = $mensaje;
+                            $erroresCampos[$seleccionados[$linea['id_producto']]] = $mensaje;
+                        } else {
+                            $seleccionados[$linea['id_producto']] = $campoProducto;
+                        }
+                        if (
+                            filter_var($linea['cantidad'], FILTER_VALIDATE_INT, [
+                                'options' => [
+                                    'min_range' => 1,
+                                    'max_range' => Pedido::MAXIMA_CANTIDAD,
+                                ],
+                            ]) === false
+                        ) {
+                            $erroresCampos[$campoCantidad] =
+                                'Ingresá una cantidad entera entre 1 y 99.';
+                        }
+                    }
+                    if ($erroresCampos) {
+                        throw new DomainException(
+                            $esEdicion
+                                ? 'Revisá los campos indicados antes de guardar los cambios.'
+                                : 'Revisá los campos indicados antes de registrar el pedido.',
+                        );
                     }
                     $cantidades = Pedido::cantidadesDesdeLineas($valores['lineas'], $esEdicion);
                     $esperadas = [];
@@ -278,7 +296,7 @@ final class RegistroPedidoEquipoController
                     }
                     $formularios[$token]['pedido'] = $id;
                     $_SESSION['qba']['formularios_pedido_equipo'] = $formularios;
-                    $this->confirmar($id, $esEdicion);
+                    $this->confirmar($id, $esEdicion, $filtrosListado);
                 } else {
                     throw new DomainException('Seleccioná una acción válida.');
                 }
@@ -305,6 +323,7 @@ final class RegistroPedidoEquipoController
                 'pedido' => null,
                 'id_edicion' => $idEdicion,
                 'version' => $pedido === null ? null : Pedido::version($pedido),
+                'filtros_listado' => $filtrosListado,
             ];
             $puedeConfirmar = true;
         }
@@ -349,7 +368,10 @@ final class RegistroPedidoEquipoController
 
         if ($esEdicion) {
             $rutaFormulario = 'equipo-pedido-editar';
-            $parametrosFormulario = ['id' => $idEdicion];
+            $parametrosFormulario = ['id' => $idEdicion] + $filtrosListado;
+            if ($historial['pagina'] > 1) {
+                $parametrosFormulario['historial_pagina'] = $historial['pagina'];
+            }
             $descripcionCliente = 'La cuenta del cliente asociada al pedido se conserva al editar.';
 
             if ($pedido['id_cliente'] === null) {
@@ -383,6 +405,7 @@ final class RegistroPedidoEquipoController
             'historial' => $historial,
             'rutaFormulario' => $rutaFormulario,
             'parametrosFormulario' => $parametrosFormulario,
+            'filtrosListado' => $filtrosListado,
             'descripcionCliente' => $descripcionCliente,
         ]);
     }
@@ -465,11 +488,11 @@ final class RegistroPedidoEquipoController
         return $valores;
     }
 
-    private function confirmar(int $id, bool $esEdicion): never
+    private function confirmar(int $id, bool $esEdicion, array $filtrosListado): never
     {
         $_SESSION['qba']['aviso_pedidos'] = $esEdicion
             ? 'Pedido #' . $id . ' actualizado correctamente. Los cambios quedaron guardados.'
             : 'Pedido #' . $id . ' registrado correctamente. Quedó pendiente de preparación.';
-        Http::redirigir('equipo-pedidos');
+        Http::redirigir('equipo-pedidos', $filtrosListado);
     }
 }

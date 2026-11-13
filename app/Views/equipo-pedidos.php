@@ -305,7 +305,7 @@
                     <?php endif; ?>
                 <?php if ($pedido['puede_modificar']): ?>
                     <a class="boton boton--contorno"
-                        href="<?= $escapar($url('equipo-pedido-editar', ['id' => $pedido['id_pedido']])) ?>">Ver / modificar pedido</a>
+                        href="<?= $escapar($url('equipo-pedido-editar', ['id' => $pedido['id_pedido']] + $filtrosListado)) ?>">Ver / modificar pedido</a>
                 <?php endif; ?>
                 </div>
             </article>
