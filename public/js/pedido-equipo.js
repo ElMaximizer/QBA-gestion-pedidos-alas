@@ -109,16 +109,24 @@ function iniciarCambioEstadoPedidos() {
         const campo = formulario.elements.estado_nuevo;
         const boton = formulario.querySelector('[data-guardar-estado]');
         function actualizarAccion() {
-            boton.disabled = campo.value === '';
-            boton.textContent = campo.value ? `Cambiar a ${campo.value}` : 'Guardar nuevo estado';
-            delete formulario.dataset.enviandoEstado;
+            const guardando = formulario.dataset.enviandoEstado === 'true';
+            boton.disabled = guardando || campo.value === '';
+            if (guardando) {
+                boton.textContent = 'Guardando estado…';
+            } else if (boton.dataset.textoAvance) {
+                boton.textContent = boton.dataset.textoAvance;
+            } else {
+                boton.textContent = campo.value ? `Cambiar a ${campo.value}` : 'Guardar nuevo estado';
+            }
+            boton.setAttribute('aria-label', `${boton.textContent} del pedido #${formulario.dataset.numeroPedido}`);
         }
         campo.addEventListener('change', function () {
             campo.removeAttribute('aria-invalid');
             const error = document.getElementById(`${campo.id}-error`);
             if (error) {
                 error.hidden = true;
-                campo.setAttribute('aria-describedby', `${campo.id}-actual`);
+                campo.setAttribute('aria-describedby', `${campo.id}-actual ${campo.id}-ayuda`);
+                boton.setAttribute('aria-describedby', `${campo.id}-actual ${campo.id}-ayuda`);
             }
             actualizarAccion();
         });
@@ -129,10 +137,14 @@ function iniciarCambioEstadoPedidos() {
                 return;
             }
             formulario.dataset.enviandoEstado = 'true';
-            boton.disabled = true;
-            boton.textContent = 'Guardando estado…';
+            formulario.setAttribute('aria-busy', 'true');
+            actualizarAccion();
         });
-        window.addEventListener('pageshow', actualizarAccion);
+        window.addEventListener('pageshow', function () {
+            delete formulario.dataset.enviandoEstado;
+            formulario.removeAttribute('aria-busy');
+            actualizarAccion();
+        });
         actualizarAccion();
     }
 }

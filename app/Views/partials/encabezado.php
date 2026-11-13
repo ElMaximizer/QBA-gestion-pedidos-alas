@@ -13,7 +13,7 @@
                 continue;
             }
             $versionEstilo = match ($estilo) {
-                'css/equipo-pedidos.css' => '?v=20261113-4',
+                'css/equipo-pedidos.css' => '?v=20261113-5',
                 'css/equipo-pedido-detalle.css' => '?v=20261113-1',
                 'css/gestion-productos.css' => '?v=20261113-1',
                 'css/equipo-stock.css' => '?v=20261113-2',
@@ -27,7 +27,13 @@
             <link rel="stylesheet" href="<?= $escapar($recurso($estilo) . $versionEstilo) ?>">
         <?php endforeach; ?>
         <?php foreach ($scripts as $script): ?>
-            <?php $versionScript = in_array($script, ['js/productos.js', 'js/mercaderia.js', 'js/pedido-equipo.js'], true) ? '?v=20261113-1' : ''; ?>
+            <?php
+            $versionScript = match ($script) {
+                'js/productos.js', 'js/mercaderia.js' => '?v=20261113-1',
+                'js/pedido-equipo.js' => '?v=20261113-2',
+                default => '',
+            };
+            ?>
             <script src="<?= $escapar($recurso($script) . $versionScript) ?>" defer></script>
         <?php endforeach; ?>
         <?php if (!$esPanel): ?>
