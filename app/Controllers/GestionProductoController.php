@@ -19,15 +19,16 @@ final class GestionProductoController
         if (!$this->autorizar()) {
             return;
         }
-        $busqueda = Http::texto($_GET, 'q');
-        $estado = Http::texto($_GET, 'estado', '1');
-        $pagina = filter_var(Http::texto($_GET, 'pagina', '1'), FILTER_VALIDATE_INT, [
-            'options' => ['min_range' => 1],
-        ]);
-        if (!$pagina) {
-            throw new DomainException('Seleccioná una página válida.');
-        }
+        $filtrosListado = $this->leerFiltrosListado();
+        $busqueda = $filtrosListado['q'] ?? '';
+        $estado = $filtrosListado['estado'] ?? '1';
+        $pagina = $filtrosListado['pagina'] ?? 1;
         $resultado = Producto::catalogo()->listarGestion($busqueda, $estado, $pagina);
+        if ($resultado['pagina'] > 1) {
+            $filtrosListado['pagina'] = $resultado['pagina'];
+        } else {
+            unset($filtrosListado['pagina']);
+        }
         $aviso = $_SESSION['qba']['aviso_productos'] ?? '';
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             unset($_SESSION['qba']['aviso_productos']);
@@ -41,6 +42,7 @@ final class GestionProductoController
                 'estado' => $estado,
                 'aviso' => $aviso,
                 'error' => $error,
+                'filtrosListado' => $filtrosListado,
             ],
         );
     }
@@ -60,7 +62,8 @@ final class GestionProductoController
         if (!$this->autorizar()) {
             return;
         }
-        $producto = $esEdicion ? $this->buscar() : null;
+        $filtrosListado = $this->leerFiltrosListado();
+        $producto = $esEdicion ? $this->buscar($filtrosListado) : null;
         if ($esEdicion && $producto === null) {
             return;
         }
@@ -118,11 +121,11 @@ final class GestionProductoController
                     $version,
                 );
                 $_SESSION['qba']['aviso_productos'] = $esEdicion
-                    ? 'Producto actualizado correctamente.'
+                    ? 'Producto PRD-' . str_pad((string) $id, 3, '0', STR_PAD_LEFT) . ' actualizado correctamente.'
                     : 'Producto agregado correctamente: PRD-' .
                         str_pad((string) $id, 3, '0', STR_PAD_LEFT) .
                         '.';
-                Http::redirigir('equipo-productos');
+                Http::redirigir('equipo-productos', $filtrosListado);
             } catch (DomainException $excepcion) {
                 http_response_code(422);
                 $error = $excepcion->getMessage();
@@ -142,19 +145,20 @@ final class GestionProductoController
             'esEdicion' => $esEdicion,
             'imagen' => Producto::imagen($valores),
             'categorias' => Producto::CATEGORIAS,
+            'filtrosListado' => $filtrosListado,
         ]);
     }
 
     public function estado(): void
     {
-        if (!$this->autorizar() || ($producto = $this->buscar()) === null) {
+        if (!$this->autorizar()) {
             return;
         }
-        $filtros = [
-            'q' => Http::texto($_GET, 'q'),
-            'estado' => Http::texto($_GET, 'estado', '1'),
-            'pagina' => Http::texto($_GET, 'pagina', '1'),
-        ];
+        $filtros = $this->leerFiltrosListado();
+        $producto = $this->buscar($filtros);
+        if ($producto === null) {
+            return;
+        }
         try {
             Sesion::validarCsrf($_POST['csrf'] ?? null);
             $activo = Http::texto($_POST, 'activo');
@@ -180,7 +184,12 @@ final class GestionProductoController
 
     public function eliminar(): void
     {
-        if (!$this->autorizar() || ($producto = $this->buscar()) === null) {
+        if (!$this->autorizar()) {
+            return;
+        }
+        $filtrosListado = $this->leerFiltrosListado();
+        $producto = $this->buscar($filtrosListado);
+        if ($producto === null) {
             return;
         }
         $version = Producto::version($producto);
@@ -194,8 +203,8 @@ final class GestionProductoController
                     $version,
                 );
                 $_SESSION['qba']['aviso_productos'] =
-                    'Producto eliminado del catálogo. Los pedidos anteriores conservan su información.';
-                Http::redirigir('equipo-productos');
+                    'Producto PRD-' . str_pad((string) $producto['id_producto'], 3, '0', STR_PAD_LEFT) . ' eliminado del catálogo. Los pedidos anteriores conservan su información.';
+                Http::redirigir('equipo-productos', $filtrosListado);
             } catch (DomainException $excepcion) {
                 http_response_code(422);
                 $error = $excepcion->getMessage();
@@ -211,10 +220,39 @@ final class GestionProductoController
             'producto' => $producto,
             'version' => $version,
             'error' => $error,
+            'filtrosListado' => $filtrosListado,
         ]);
     }
 
-    private function buscar(): ?array
+    private function leerFiltrosListado(): array
+    {
+        $busqueda = Http::texto($_GET, 'q');
+        $estado = Http::texto($_GET, 'estado', '1');
+        $pagina = filter_var(Http::texto($_GET, 'pagina', '1'), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1],
+        ]);
+        if (
+            !$pagina
+            || !mb_check_encoding($busqueda, 'UTF-8')
+            || mb_strlen($busqueda) > 120
+            || !in_array($estado, ['', '0', '1'], true)
+        ) {
+            throw new DomainException('Revisá la búsqueda, el estado y la página seleccionada.');
+        }
+        $filtros = [];
+        if ($busqueda !== '') {
+            $filtros['q'] = $busqueda;
+        }
+        if ($estado !== '1') {
+            $filtros['estado'] = $estado;
+        }
+        if ($pagina > 1) {
+            $filtros['pagina'] = $pagina;
+        }
+        return $filtros;
+    }
+
+    private function buscar(array $filtrosListado): ?array
     {
         $id = filter_var(Http::texto($_GET, 'id'), FILTER_VALIDATE_INT, [
             'options' => ['min_range' => 1],
@@ -228,6 +266,7 @@ final class GestionProductoController
                 'layoutEquipo' => true,
                 'rutaVolver' => 'equipo-productos',
                 'textoVolver' => 'Volver a productos',
+                'parametrosVolver' => $filtrosListado,
             ]);
         }
         return $producto;

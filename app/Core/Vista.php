@@ -113,6 +113,7 @@ final class Vista
 
         if ($esGestionProducto) {
             $estilos[] = 'css/gestion-productos.css';
+            $scripts[] = 'js/productos.js';
         }
 
         if ($esGestionStock) {
@@ -147,10 +148,6 @@ final class Vista
 
         if ($esPersonalEquipo) {
             $estilos[] = 'css/equipo-personal.css';
-        }
-
-        if ($vista === 'equipo-producto-form') {
-            $scripts[] = 'js/productos.js';
         }
 
         $estilos[] = 'css/tema-rustic.css';

@@ -225,12 +225,15 @@ Se conservan el [listado](https://github.com/ElMaximizer/software-pedidos-alas/b
 y el [formulario anterior](https://github.com/ElMaximizer/software-pedidos-alas/blob/produccion/app/Views/admin/producto-form.php),
 con su cabecera, colores, medidas, confirmación y adaptación a celular. Se
 reutilizan las tarjetas, campos y avisos, con clases BEM. Alta y edición comparten
-el mismo formulario. JavaScript solo agrega la vista previa de imagen; todo el
-guardado funciona sin JavaScript.
+el mismo formulario. JavaScript agrega la vista previa y el nombre de la imagen,
+los errores de archivo, el foco en los avisos y el indicador de guardado para
+evitar envíos repetidos. Todo el guardado funciona sin JavaScript; en ese caso,
+el selector nativo muestra el archivo elegido.
 
 El listado muestra inicialmente los productos activos. Busca por nombre o código
 PRD-001 y permite seleccionar inactivos o todos los estados. Muestra 25 productos
-por página y mantiene los filtros al cambiar de página. El
+por página y mantiene la búsqueda, el estado y la página al agregar, editar,
+eliminar o volver al listado. Los filtros aplicados se pueden restablecer. El
 formulario incluye nombre, categoría, descripción, precio, presentación,
 ingredientes, alérgenos, estado e imagen opcional. Las categorías del proyecto
 anterior son Panes, Bizcochos, Tortas y Especiales.
@@ -243,12 +246,13 @@ texto, no cambian los valores que decide el servidor. El id a editar o eliminar
 sale de la URL; la imagen se obtiene exclusivamente de la subida del archivo.
 
 **Inactivo** oculta temporalmente el producto y permite editarlo o reactivarlo.
-El botón **Estado**, junto a Editar y Eliminar, permite elegir Activo o Inactivo
+El botón **Cambiar estado**, junto a Editar y Eliminar, permite elegir Activo o Inactivo
 y guardar desde el listado, incluso sin JavaScript. Conserva la búsqueda, el
 filtro y la página; si el producto deja de coincidir con el filtro, sale del
 listado. El cambio exige permisos, POST, CSRF y la versión vigente del producto,
 sin modificar sus otros datos. Se verifica con `php tests/productos-estado.php`.
-**Eliminar** primero muestra una confirmación y después requiere POST y CSRF.
+**Eliminar** primero muestra una confirmación con el código y la categoría,
+ofrece un enlace para editar el estado y después requiere POST y CSRF.
 Hace una baja lógica: marca activo=0 y eliminado_en en UTC, conservando la fila
 y la referencia de los pedidos. Los detalles del pedido mantienen sus nombres y
 precios originales. El catálogo, el carrito y el cierre del pedido respetan la
