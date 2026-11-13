@@ -45,7 +45,7 @@ final class ContenidoInicioController
                     $seleccion['version'],
                 );
                 $_SESSION['qba']['aviso_contenido_inicio'] =
-                    'Guardamos los favoritos y el orden del carrusel.';
+                    'Guardamos los favoritos y la prioridad de la imagen de portada.';
                 Http::redirigir('equipo-contenido-inicio');
             } catch (DomainException $excepcion) {
                 http_response_code(422);
@@ -72,7 +72,7 @@ final class ContenidoInicioController
     private static function ids(mixed $entrada, int $maximo): array
     {
         if (!is_array($entrada) || count($entrada) > $maximo) {
-            throw new DomainException('Elegí hasta 3 favoritos y 5 productos para el carrusel.');
+            throw new DomainException('Elegí hasta 3 favoritos y 5 productos para la imagen de portada.');
         }
         $ids = [];
         foreach ($entrada as $valor) {

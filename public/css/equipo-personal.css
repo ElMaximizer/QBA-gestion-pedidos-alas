@@ -318,11 +318,6 @@
     font-weight: 500;
 }
 .equipo-personal__crear-intro > span:last-child,
-.equipo-personal__crear-ayuda {
-    margin: 0;
-    color: #75675b;
-    line-height: 1.6;
-}
 .equipo-personal__crear-accion {
     display: inline-flex;
     align-items: center;
@@ -363,10 +358,6 @@
 .equipo-personal__crear-contenido {
     padding: 0 clamp(1rem, 3vw, 1.75rem) clamp(1.25rem, 3vw, 1.75rem);
 }
-.equipo-personal__crear-ayuda {
-    grid-column: 1;
-    align-self: center;
-}
 .equipo-personal__crear-formulario {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -384,7 +375,6 @@
     font-weight: 450;
     line-height: 1.45;
 }
-.equipo-personal__crear-ayuda { grid-column: 1; font-size: .85rem; }
 .equipo-personal__crear-boton {
     grid-column: 2;
     justify-self: end;
@@ -405,7 +395,6 @@
 }
 @media (max-width: 520px) {
     .equipo-personal__crear-formulario { grid-template-columns: 1fr; }
-    .equipo-personal__crear-ayuda { grid-column: 1; }
     .equipo-personal__crear-boton { grid-column: 1; width: 100%; }
 }
 
@@ -450,7 +439,7 @@
 }
 
 .equipo-personal .equipo-personal__tabla-contenedor:focus-visible,
-.equipo-personal [data-personal-aviso]:focus {
+.equipo-personal [data-consulta-aviso]:focus {
     outline: 3px solid #7e2525;
     outline-offset: 4px;
 }

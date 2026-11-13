@@ -1,4 +1,4 @@
-<?php $imagenDestacada = $productosCarrusel[0] ?? ($productosDestacados[0] ?? null); ?>
+<?php $imagenDestacada = $productosPortada[0] ?? ($productosDestacados[0] ?? null); ?>
 <main id="contenido" class="inicio-rustic">
     <section class="inicio-portada" aria-labelledby="inicio-portada-titulo">
         <?php if ($imagenDestacada !== null && !empty($imagenDestacada['imagen'])): ?>

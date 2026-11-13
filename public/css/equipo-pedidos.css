@@ -170,13 +170,13 @@
 
 .equipo-pedido__transferencia-datos dl div {
     display: grid;
-    grid-template-columns: minmax(100px, .7fr) 1.3fr;
+    grid-template-columns: minmax(100px, 0.7fr) 1.3fr;
     gap: 10px;
 }
 
 .equipo-pedido__transferencia-datos dt {
     color: var(--muted, #766b61);
-    font-size: .85rem;
+    font-size: 0.85rem;
 }
 
 .equipo-pedido__transferencia-datos dd {
@@ -202,24 +202,11 @@
     background: #f8e6e2;
 }
 
-.equipo-pedido__pago-form,
 .equipo-pedido__estado-form {
     display: flex;
     flex-wrap: wrap;
     align-items: end;
     gap: 10px;
-}
-
-.equipo-pedido__pago-opcion {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.equipo-pedido__pago-opcion input {
-    width: 18px;
-    height: 18px;
-    margin: 0;
 }
 
 .equipo-pedido__estado-form {
@@ -261,7 +248,7 @@
     overflow-wrap: anywhere;
 }
 
-.equipo-pedido__estado-form [aria-invalid="true"] {
+.equipo-pedido__estado-form [aria-invalid='true'] {
     border: 2px solid #7e2525;
 }
 
@@ -275,30 +262,6 @@
 
 .equipo-pedido__estado-form .boton {
     white-space: normal;
-}
-
-.equipo-pedido__sena-form {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
-}
-
-.equipo-pedido__sena-opcion {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.equipo-pedido__sena-opcion input {
-    width: 18px;
-    height: 18px;
-    margin: 0;
-}
-
-.equipo-pedido__sena-guardar {
-    min-height: 40px;
-    padding: 8px 14px;
 }
 
 .equipo-pedidos__mensaje {
@@ -348,10 +311,6 @@
         gap: 14px 12px;
     }
 
-    .equipo-pedido__sena {
-        grid-column: 1 / -1;
-    }
-
     .equipo-pedido__pago {
         grid-column: 1 / -1;
     }
@@ -384,7 +343,6 @@
         gap: 2px;
     }
 }
-
 
 .equipo-pedido__cancelar-form {
     display: inline-flex;
@@ -556,7 +514,7 @@
     text-decoration: none;
 }
 
-.equipo-pedidos__selector-vista a[aria-current="page"] {
+.equipo-pedidos__selector-vista a[aria-current='page'] {
     background: var(--navy, #34271f);
     color: var(--white, #fffdf9);
 }

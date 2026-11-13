@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Core\Importe;
 use DomainException;
 use PDO;
 
@@ -37,11 +38,10 @@ final class ConsultaPedidos
     public function productosMasSolicitados(int $limite = 5): array
     {
         $limite = max(1, min($limite, 10));
-        $consulta = $this->conexion->query("SELECT d.nombre_producto, MAX(NULLIF(pr.imagen, '')) AS imagen, SUM(d.cantidad) AS unidades,
+        $consulta = $this->conexion->query("SELECT d.nombre_producto, SUM(d.cantidad) AS unidades,
             COUNT(DISTINCT d.id_pedido) AS pedidos
             FROM pedido_detalles d
             INNER JOIN pedidos p ON p.id_pedido = d.id_pedido
-            LEFT JOIN productos pr ON pr.id_producto = d.id_producto
             WHERE p.estado <> 'Cancelado'
             GROUP BY d.nombre_producto
             ORDER BY unidades DESC, d.nombre_producto ASC
@@ -107,7 +107,7 @@ final class ConsultaPedidos
                 p.hora_retiro, p.modalidad_entrega, p.direccion_entrega, p.notas,
                 p.estado, p.total, p.metodo_pago, p.estado_pago, p.pago_confirmado_en,
                 p.transferencia_enviada_en, MAX(c.estado_revision) AS estado_revision_transferencia,
-                p.sena_recibida, p.creado_en,
+                p.creado_en,
                 COALESCE(GROUP_CONCAT(CONCAT(d.nombre_producto, \' × \', d.cantidad)
                     ORDER BY d.id_detalle SEPARATOR \', \'), \'Sin detalle disponible\') AS productos
             FROM pedidos p LEFT JOIN pedido_detalles d ON d.id_pedido = p.id_pedido
@@ -128,8 +128,7 @@ final class ConsultaPedidos
         $pedidos = $consulta->fetchAll();
         foreach ($pedidos as $indice => $pedido) {
             $pedidos[$indice]['id_pedido'] = (int) $pedido['id_pedido'];
-            $pedidos[$indice]['sena_recibida'] = (bool) $pedido['sena_recibida'];
-            $pedidos[$indice]['total_centavos'] = self::aCentavos((string) $pedido['total']);
+            $pedidos[$indice]['total_centavos'] = Importe::aCentavos((string) $pedido['total']);
         }
 
         return [
@@ -138,24 +137,6 @@ final class ConsultaPedidos
             'pagina' => $pagina,
             'paginas' => $paginas,
         ];
-    }
-
-    public function registrarSena(int $idPedido, bool $recibida): void
-    {
-        if ($idPedido < 1) {
-            throw new DomainException('Seleccioná un pedido válido.');
-        }
-
-        $consulta = $this->conexion->prepare('SELECT id_pedido FROM pedidos WHERE id_pedido = ?');
-        $consulta->execute([$idPedido]);
-        if (!$consulta->fetchColumn()) {
-            throw new DomainException('El pedido ya no está disponible. Actualizá el listado.');
-        }
-
-        $consulta = $this->conexion->prepare(
-            'UPDATE pedidos SET sena_recibida = ? WHERE id_pedido = ?',
-        );
-        $consulta->execute([$recibida ? 1 : 0, $idPedido]);
     }
 
     public function registrarPagoLocal(int $idPedido, int $idUsuario): void
@@ -256,11 +237,5 @@ final class ConsultaPedidos
             }
             throw $error;
         }
-    }
-
-    private static function aCentavos(string $importe): int
-    {
-        [$entero, $decimal] = array_pad(explode('.', $importe, 2), 2, '0');
-        return (int) $entero * 100 + (int) str_pad(substr($decimal, 0, 2), 2, '0');
     }
 }

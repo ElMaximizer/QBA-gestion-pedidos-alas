@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use DomainException;
+use App\Core\Importe;
 use PDO;
 
 /** Pedidos visibles únicamente para la cuenta de cliente autenticada. */
@@ -51,7 +51,7 @@ final class PedidosCliente
                     'hora_retiro' => substr((string) $fila['hora_retiro'], 0, 5),
                     'notas' => $fila['notas'],
                     'estado' => $fila['estado'],
-                    'total_centavos' => self::centavos((string) $fila['total']),
+                    'total_centavos' => Importe::aCentavos((string) $fila['total']),
                     'creado_en' => $fila['creado_en'],
                     'lineas' => [],
                 ];
@@ -60,7 +60,7 @@ final class PedidosCliente
                 $pedidos[$id]['lineas'][] = [
                     'nombre' => $fila['nombre_producto'],
                     'cantidad' => (int) $fila['cantidad'],
-                    'precio_centavos' => self::centavos((string) $fila['precio_unitario']),
+                    'precio_centavos' => Importe::aCentavos((string) $fila['precio_unitario']),
                 ];
             }
         }
@@ -74,30 +74,5 @@ final class PedidosCliente
             && (empty($pedido['transferencia_enviada_en'])
                 || ($pedido['estado_revision_transferencia'] ?? null) === null
                 || ($pedido['estado_revision_transferencia'] ?? null) === 'rechazada');
-    }
-
-    public function informarTransferencia(int $idPedido, int $idCliente): void
-    {
-        if ($idPedido < 1 || $idCliente < 1) {
-            throw new DomainException('Seleccioná un pedido válido.');
-        }
-
-        $actualizar = $this->conexion->prepare("UPDATE pedidos
-            SET transferencia_enviada_en = CURRENT_TIMESTAMP
-            WHERE id_pedido = ? AND id_cliente = ? AND metodo_pago = 'transferencia'
-                AND estado_pago = 'pendiente' AND estado <> 'Cancelado'
-                AND transferencia_enviada_en IS NULL");
-        $actualizar->execute([$idPedido, $idCliente]);
-        if ($actualizar->rowCount() !== 1) {
-            throw new DomainException(
-                'No se pudo informar la transferencia. Revisá que sea un pedido propio pendiente y que no hayas enviado el aviso antes.',
-            );
-        }
-    }
-
-    private static function centavos(string $importe): int
-    {
-        [$entero, $decimal] = array_pad(explode('.', $importe, 2), 2, '0');
-        return (int) $entero * 100 + (int) str_pad(substr($decimal, 0, 2), 2, '0');
     }
 }

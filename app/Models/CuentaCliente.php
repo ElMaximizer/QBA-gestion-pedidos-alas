@@ -32,15 +32,6 @@ final class CuentaCliente
         return $cuenta;
     }
 
-    public function actualizarNombre(int $id, string $version, string $nombre): void
-    {
-        $nombre = DatosCuenta::nombre($nombre);
-        $this->modificar($id, $version, function () use ($id, $nombre): void {
-            $consulta = $this->conexion->prepare('UPDATE clientes SET nombre = ? WHERE id_cliente = ?');
-            $consulta->execute([$nombre, $id]);
-        });
-    }
-
     public function actualizarPerfil(int $id, string $version, string $nombre, string $telefono): void
     {
         $nombre = DatosCuenta::nombre($nombre);

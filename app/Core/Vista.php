@@ -81,10 +81,6 @@ final class Vista
             $scripts[] = 'js/entrega-pedido.js';
         }
 
-        if ($vista === 'inicio') {
-            $scripts[] = 'js/carrusel-inicio.js';
-        }
-
         if ($vista === 'equipo-contenido-inicio') {
             $estilos[] = 'css/equipo-contenido-inicio.css';
         }
@@ -140,7 +136,7 @@ final class Vista
 
         if ($vista === 'equipo-ventas') {
             $estilos[] = 'css/equipo-ventas.css';
-            $scripts[] = 'js/equipo-ventas.js';
+            $scripts[] = 'js/consulta-filtros.js';
         }
 
         if ($vista === 'equipo-pedido-form') {
@@ -154,11 +150,13 @@ final class Vista
 
         if ($esPersonalEquipo) {
             $estilos[] = 'css/equipo-personal.css';
-            $scripts[] = 'js/equipo-personal.js';
+            $scripts[] = 'js/consulta-filtros.js';
         }
 
-        $estilos[] = 'css/tema-rustic.css';
-        $estilos[] = 'css/tema-rustic-americana.css';
+        if ($esPanel) {
+            $estilos[] = 'css/tema-rustic.css';
+            $estilos[] = 'css/tema-rustic-americana.css';
+        }
 
         extract($variables, EXTR_SKIP);
 

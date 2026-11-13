@@ -25,7 +25,6 @@ final class PanelEquipoController
             'nombreRol' => UsuarioEquipo::ROLES[$usuario['rol']],
             'resumenProductos' => Producto::catalogo()->resumenActivos(),
             'resumenPedidos' => (new ConsultaPedidos(Conexion::obtener()))->resumenPanel(),
-            'productosMasSolicitados' => (new ConsultaPedidos(Conexion::obtener()))->productosMasSolicitados(),
             'consultasNuevas' => (new ConsultaContacto(Conexion::obtener()))->nuevas(),
             'solicitudesPendientes' =>
                 $usuario['rol'] === 'dueno'

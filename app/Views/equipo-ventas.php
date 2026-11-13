@@ -6,7 +6,7 @@
     </div>
 
     <?php if ($error !== ''): ?>
-        <p class="aviso aviso--error" id="ventas-error" role="alert" tabindex="-1" data-ventas-error><?= $escapar($error) ?></p>
+        <p class="aviso aviso--error" id="ventas-error" role="alert" tabindex="-1" data-consulta-aviso><?= $escapar($error) ?></p>
     <?php endif; ?>
 
     <nav class="equipo-ventas__periodos" aria-label="Períodos de consulta">
@@ -22,12 +22,12 @@
         <?php endforeach; ?>
     </nav>
 
-    <form class="tarjeta equipo-ventas__filtros" method="get" action="<?= $escapar($url('equipo-ventas')) ?>" data-ventas-filtros>
+    <form class="tarjeta equipo-ventas__filtros" method="get" action="<?= $escapar($url('equipo-ventas')) ?>" data-consulta-filtros>
         <label class="campo">Desde <input class="campo__entrada" type="date" name="desde" value="<?= $escapar($desde) ?>"
                 aria-describedby="ventas-fechas-ayuda<?= $error !== '' ? ' ventas-error' : '' ?>" <?= $error !== '' ? 'aria-invalid="true"' : '' ?> required></label>
         <label class="campo">Hasta <input class="campo__entrada" type="date" name="hasta" value="<?= $escapar($hasta) ?>"
                 aria-describedby="ventas-fechas-ayuda<?= $error !== '' ? ' ventas-error' : '' ?>" <?= $error !== '' ? 'aria-invalid="true"' : '' ?> required></label>
-        <button class="boton boton--dorado" type="submit" data-ventas-consultar>Consultar período</button>
+        <button class="boton boton--dorado" type="submit">Consultar período</button>
         <p class="equipo-ventas__ayuda" id="ventas-fechas-ayuda">Se incluyen ambas fechas. Desde debe ser anterior o igual a Hasta.</p>
     </form>
 

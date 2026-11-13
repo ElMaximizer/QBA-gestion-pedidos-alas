@@ -274,8 +274,7 @@ body.pagina:not(.pagina--equipo) {
 
 .pagina:not(.pagina--equipo) .producto__categoria,
 .pagina:not(.pagina--equipo) .producto__nombre,
-.pagina:not(.pagina--equipo) .producto__descripcion,
-.pagina:not(.pagina--equipo) .producto__precio {
+.pagina:not(.pagina--equipo) .producto__descripcion {
     margin-inline: 0;
 }
 
@@ -477,26 +476,6 @@ body.pagina:not(.pagina--equipo) {
 
 .inicio-portada__indicacion span {
     font-size: 22px;
-}
-
-/* Franja de información debajo de la portada. */
-.inicio-franja {
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
-    gap: 24px;
-    padding: 25px 30px;
-    border-bottom: 1px solid var(--border);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--navy);
-}
-
-.inicio-franja i {
-    font-size: 22px;
-    color: var(--gold);
-    font-style: normal;
 }
 
 /* Presentación de la panadería. */
@@ -716,19 +695,6 @@ body.pagina:not(.pagina--equipo) {
     transform: scale(1.025);
 }
 
-.inicio-producto__foto > span {
-    position: absolute;
-    right: 16px;
-    bottom: 16px;
-    display: grid;
-    place-items: center;
-    width: 39px;
-    height: 39px;
-    border-radius: 50%;
-    background: var(--cream);
-    font-size: 23px;
-}
-
 .inicio-producto__informacion {
     padding-top: 23px;
     flex: 1;
@@ -746,28 +712,6 @@ body.pagina:not(.pagina--equipo) {
 .inicio-rustic .inicio-producto p {
     font-size: 13px;
     line-height: 1.65;
-}
-
-.inicio-producto__base {
-    margin-top: auto;
-    padding-block: 15px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    font-size: 14px;
-}
-
-.inicio-producto__base small {
-    font-size: 14px;
-    color: var(--muted);
-}
-
-.inicio-producto__base > a {
-    font-size: 14px;
-    border-bottom: 1px solid var(--border);
-    padding-block: 5px;
 }
 
 /* Historia de la panadería. */
@@ -879,27 +823,6 @@ body.pagina:not(.pagina--equipo) {
 
 .pie-rustic a:hover {
     color: #e0b58d;
-}
-
-.pie-rustic__nombre {
-    display: block;
-    font:
-        400 clamp(90px, 20.2vw, 300px)/1 Georgia,
-        serif;
-    letter-spacing: 0.015em;
-    text-align: center;
-    margin: 45px 0 25px;
-    white-space: nowrap;
-}
-
-.pie-rustic__nombre > span {
-    font:
-        400 22px Georgia,
-        serif;
-    vertical-align: top;
-    display: inline-block;
-    margin-top: 20px;
-    margin-left: 5px;
 }
 
 .pie-rustic__base {
@@ -1037,22 +960,6 @@ body.pagina:not(.pagina--equipo) {
         font-size: 6px;
     }
 
-    .inicio-franja {
-        flex-wrap: wrap;
-        gap: 14px;
-        padding: 22px;
-        font-size: 8px;
-    }
-
-    .inicio-franja i {
-        font-size: 16px;
-    }
-
-    .inicio-franja span:last-child,
-    .inicio-franja i:last-of-type {
-        display: none;
-    }
-
     .inicio-presentacion {
         gap: 35px;
         padding-block: 65px;
@@ -1128,10 +1035,6 @@ body.pagina:not(.pagina--equipo) {
 
     .pie-rustic__contenido {
         gap: 28px;
-    }
-
-    .pie-rustic__nombre {
-        font-size: 19vw;
     }
 
     .inicio-favoritos {
@@ -1296,16 +1199,6 @@ body.pagina:not(.pagina--equipo) {
         font-size: 27px;
     }
 
-    .pie-rustic__nombre {
-        font-size: 18.5vw;
-        margin: 45px 0 25px;
-    }
-
-    .pie-rustic__nombre > span {
-        font-size: 13px;
-        margin-top: 7px;
-    }
-
     .pie-rustic__base {
         flex-wrap: wrap;
         gap: 15px;
@@ -1319,24 +1212,12 @@ body.pagina:not(.pagina--equipo) {
         margin-left: 15px;
     }
 
-    .inicio-producto__base {
-        flex-wrap: wrap;
-    }
-
     .inicio-productos {
         grid-template-columns: 1fr;
     }
 
     .inicio-favoritos {
         padding-top: 48px;
-    }
-
-    .inicio-franja span:first-child {
-        display: none;
-    }
-
-    .inicio-franja i:first-of-type {
-        display: none;
     }
 }
 
@@ -1385,12 +1266,6 @@ body.pagina:not(.pagina--equipo) {
 }
 
 .inicio-portada__foto--sin-productos {
-    background: radial-gradient(ellipse at 70% 40%, #9a684d 0, #6a4633 42%, #3f2b22 100%);
-}
-.inicio-historia__imagen-vacia {
-    width: 100%;
-    height: 100%;
-    min-height: inherit;
     background: radial-gradient(ellipse at 70% 40%, #9a684d 0, #6a4633 42%, #3f2b22 100%);
 }
 
