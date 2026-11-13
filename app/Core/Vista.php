@@ -94,7 +94,7 @@ final class Vista
             $estilos[] = 'css/cliente-pedidos.css';
         }
 
-        if (in_array($vista, ['pedido-confirmado', 'cliente-pedidos'], true)) {
+        if (in_array($vista, ['pedido-confirmado', 'cliente-pedidos', 'cliente-transferencia'], true)) {
             $estilos[] = 'css/transferencia-pedido.css';
             $scripts[] = 'js/transferencia-pedido.js';
         }

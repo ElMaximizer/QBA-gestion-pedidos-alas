@@ -22,6 +22,7 @@
                 'css/equipo-personal.css' => '?v=20261113-2',
                 'css/equipo-pedido-form.css' => '?v=20261113-1',
                 'css/equipo-catalogo.css' => '?v=20261113-1',
+                'css/transferencia-pedido.css' => '?v=20261113-1',
                 default => '',
             };
             ?>
@@ -33,6 +34,7 @@
                 'js/productos.js' => '?v=20261113-2',
                 'js/mercaderia.js' => '?v=20261113-1',
                 'js/pedido-equipo.js' => '?v=20261113-3',
+                'js/transferencia-pedido.js' => '?v=20261113-1',
                 default => '',
             };
             ?>

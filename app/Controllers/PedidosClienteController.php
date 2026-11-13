@@ -51,6 +51,55 @@ final class PedidosClienteController
         ]);
     }
 
+    public function transferencia(): void
+    {
+        header('Cache-Control: no-store');
+        $cliente = Sesion::cliente();
+        if ($cliente === null) {
+            Http::redirigir('cliente-login');
+        }
+        $id = filter_var(Http::texto($_GET, 'id'), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1],
+        ]);
+        try {
+            $pedidos = (new PedidosCliente(Conexion::obtener()))->listar((int) $cliente['id_cliente']);
+        } catch (Throwable $error) {
+            error_log('HU18: falló la consulta de la transferencia (' . $error::class . ').');
+            http_response_code(503);
+            Vista::mostrar('error', [
+                'tituloPagina' => 'Transferencia | Panadería Rustic',
+                'mensaje' => 'No pudimos cargar el pedido en este momento. Intentá nuevamente.',
+                'rutaVolver' => 'cliente-pedidos',
+                'textoVolver' => 'Volver a mis pedidos',
+            ]);
+            return;
+        }
+        $pedido = null;
+        foreach ($pedidos as $candidato) {
+            if ($candidato['id_pedido'] === $id) {
+                $pedido = $candidato;
+                break;
+            }
+        }
+        if ($pedido === null || !PedidosCliente::puedeInformarTransferencia($pedido)) {
+            http_response_code(404);
+            Vista::mostrar('error', [
+                'tituloPagina' => 'Transferencia no disponible | Panadería Rustic',
+                'mensaje' => 'Seleccioná un pedido propio con una transferencia pendiente de informar.',
+                'rutaVolver' => 'cliente-pedidos',
+                'textoVolver' => 'Volver a mis pedidos',
+            ]);
+            return;
+        }
+        Vista::mostrar('cliente-transferencia', [
+            'tituloPagina' => 'Transferencia del pedido #' . $id . ' | Panadería Rustic',
+            'transferencia' => Transferencia::configuracion(),
+            'idPedidoDialogo' => $id,
+            'totalPedidoDialogo' => $pedido['total_centavos'],
+            'nombrePedidoDialogo' => $pedido['cliente_nombre'],
+        ]);
+    }
+
     public function informarTransferencia(): void
     {
         header('Cache-Control: no-store');

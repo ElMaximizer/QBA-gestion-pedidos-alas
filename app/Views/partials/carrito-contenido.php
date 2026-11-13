@@ -21,7 +21,7 @@
                         <div class="carrito-contenido__detalle">
                             <span class="carrito-contenido__categoria"><?= $escapar($articulo['categoria']) ?></span>
                             <h3 class="carrito-contenido__nombre"><?= $escapar($articulo['nombre']) ?></h3>
-                            <p class="carrito-contenido__precio"> <?= $articulo['disponible'] ? $dinero($articulo['precio']) . ' / ' . $escapar($articulo['presentacion']) : 'Quitá este producto para continuar.' ?> </p>
+                            <p class="carrito-contenido__precio"> <?= $articulo['disponible'] ? $dinero($articulo['precio'], true) . ' / ' . $escapar($articulo['presentacion']) : 'Quitá este producto para continuar.' ?> </p>
                             <form method="post" action="<?= $url('carrito') ?>" data-carrito-form>
                                 <input type="hidden" name="csrf" value="<?= $csrf ?>">
                                 <input type="hidden" name="accion" value="quitar">
@@ -47,7 +47,7 @@
                                     </label>
                                     <button class="carrito-contenido__actualizar">Actualizar</button>
                                 </form>
-                                <strong class="carrito-contenido__subtotal"><?= $dinero($articulo['subtotal']) ?></strong>
+                                <strong class="carrito-contenido__subtotal"><?= $dinero($articulo['subtotal'], true) ?></strong>
                             </div>
                         <?php endif; ?>
                     </li>
@@ -64,7 +64,7 @@
                 <span>Retiro en el local</span><span>Sin costo</span>
             </div>
             <div class="carrito-contenido__linea carrito-contenido__linea--total">
-                <span>Total estimado</span><strong><?= $dinero($total) ?></strong>
+                <span>Total estimado</span><strong><?= $dinero($total, true) ?></strong>
             </div>
             <?php if ($puedeContinuar): ?>
                 <a class="boton boton--dorado carrito-contenido__continuar"

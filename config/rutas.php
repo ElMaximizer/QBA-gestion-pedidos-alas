@@ -62,6 +62,7 @@ return [
     'cliente-cuenta' => ['clientes/cuenta', CuentaClienteController::class, 'index', ['GET', 'HEAD', 'POST']],
     'cliente-cuenta-eliminar' => ['clientes/cuenta/eliminar', CuentaClienteController::class, 'eliminar', ['GET', 'HEAD', 'POST']],
     'cliente-transferencia-enviada' => ['clientes/pedidos/transferencia-enviada', PedidosClienteController::class, 'informarTransferencia', ['POST']],
+    'cliente-transferencia' => ['clientes/pedidos/transferencia', PedidosClienteController::class, 'transferencia', ['GET', 'HEAD']],
     'equipo-comprobante-transferencia' => ['equipo/pedidos/comprobante', ComprobanteTransferenciaController::class, 'ver', ['GET', 'HEAD']],
     'registro' => [
         'clientes/registro',

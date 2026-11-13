@@ -93,11 +93,11 @@
             <h2 class="resumen__titulo">Resumen</h2>
             <?php foreach ($articulos as $articulo): ?>
                 <div class="resumen__linea">
-                    <span><?= $escapar($articulo['nombre']) ?> × <?= $articulo['cantidad'] ?></span><strong><?= $dinero($articulo['subtotal']) ?></strong>
+                    <span><?= $escapar($articulo['nombre']) ?> × <?= $articulo['cantidad'] ?></span><strong><?= $dinero($articulo['subtotal'], true) ?></strong>
                 </div>
             <?php endforeach; ?>
             <hr class="separador">
-            <h2 class="resumen__titulo">Total <?= $dinero($total) ?></h2>
+            <h2 class="resumen__titulo">Total <?= $dinero($total, true) ?></h2>
             <?php if ($puedeConfirmar): ?>
                 <button class="boton boton--dorado boton--completo">Confirmar pedido</button>
             <?php else: ?>

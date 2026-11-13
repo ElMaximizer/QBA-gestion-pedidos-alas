@@ -50,7 +50,7 @@
                             </h3>
                             <p><?= $escapar($producto['descripcion']) ?></p>
                             <div class="inicio-producto__base">
-                                <span><?= $dinero($producto['precio']) ?> <small>/ <?= $escapar($producto['presentacion']) ?></small></span>
+                                <span><?= $dinero($producto['precio'], true) ?> <small>/ <?= $escapar($producto['presentacion']) ?></small></span>
                                 <a href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>">Ver producto </a>
                             </div>
                         </div>

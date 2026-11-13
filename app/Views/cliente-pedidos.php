@@ -50,7 +50,7 @@
                                             <span><?= $escapar($linea['nombre']) ?></span>
                                             <small>Cantidad: <?= (int) $linea['cantidad'] ?></small>
                                         </div>
-                                        <strong><?= $dinero($linea['precio_centavos'] * $linea['cantidad']) ?></strong>
+                                        <strong><?= $dinero($linea['precio_centavos'] * $linea['cantidad'], true) ?></strong>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
@@ -92,14 +92,10 @@
                                     <dd><?= $pedido['metodo_pago'] === 'transferencia' ? 'Transferencia' : 'Pago en el local' ?> · <?= $escapar($estadoPagoCliente) ?></dd>
                                 </div>
                             </dl>
-                            <p class="cliente-pedidos__total"><span>Total del pedido</span><strong><?= $dinero($pedido['total_centavos']) ?></strong></p>
-                            <?php if ($pedido['metodo_pago'] === 'transferencia' && $pedido['estado_pago'] !== 'pagado'
-                                && (empty($pedido['transferencia_enviada_en'])
-                                    || $estadoRevisionTransferencia === null
-                                    || $estadoRevisionTransferencia === 'rechazada')
-                                && $pedido['estado'] !== 'Cancelado'): ?>
+                            <p class="cliente-pedidos__total"><span>Total del pedido</span><strong><?= $dinero($pedido['total_centavos'], true) ?></strong></p>
+                            <?php if (\App\Models\PedidosCliente::puedeInformarTransferencia($pedido)): ?>
                                 <div class="cliente-pedidos__transferencia">
-                                    <button class="boton boton--contorno" type="button" data-abrir-transferencia data-id-pedido="<?= (int) $pedido['id_pedido'] ?>" data-total-pedido="<?= $escapar($dinero($pedido['total_centavos'])) ?>" data-nombre-cliente="<?= $escapar($pedido['cliente_nombre']) ?>">Informar transferencia enviada</button>
+                                    <a class="boton boton--contorno" href="<?= $escapar($url('cliente-transferencia', ['id' => $pedido['id_pedido']])) ?>" data-abrir-transferencia data-id-pedido="<?= (int) $pedido['id_pedido'] ?>" data-total-pedido="<?= $escapar($dinero($pedido['total_centavos'], true)) ?>" data-nombre-cliente="<?= $escapar($pedido['cliente_nombre']) ?>">Informar transferencia enviada</a>
                                 </div>
                             <?php endif; ?>
                         </aside>
