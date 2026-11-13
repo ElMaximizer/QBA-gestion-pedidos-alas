@@ -65,6 +65,42 @@ function iniciarConfirmacionCancelacion() {
     });
 }
 
+function iniciarPagosEquipo() {
+    const formularios = document.querySelectorAll('[data-pago-equipo]');
+    if (!formularios.length) return;
+    const textosOriginales = new Map();
+    for (const formulario of formularios) {
+        const boton = formulario.querySelector('button[type="submit"]');
+        textosOriginales.set(boton, { texto: boton.textContent, etiqueta: boton.getAttribute('aria-label') });
+        formulario.addEventListener('submit', function (evento) {
+            if (evento.defaultPrevented) return;
+            const pedido = formulario.closest('.equipo-pedido');
+            if (pedido.dataset.guardandoPago === 'true') {
+                evento.preventDefault();
+                return;
+            }
+            pedido.dataset.guardandoPago = 'true';
+            formulario.setAttribute('aria-busy', 'true');
+            for (const otroBoton of pedido.querySelectorAll('[data-pago-equipo] button')) {
+                otroBoton.disabled = true;
+            }
+            boton.textContent = formulario.elements.accion.value === 'registrar_pago_local'
+                ? 'Registrando pago…' : 'Guardando revisión…';
+            boton.setAttribute('aria-label', boton.textContent);
+        });
+    }
+    window.addEventListener('pageshow', function () {
+        for (const formulario of formularios) {
+            const boton = formulario.querySelector('button[type="submit"]');
+            delete formulario.closest('.equipo-pedido').dataset.guardandoPago;
+            formulario.removeAttribute('aria-busy');
+            boton.disabled = false;
+            boton.textContent = textosOriginales.get(boton).texto;
+            boton.setAttribute('aria-label', textosOriginales.get(boton).etiqueta);
+        }
+    });
+}
+
 function iniciarCambioEstadoPedidos() {
     const formularios = document.querySelectorAll('[data-confirmar-estado]');
     if (!formularios.length) return;
@@ -411,6 +447,7 @@ function iniciarFormularioPedidoEquipo() {
 
 iniciarFormularioPedidoEquipo();
 iniciarConfirmacionCancelacion();
+iniciarPagosEquipo();
 iniciarCambioEstadoPedidos();
 const resultadoPedidos = document.querySelector('[data-resultado-pedidos][role="alert"]')
     || document.querySelector('[data-resultado-pedidos][role="status"]');

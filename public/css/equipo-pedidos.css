@@ -120,6 +120,22 @@
     gap: 8px;
 }
 
+.equipo-pedido__pago small {
+    max-width: 100%;
+    color: var(--muted, #766b61);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.equipo-pedido__pago .insignia {
+    white-space: normal;
+    line-height: 1.5;
+}
+
+.equipo-pedido__pago .boton {
+    white-space: normal;
+}
+
 .equipo-pedido__transferencia-datos {
     width: min(100%, 420px);
     padding: 10px 12px;
