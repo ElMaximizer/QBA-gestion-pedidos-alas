@@ -620,6 +620,17 @@ Los permisos y el estado se comprueban nuevamente al guardar. La confirmación
 de la interfaz no reemplaza estos controles. `php tests/cancelacion-pedidos.php`
 verifica el flujo, los permisos y la conservación de datos en una base temporal.
 
+## HU04 — Consultar pedidos
+
+El listado conserva búsqueda, estado, fecha, vista y página al paginar, cambiar
+entre lista y cuadrícula, abrir un detalle y realizar acciones desde el listado.
+La confirmación de cancelación sin JavaScript también conserva ese contexto.
+Los filtros aplicados se muestran junto a **Limpiar filtros**, que mantiene el
+modo de vista. Los mensajes distinguen la lista vacía de una búsqueda sin resultados.
+
+`php tests/contexto-pedidos.php` verifica estos recorridos, el escape y la
+validación de parámetros con pedidos ficticios en una base temporal.
+
 ## HU23 — Administrar pedidos como dueño
 
 Administrador y dueño consultan el listado de HU04 y acceden a **Ver / modificar pedido**.

@@ -1,5 +1,5 @@
 <main id="contenido" class="contenedor panel pedido-detalle">
-    <a class="enlace-texto" href="<?= $url('equipo-pedidos') ?>"> Volver a pedidos</a>
+    <a class="enlace-texto" href="<?= $escapar($url('equipo-pedidos', $filtrosListado)) ?>"> Volver a pedidos</a>
 
     <div class="titulo-pagina">
         <span class="etiqueta">PEDIDO DEL CLIENTE</span>
@@ -24,7 +24,7 @@
             </div>
             <div>
                 <dt>Teléfono</dt>
-                <dd><a href="tel:<?= $escapar($pedido['telefono']) ?>"><?= $escapar($pedido['telefono']) ?></a></dd>
+                <dd><?php if ($pedido['telefono'] !== ''): ?><a href="tel:<?= $escapar($pedido['telefono']) ?>"><?= $escapar($pedido['telefono']) ?></a><?php else: ?>No informado<?php endif; ?></dd>
             </div>
             <div>
                 <dt><?= ($pedido['modalidad_entrega'] ?? 'retiro') === 'domicilio' ? 'Fecha de entrega' : 'Fecha de retiro' ?></dt>
