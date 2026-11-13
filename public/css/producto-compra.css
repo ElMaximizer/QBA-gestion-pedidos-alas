@@ -1,0 +1,107 @@
+/* Compra desde las tarjetas del catálogo y los destacados del inicio. */
+.pagina:not(.pagina--equipo) .catalogo .producto {
+    overflow: visible;
+}
+
+.producto-compra {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.producto-compra__datos {
+    display: grid;
+    gap: 14px;
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.producto-compra__datos dt {
+    margin-bottom: 4px;
+    font-weight: 600;
+}
+
+.producto-compra__datos dd {
+    margin: 0;
+    color: var(--muted);
+    white-space: pre-line;
+}
+
+.producto-compra__alergenos {
+    padding: 12px 14px;
+    border-left: 3px solid var(--gold);
+    background: var(--cream);
+}
+
+.producto-compra__acciones {
+    margin-top: auto;
+}
+
+.producto-compra__acciones .producto-compra__precio,
+.inicio-producto .producto-compra .producto-compra__precio {
+    margin: 0 0 14px;
+    color: var(--navy);
+    font-size: 23px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.producto-compra__precio small {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.producto-compra__formulario {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    align-items: end;
+    gap: 12px;
+}
+
+.producto-compra__cantidad {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+    font-size: 14px;
+}
+
+.producto-compra__cantidad input {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--white);
+    color: var(--navy);
+    font: inherit;
+    font-size: 16px;
+}
+
+.producto-compra .producto-compra__agregar {
+    min-width: 0;
+    min-height: 48px;
+    padding: 12px;
+    white-space: normal;
+}
+
+.producto-compra__consulta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 6px;
+    font-size: 14px;
+    text-decoration: underline;
+}
+
+.producto-compra .producto-compra__ayuda {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}

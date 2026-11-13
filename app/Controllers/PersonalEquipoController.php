@@ -34,20 +34,17 @@ final class PersonalEquipoController
             return;
         }
 
+        $busqueda = '';
+        $rol = '';
+        $personas = [];
+        $error = '';
         try {
             $busqueda = Http::texto($_GET, 'q');
             $rol = Http::texto($_GET, 'rol');
             $personas = PersonalEquipo::directorio()->listar($busqueda, $rol);
         } catch (DomainException $excepcion) {
             http_response_code(422);
-            Vista::mostrar('error', [
-                'tituloPagina' => 'Revisá los filtros',
-                'mensaje' => $excepcion->getMessage(),
-                'layoutEquipo' => true,
-                'rutaVolver' => 'equipo-personal',
-                'textoVolver' => 'Volver al personal',
-            ]);
-            return;
+            $error = $excepcion->getMessage();
         }
 
         Vista::mostrar('equipo-personal', [
@@ -59,7 +56,7 @@ final class PersonalEquipoController
             'puedeEditarRoles' => false,
             'rutaPersonal' => 'equipo-personal',
             'aviso' => '',
-            'error' => '',
+            'error' => $error,
         ]);
     }
 }

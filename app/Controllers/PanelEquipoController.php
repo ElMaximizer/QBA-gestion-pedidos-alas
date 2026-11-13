@@ -18,11 +18,18 @@ final class PanelEquipoController
     {
         header('Cache-Control: no-store');
         $usuario = Sesion::requerirEquipo();
-        Vista::mostrar('equipo-panel', ['tituloPagina' => 'Panel de administración | Panadería Rustic',
-            'seccionActiva' => 'resumen', 'usuario' => $usuario, 'nombreRol' => UsuarioEquipo::ROLES[$usuario['rol']],
+        Vista::mostrar('equipo-panel', [
+            'tituloPagina' => 'Panel de administración | Panadería Rustic',
+            'seccionActiva' => 'resumen',
+            'usuario' => $usuario,
+            'nombreRol' => UsuarioEquipo::ROLES[$usuario['rol']],
             'resumenProductos' => Producto::catalogo()->resumenActivos(),
             'resumenPedidos' => (new ConsultaPedidos(Conexion::obtener()))->resumenPanel(),
             'consultasNuevas' => (new ConsultaContacto(Conexion::obtener()))->nuevas(),
-            'solicitudesPendientes' => $usuario['rol'] === 'dueno' ? (new SolicitudesEquipo(Conexion::obtener()))->pendientes() : 0]);
+            'solicitudesPendientes' =>
+                $usuario['rol'] === 'dueno'
+                    ? (new SolicitudesEquipo(Conexion::obtener()))->pendientes()
+                    : 0,
+        ]);
     }
 }

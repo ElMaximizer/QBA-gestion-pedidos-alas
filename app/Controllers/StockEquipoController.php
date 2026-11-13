@@ -19,14 +19,44 @@ final class StockEquipoController
         $usuario = Sesion::requerirEquipo();
         if (!in_array($usuario['rol'] ?? null, ['administrador', 'dueno'], true)) {
             http_response_code(403);
-            Vista::mostrar('error', ['tituloPagina' => 'Acceso no permitido',
+            Vista::mostrar('error', [
+                'tituloPagina' => 'Acceso no permitido',
                 'mensaje' => 'El control de stock está disponible para administrador y dueño.',
-                'layoutEquipo' => true, 'rutaVolver' => 'equipo-panel', 'textoVolver' => 'Volver al panel']);
+                'layoutEquipo' => true,
+                'rutaVolver' => 'equipo-panel',
+                'textoVolver' => 'Volver al panel',
+            ]);
             return;
+        }
+
+        $busqueda = Http::texto($_GET, 'q');
+        $estado = Http::texto($_GET, 'estado');
+        $pagina = filter_var(Http::texto($_GET, 'pagina', '1'), FILTER_VALIDATE_INT, [
+            'options' => ['min_range' => 1],
+        ]);
+        if (
+            !$pagina
+            || !mb_check_encoding($busqueda, 'UTF-8')
+            || mb_strlen($busqueda) > 100
+            || !in_array($estado, ['', 'bajo', 'correcto'], true)
+        ) {
+            throw new DomainException('Revisá la búsqueda, el filtro y la página seleccionada.');
+        }
+        $filtrosListado = [];
+        if ($busqueda !== '') {
+            $filtrosListado['q'] = $busqueda;
+        }
+        if ($estado !== '') {
+            $filtrosListado['estado'] = $estado;
+        }
+        if ($pagina > 1) {
+            $filtrosListado['pagina'] = $pagina;
         }
 
         $modelo = new StockMateriaPrima(Conexion::obtener());
         $error = '';
+        $accion = '';
+        $ajusteFallido = null;
         $valores = ['nombre' => '', 'unidad' => 'kg', 'stock_actual' => '0', 'stock_minimo' => '0'];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
@@ -39,20 +69,24 @@ final class StockEquipoController
                     $modelo->agregar($valores);
                     $_SESSION['qba']['aviso_stock'] = 'Materia prima agregada al inventario.';
                 } elseif ($accion === 'actualizar') {
-                    $id = filter_var(Http::texto($_POST, 'id_materia'), FILTER_VALIDATE_INT,
-                        ['options' => ['min_range' => 1]]);
+                    $id = filter_var(Http::texto($_POST, 'id_materia'), FILTER_VALIDATE_INT, [
+                        'options' => ['min_range' => 1],
+                    ]);
                     if (!$id) {
                         throw new DomainException('Seleccioná una materia prima válida.');
                     }
-                    $modelo->actualizar($id, [
+                    $ajusteFallido = [
+                        'id_materia' => $id,
                         'stock_actual' => Http::texto($_POST, 'stock_actual'),
                         'stock_minimo' => Http::texto($_POST, 'stock_minimo'),
-                    ], Http::texto($_POST, 'version'));
+                        'version' => Http::texto($_POST, 'version'),
+                    ];
+                    $modelo->actualizar($id, $ajusteFallido, $ajusteFallido['version']);
                     $_SESSION['qba']['aviso_stock'] = 'Stock actualizado correctamente.';
                 } else {
                     throw new DomainException('Seleccioná una acción válida.');
                 }
-                Http::redirigir('equipo-stock');
+                Http::redirigir('equipo-stock', $filtrosListado);
             } catch (DomainException $excepcion) {
                 http_response_code(422);
                 $error = $excepcion->getMessage();
@@ -67,18 +101,38 @@ final class StockEquipoController
         if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             unset($_SESSION['qba']['aviso_stock']);
         }
-        $busqueda = Http::texto($_GET, 'q');
-        $estado = Http::texto($_GET, 'estado');
-        $pagina = filter_var(Http::texto($_GET, 'pagina', '1'), FILTER_VALIDATE_INT,
-            ['options' => ['min_range' => 1]]);
-        if (!$pagina) {
-            throw new DomainException('Seleccioná una página válida.');
-        }
         $resultado = $modelo->listar($busqueda, $estado, $pagina);
-        Vista::mostrar('equipo-stock', $resultado + [
-            'tituloPagina' => 'Controlar stock | Panadería Rustic', 'seccionActiva' => 'stock', 'layoutEquipo' => true,
-            'busqueda' => $busqueda, 'estado' => $estado, 'aviso' => $aviso, 'error' => $error,
-            'valores' => $valores, 'unidades' => StockMateriaPrima::UNIDADES,
-        ]);
+        if ($resultado['pagina'] > 1) {
+            $filtrosListado['pagina'] = $resultado['pagina'];
+        } else {
+            unset($filtrosListado['pagina']);
+        }
+        $ajusteVisible = false;
+        if ($ajusteFallido !== null) {
+            foreach ($resultado['materias'] as $materia) {
+                if ((int) $materia['id_materia'] === $ajusteFallido['id_materia']) {
+                    $ajusteVisible = true;
+                    break;
+                }
+            }
+        }
+        Vista::mostrar(
+            'equipo-stock',
+            $resultado + [
+                'tituloPagina' => 'Controlar stock | Panadería Rustic',
+                'seccionActiva' => 'stock',
+                'layoutEquipo' => true,
+                'busqueda' => $busqueda,
+                'estado' => $estado,
+                'aviso' => $aviso,
+                'error' => $error,
+                'valores' => $valores,
+                'unidades' => StockMateriaPrima::UNIDADES,
+                'filtrosListado' => $filtrosListado,
+                'altaAbierta' => $error !== '' && $accion === 'agregar',
+                'ajusteFallido' => $ajusteFallido,
+                'ajusteVisible' => $ajusteVisible,
+            ],
+        );
     }
 }

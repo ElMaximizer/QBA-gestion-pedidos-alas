@@ -20,9 +20,13 @@ final class ContenidoInicioController
         Sesion::requerirEquipo();
         if (!Sesion::administraProductos()) {
             http_response_code(403);
-            Vista::mostrar('error', ['tituloPagina' => 'Acceso no permitido', 'layoutEquipo' => true,
+            Vista::mostrar('error', [
+                'tituloPagina' => 'Acceso no permitido',
+                'layoutEquipo' => true,
                 'mensaje' => 'Solo administrador y dueño pueden elegir el contenido del inicio.',
-                'rutaVolver' => 'equipo-panel', 'textoVolver' => 'Volver al panel']);
+                'rutaVolver' => 'equipo-panel',
+                'textoVolver' => 'Volver al panel',
+            ]);
             return;
         }
         $modelo = new ContenidoInicio(Conexion::obtener());
@@ -35,8 +39,13 @@ final class ContenidoInicioController
                 $seleccion['favoritos'] = self::ids($_POST['favoritos'] ?? [], 3);
                 $seleccion['portada'] = self::ids($_POST['portada'] ?? [], 5);
                 $seleccion['version'] = Http::texto($_POST, 'version');
-                $modelo->guardar($seleccion['favoritos'], $seleccion['portada'], $seleccion['version']);
-                $_SESSION['qba']['aviso_contenido_inicio'] = 'Guardamos los favoritos y el orden del carrusel.';
+                $modelo->guardar(
+                    $seleccion['favoritos'],
+                    $seleccion['portada'],
+                    $seleccion['version'],
+                );
+                $_SESSION['qba']['aviso_contenido_inicio'] =
+                    'Guardamos los favoritos y la prioridad de la imagen de portada.';
                 Http::redirigir('equipo-contenido-inicio');
             } catch (DomainException $excepcion) {
                 http_response_code(422);
@@ -50,21 +59,34 @@ final class ContenidoInicioController
             $aviso = (string) ($_SESSION['qba']['aviso_contenido_inicio'] ?? '');
             unset($_SESSION['qba']['aviso_contenido_inicio']);
         }
-        Vista::mostrar('equipo-contenido-inicio', ['tituloPagina' => 'Contenido del inicio | Panadería Rustic',
-            'seccionActiva' => 'contenido', 'seleccion' => $seleccion, 'productos' => Producto::catalogo()->listar(),
-            'error' => $error, 'aviso' => $aviso]);
+        Vista::mostrar('equipo-contenido-inicio', [
+            'tituloPagina' => 'Contenido del inicio | Panadería Rustic',
+            'seccionActiva' => 'contenido',
+            'seleccion' => $seleccion,
+            'productos' => Producto::catalogo()->listar(),
+            'error' => $error,
+            'aviso' => $aviso,
+        ]);
     }
 
     private static function ids(mixed $entrada, int $maximo): array
     {
         if (!is_array($entrada) || count($entrada) > $maximo) {
-            throw new DomainException('Elegí hasta 3 favoritos y 5 productos para el carrusel.');
+            throw new DomainException('Elegí hasta 3 favoritos y 5 productos para la imagen de portada.');
         }
         $ids = [];
         foreach ($entrada as $valor) {
-            if ($valor === '') continue;
-            $id = is_string($valor) ? filter_var($valor, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) : false;
-            if (!$id || in_array($id, $ids, true)) throw new DomainException('Elegí productos válidos, sin repetirlos en una misma selección.');
+            if ($valor === '') {
+                continue;
+            }
+            $id = is_string($valor)
+                ? filter_var($valor, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]])
+                : false;
+            if (!$id || in_array($id, $ids, true)) {
+                throw new DomainException(
+                    'Elegí productos válidos, sin repetirlos en una misma selección.',
+                );
+            }
             $ids[] = $id;
         }
         return $ids;
