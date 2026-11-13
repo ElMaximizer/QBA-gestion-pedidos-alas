@@ -243,12 +243,13 @@ function iniciarFormularioPedidoEquipo() {
 
     function formatearDinero(centavos) {
         const pesos = centavos / 100;
+        const decimales = centavos % 100 === 0 ? 0 : 2;
 
         return (
             '$ ' +
             pesos.toLocaleString('es-UY', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0,
+                minimumFractionDigits: decimales,
+                maximumFractionDigits: decimales,
             })
         );
     }

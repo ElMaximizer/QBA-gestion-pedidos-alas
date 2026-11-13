@@ -652,8 +652,13 @@ con un resumen enlazado para corregirlos con teclado. En transferencias, despué
 de un error se indica que hay que volver a seleccionar el comprobante.
 El carrito público no se utiliza ni se vacía.
 
+El selector de productos, los subtotales y el total muestran centavos cuando
+corresponde, sin redondearlos. El resumen usa el mismo formato con JavaScript
+y al recalcularse en el servidor. Los importes enteros se muestran sin decimales.
+
 `php tests/pedido-equipo-validacion.php` verifica la presentación de errores por
-campo, conservación de valores, comprobante y reenvío sin duplicados en una base temporal.
+campo, conservación de valores, importes exactos con varios productos, comprobante
+y reenvío sin duplicados en una base temporal.
 
 `id_usuario_registro` identifica a la cuenta del equipo que tomó el pedido;
 `id_cliente` conserva NULL para estos pedidos. Ambos identificadores, el total

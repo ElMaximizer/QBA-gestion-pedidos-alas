@@ -31,7 +31,7 @@
             <?php
             $versionScript = match ($script) {
                 'js/productos.js', 'js/mercaderia.js' => '?v=20261113-1',
-                'js/pedido-equipo.js' => '?v=20261113-2',
+                'js/pedido-equipo.js' => '?v=20261113-3',
                 default => '',
             };
             ?>
