@@ -8,6 +8,7 @@ use App\Core\Http;
 use App\Core\Sesion;
 use App\Core\Vista;
 use App\Models\ConsultaVentas;
+use DateTimeImmutable;
 use DomainException;
 
 final class VentasEquipoController
@@ -29,7 +30,8 @@ final class VentasEquipoController
         }
 
         $hoy = date('Y-m-d');
-        $desde = Http::texto($_GET, 'desde', date('Y-m-01'));
+        $inicioMes = date('Y-m-01');
+        $desde = Http::texto($_GET, 'desde', $inicioMes);
         $hasta = Http::texto($_GET, 'hasta', $hoy);
         $error = '';
         $resultado = ['resumen' => [], 'pedidos' => []];
@@ -47,6 +49,15 @@ final class VentasEquipoController
             'desde' => $desde,
             'hasta' => $hasta,
             'error' => $error,
+            'periodosRapidos' => [
+                ['etiqueta' => 'Hoy', 'desde' => $hoy, 'hasta' => $hoy],
+                [
+                    'etiqueta' => 'Últimos 7 días',
+                    'desde' => (new DateTimeImmutable($hoy))->modify('-6 days')->format('Y-m-d'),
+                    'hasta' => $hoy,
+                ],
+                ['etiqueta' => 'Este mes', 'desde' => $inicioMes, 'hasta' => $hoy],
+            ],
         ]);
     }
 }
