@@ -328,6 +328,9 @@ Los pendientes corresponden a pedidos creados en el período que aún no se
 pagaron. Se excluyen los pedidos cancelados. Los medios de pago muestran
 cantidades de pedidos pagados, separadas de los importes.
 
+Los indicadores de ingresos y pagos pendientes y cada total del detalle muestran
+los centavos cuando corresponden, sin redondear los importes de los pedidos.
+
 El detalle indica cuántos pagos muestra y los ordena del más reciente al más
 antiguo. Conserva el límite de 100 registros; si hay más, aclara que el resumen
 incluye todo el período y sugiere acotar las fechas para reducir los resultados.
