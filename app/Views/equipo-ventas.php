@@ -38,12 +38,12 @@
         <section class="equipo-ventas__resumen" aria-label="Resumen del período">
             <article class="tarjeta equipo-ventas__indicador">
                 <h2>Ingresos confirmados</h2>
-                <strong><?= $dinero($resumen['ingresos_centavos']) ?></strong>
+                <strong><?= $dinero($resumen['ingresos_centavos'], true) ?></strong>
                 <p><?= $resumen['pedidos_pagados'] ?> <?= $resumen['pedidos_pagados'] === 1 ? 'pedido con pago confirmado' : 'pedidos con pago confirmado' ?></p>
             </article>
             <article class="tarjeta equipo-ventas__indicador">
                 <h2>Pagos pendientes</h2>
-                <strong><?= $dinero($resumen['saldo_pendiente_centavos']) ?></strong>
+                <strong><?= $dinero($resumen['saldo_pendiente_centavos'], true) ?></strong>
                 <p><?= $resumen['pedidos_pendientes'] ?> <?= $resumen['pedidos_pendientes'] === 1 ? 'pedido pendiente de pago' : 'pedidos pendientes de pago' ?></p>
                 <small>Este saldo todavía no forma parte de los ingresos.</small>
             </article>
@@ -77,7 +77,7 @@
                                     <td role="cell"><span class="equipo-ventas__etiqueta-movil" aria-hidden="true">Cliente</span><span><?= $escapar($pedido['cliente_nombre']) ?></span></td>
                                     <td role="cell"><span class="equipo-ventas__etiqueta-movil" aria-hidden="true">Productos</span><span><?= $escapar($pedido['productos']) ?></span></td>
                                     <td role="cell"><span class="equipo-ventas__etiqueta-movil" aria-hidden="true">Medio</span><span><?= $pedido['metodo_pago'] === 'transferencia' ? 'Transferencia' : 'En el local' ?></span></td>
-                                    <td class="equipo-ventas__total" role="cell"><span class="equipo-ventas__etiqueta-movil" aria-hidden="true">Total recibido</span><strong><?= $dinero($pedido['total_centavos']) ?></strong></td>
+                                    <td class="equipo-ventas__total" role="cell"><span class="equipo-ventas__etiqueta-movil" aria-hidden="true">Total recibido</span><strong><?= $dinero($pedido['total_centavos'], true) ?></strong></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
