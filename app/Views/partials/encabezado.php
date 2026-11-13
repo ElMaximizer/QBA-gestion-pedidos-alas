@@ -17,13 +17,15 @@
                 'css/gestion-productos.css' => '?v=20261113-1',
                 'css/equipo-stock.css' => '?v=20261113-2',
                 'css/equipo-ventas.css' => '?v=20261113-1',
+                'css/mercaderia.css' => '?v=20261113-1',
                 default => '',
             };
             ?>
             <link rel="stylesheet" href="<?= $escapar($recurso($estilo) . $versionEstilo) ?>">
         <?php endforeach; ?>
         <?php foreach ($scripts as $script): ?>
-            <script src="<?= $escapar($recurso($script) . ($script === 'js/productos.js' ? '?v=20261113-1' : '')) ?>" defer></script>
+            <?php $versionScript = in_array($script, ['js/productos.js', 'js/mercaderia.js'], true) ? '?v=20261113-1' : ''; ?>
+            <script src="<?= $escapar($recurso($script) . $versionScript) ?>" defer></script>
         <?php endforeach; ?>
         <?php if (!$esPanel): ?>
             <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-nuevo.css')) ?>?v=20261112-1">

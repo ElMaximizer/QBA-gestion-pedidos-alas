@@ -123,10 +123,7 @@ final class Vista
 
         if (in_array($vista, ['equipo-entregas-mercaderia', 'equipo-mercaderia-form'], true)) {
             $estilos[] = 'css/mercaderia.css';
-
-            if ($vista === 'equipo-mercaderia-form') {
-                $scripts[] = 'js/mercaderia.js';
-            }
+            $scripts[] = 'js/mercaderia.js';
         }
 
         if (in_array($vista, ['equipo-pedidos', 'equipo-pedido-cancelacion'], true)) {
