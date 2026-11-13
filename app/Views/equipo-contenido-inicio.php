@@ -33,7 +33,7 @@
                                 src="<?= $escapar($recurso('images/' . $producto['imagen'])) ?>" alt="" width="72"
                                 height="64" loading="lazy">
                             <span
-                                class="contenido-inicio__identidad"><strong><?= $escapar($producto['nombre']) ?></strong><span><?= $escapar($producto['categoria']) ?> · <?= $dinero($producto['precio']) ?></span></span>
+                                class="contenido-inicio__identidad"><strong><?= $escapar($producto['nombre']) ?></strong><span><?= $escapar($producto['categoria']) ?> · <?= $dinero($producto['precio'], true) ?></span></span>
                         </label>
                     <?php endforeach; ?>
                 </div>
