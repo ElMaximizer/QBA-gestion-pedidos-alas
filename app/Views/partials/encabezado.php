@@ -12,11 +12,16 @@
             if (!$esPanel && $esTemaAnterior) {
                 continue;
             }
+            $versionEstilo = match ($estilo) {
+                'css/equipo-pedidos.css' => '?v=20261113-2',
+                'css/gestion-productos.css' => '?v=20261113-1',
+                default => '',
+            };
             ?>
-            <link rel="stylesheet" href="<?= $escapar($recurso($estilo) . ($estilo === 'css/equipo-pedidos.css' ? '?v=20261113-2' : '')) ?>">
+            <link rel="stylesheet" href="<?= $escapar($recurso($estilo) . $versionEstilo) ?>">
         <?php endforeach; ?>
         <?php foreach ($scripts as $script): ?>
-            <script src="<?= $escapar($recurso($script)) ?>" defer></script>
+            <script src="<?= $escapar($recurso($script) . ($script === 'js/productos.js' ? '?v=20261113-1' : '')) ?>" defer></script>
         <?php endforeach; ?>
         <?php if (!$esPanel): ?>
             <link rel="stylesheet" href="<?= $escapar($recurso('css/rustic-nuevo.css')) ?>?v=20261112-1">
