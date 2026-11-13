@@ -105,7 +105,7 @@
                                 && !empty($pedido['estado_revision_transferencia']);
                             $transferenciaInformada = $comprobanteEnviado && $estadoRevision === 'pendiente';
                             $textoEstadoPago = !$esTransferencia
-                                ? ($pedido['estado_pago'] === 'pagado' ? 'Pagado' : 'Pendiente')
+                                ? ($pedido['estado_pago'] === 'pagado' ? 'Realizado' : 'Pendiente')
                                 : ($estadoRevision === 'aprobada'
                                     ? 'Aprobada'
                                     : ($estadoRevision === 'rechazada'
@@ -114,7 +114,7 @@
                                             ? 'Pendiente de aprobación'
                                             : (!empty($pedido['transferencia_enviada_en']) ? 'Comprobante no disponible' : 'Pendiente'))));
                             ?>
-                            <span class="insignia <?= in_array($textoEstadoPago, ['Aprobada', 'Pagado'], true) ? 'insignia--exito' : 'insignia--neutra' ?><?= $textoEstadoPago === 'Rechazada' ? ' equipo-pedido__transferencia-rechazada' : '' ?>">
+                            <span class="insignia <?= in_array($textoEstadoPago, ['Aprobada', 'Realizado'], true) ? 'insignia--exito' : 'insignia--neutra' ?><?= $textoEstadoPago === 'Rechazada' ? ' equipo-pedido__transferencia-rechazada' : '' ?>">
                                 <?= $escapar($textoEstadoPago) ?>
                             </span>
                             <?php if (!$esTransferencia && $pedido['estado_pago'] !== 'pagado' && $puedeRegistrarPagoLocal): ?>

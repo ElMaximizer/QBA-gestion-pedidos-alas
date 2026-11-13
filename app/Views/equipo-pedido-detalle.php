@@ -42,7 +42,12 @@
             </div>
             <div>
                 <dt>Forma de pago</dt>
-                <dd><?= ($pedido['metodo_pago'] ?? 'local') === 'transferencia' ? 'Transferencia por el total' : 'Pago en el local' ?> · <?= ($pedido['estado_pago'] ?? 'pendiente') === 'pagado' ? 'pagado' : 'pendiente' ?></dd>
+                <dd>
+                    <?= ($pedido['metodo_pago'] ?? 'local') === 'transferencia' ? 'Transferencia por el total' : 'Pago en el local' ?>
+                    · <?= ($pedido['estado_pago'] ?? 'pendiente') === 'pagado'
+                        ? ((($pedido['metodo_pago'] ?? 'local') === 'transferencia') ? 'Aprobada' : 'Realizado')
+                        : 'Pendiente' ?>
+                </dd>
             </div>
             <?php if (($pedido['modalidad_entrega'] ?? 'retiro') === 'domicilio'): ?>
                 <div class="pedido-detalle__direccion">

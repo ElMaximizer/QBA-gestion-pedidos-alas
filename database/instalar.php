@@ -50,6 +50,13 @@ try {
             $conexion->exec($sql);
         }
     }
+    $columnaEstadoPago = $conexion->query("SHOW COLUMNS FROM pedidos LIKE 'estado_pago'")->fetch(PDO::FETCH_ASSOC);
+    if ($columnaEstadoPago !== false && str_starts_with(strtolower((string) $columnaEstadoPago['Type']), 'enum(')) {
+        $conexion->exec("ALTER TABLE pedidos MODIFY estado_pago VARCHAR(20) NOT NULL DEFAULT 'pendiente'");
+    }
+    $conexion->exec("UPDATE pedidos SET estado_pago = 'pagado' WHERE estado_pago = 'confirmado'");
+    $conexion->exec("UPDATE pedidos SET estado_pago = CASE
+        WHEN pago_confirmado_en IS NULL THEN 'pendiente' ELSE 'pagado' END WHERE estado_pago = ''");
     $conexion->exec(file_get_contents(__DIR__ . '/contenido-inicio.sql'));
     $conexion->exec(file_get_contents(__DIR__ . '/contacto.sql'));
     $columnaSena = $conexion->query("SHOW COLUMNS FROM pedidos LIKE 'sena_recibida'")->fetch();
