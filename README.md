@@ -854,9 +854,20 @@ La sesión del equipo no reemplaza la cuenta de cliente para realizar un pedido
 desde la web. Los pedidos nuevos se asocian al id_cliente de la sesión, ignorando
 los identificadores enviados por el navegador. Los pedidos históricos con
 id_cliente NULL se conservan. No hay cambios en la estructura de la base.
-No hay cobros en línea, registro de señas, envío de
-correos, panel administrativo ni historial de pedidos en esta historia.
-Los enlaces de nosotros y contacto siguen inactivos.
+El carrito, el resumen, Mis pedidos y las instrucciones de transferencia muestran
+los centavos sin redondear. Los importes enteros conservan su presentación habitual.
+
+Los enlaces de transferencia abren el diálogo con JavaScript y también permiten
+consultar las instrucciones y cargar el comprobante desde
+**/clientes/pedidos/transferencia?id=…** (GET/HEAD), sin JavaScript. Esta página
+solo admite pedidos propios con una transferencia pendiente de informar; usa el
+mismo contenido y el mismo POST de carga que el diálogo. Si no hay datos bancarios
+configurados, ofrece consultar a la panadería.
+
+Al cambiar de pedido se limpia el archivo seleccionado; al reabrir el mismo pedido
+se conservan su nombre, número e importe. El foco acompaña el cambio de paso y
+vuelve al enlace de origen al cerrar. El pago sigue pendiente de revisión del equipo
+después de enviar el comprobante. La solución compartida también se usa en HU20.
 
 ## Requisitos
 

@@ -67,6 +67,15 @@ final class PedidosCliente
         return array_values($pedidos);
     }
 
+    public static function puedeInformarTransferencia(array $pedido): bool
+    {
+        return $pedido['metodo_pago'] === 'transferencia' && $pedido['estado_pago'] !== 'pagado'
+            && $pedido['estado'] !== 'Cancelado'
+            && (empty($pedido['transferencia_enviada_en'])
+                || ($pedido['estado_revision_transferencia'] ?? null) === null
+                || ($pedido['estado_revision_transferencia'] ?? null) === 'rechazada');
+    }
+
     public function informarTransferencia(int $idPedido, int $idCliente): void
     {
         if ($idPedido < 1 || $idCliente < 1) {
