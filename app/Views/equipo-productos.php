@@ -40,7 +40,7 @@
                     <h2 class="gestion-producto__nombre"><?= $escapar($producto['nombre']) ?></h2>
                     <small class="texto-pequeno">PRD-<?= str_pad((string) $producto['id_producto'], 3, '0', STR_PAD_LEFT) ?> · <?= $escapar($producto['categoria']) ?></small>
                 </div>
-                <div class="gestion-producto__precio"><strong><?= $dinero($producto['precio']) ?></strong><small class="gestion-producto__presentacion"><?= $escapar($producto['presentacion']) ?></small></div>
+                <div class="gestion-producto__precio"><strong><?= $dinero($producto['precio'], true) ?></strong><small class="gestion-producto__presentacion"><?= $escapar($producto['presentacion']) ?></small></div>
                 <span class="gestion-producto__estado"><span
                         class="insignia <?= $producto['activo'] ? 'insignia--exito' : 'insignia--neutra' ?>"><?= $producto['activo'] ? 'Activo' : 'Inactivo' ?></span></span>
                 <a class="boton boton--contorno gestion-producto__boton"

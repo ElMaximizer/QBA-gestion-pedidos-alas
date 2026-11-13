@@ -15,7 +15,7 @@
             $versionEstilo = match ($estilo) {
                 'css/equipo-pedidos.css' => '?v=20261113-5',
                 'css/equipo-pedido-detalle.css' => '?v=20261113-1',
-                'css/gestion-productos.css' => '?v=20261113-1',
+                'css/gestion-productos.css' => '?v=20261113-2',
                 'css/equipo-stock.css' => '?v=20261113-2',
                 'css/equipo-ventas.css' => '?v=20261113-1',
                 'css/mercaderia.css' => '?v=20261113-1',
@@ -30,7 +30,8 @@
         <?php foreach ($scripts as $script): ?>
             <?php
             $versionScript = match ($script) {
-                'js/productos.js', 'js/mercaderia.js' => '?v=20261113-1',
+                'js/productos.js' => '?v=20261113-2',
+                'js/mercaderia.js' => '?v=20261113-1',
                 'js/pedido-equipo.js' => '?v=20261113-3',
                 default => '',
             };

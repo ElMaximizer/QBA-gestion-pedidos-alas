@@ -14,6 +14,26 @@ final class ImagenProducto
 
     public function guardar(?array $archivo): ?string
     {
+        $error = self::errorValidacion($archivo);
+        if ($error !== null) {
+            throw new DomainException($error);
+        }
+        if ($archivo === null || ($archivo['error'] ?? null) === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($archivo['tmp_name']);
+        // Se descartan el nombre y la extensión enviados por el navegador.
+        $ruta =
+            'productos/' . bin2hex(random_bytes(16)) . ($mime === 'image/png' ? '.png' : '.jpg');
+        if (!@move_uploaded_file($archivo['tmp_name'], self::DIRECTORIO . $ruta)) {
+            throw new RuntimeException('No se pudo guardar la imagen del producto.');
+        }
+        return $ruta;
+    }
+
+    /** Comprueba el archivo sin guardarlo para mostrar su error junto a los demás campos. */
+    public static function errorValidacion(?array $archivo): ?string
+    {
         if ($archivo === null || ($archivo['error'] ?? null) === UPLOAD_ERR_NO_FILE) {
             return null;
         }
@@ -22,12 +42,12 @@ final class ImagenProducto
             !is_string($archivo['tmp_name'] ?? null) ||
             !is_uploaded_file($archivo['tmp_name'])
         ) {
-            throw new DomainException('Elegí una imagen JPG o PNG de hasta 4 MB.');
+            return 'Elegí una imagen JPG o PNG de hasta 4 MB.';
         }
         $temporal = $archivo['tmp_name'];
         $tamano = filesize($temporal);
         if (!$tamano || $tamano > self::MAXIMO_BYTES) {
-            throw new DomainException('Elegí una imagen JPG o PNG de hasta 4 MB.');
+            return 'Elegí una imagen JPG o PNG de hasta 4 MB.';
         }
         $mime = (new finfo(FILEINFO_MIME_TYPE))->file($temporal);
         $dimensiones = @getimagesize($temporal);
@@ -38,17 +58,9 @@ final class ImagenProducto
             $dimensiones[1] > 8000 ||
             ($dimensiones['mime'] ?? '') !== $mime
         ) {
-            throw new DomainException(
-                'El archivo debe ser una imagen JPG o PNG válida de hasta 8000 píxeles por lado.',
-            );
+            return 'El archivo debe ser una imagen JPG o PNG válida de hasta 8000 píxeles por lado.';
         }
-        // Se descartan el nombre y la extensión enviados por el navegador.
-        $ruta =
-            'productos/' . bin2hex(random_bytes(16)) . ($mime === 'image/png' ? '.png' : '.jpg');
-        if (!@move_uploaded_file($temporal, self::DIRECTORIO . $ruta)) {
-            throw new RuntimeException('No se pudo guardar la imagen del producto.');
-        }
-        return $ruta;
+        return null;
     }
 
     public function retirar(string $ruta): void

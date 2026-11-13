@@ -79,6 +79,52 @@ function iniciarVistaPreviaProducto() {
     window.addEventListener('pagehide', liberarImagenTemporal);
 }
 
+function iniciarErroresFormularioProducto() {
+    const formulario = document.querySelector('[data-producto-formulario]');
+    const aviso = document.querySelector('[data-aviso-productos][role="alert"]');
+    const lista = aviso?.querySelector('[data-producto-errores]');
+    if (!formulario) return;
+
+    function actualizarResumen() {
+        if (!lista) return;
+        lista.replaceChildren();
+        for (const mensaje of formulario.querySelectorAll('[data-producto-error-campo]:not([hidden])')) {
+            const elemento = document.createElement('li');
+            const enlace = document.createElement('a');
+            enlace.href = `#producto-${mensaje.dataset.productoErrorCampo}`;
+            enlace.textContent = mensaje.textContent;
+            elemento.append(enlace);
+            lista.append(elemento);
+        }
+        lista.hidden = lista.children.length === 0;
+        aviso.hidden = lista.hidden && aviso.dataset.errorGeneral !== 'true';
+    }
+
+    function actualizarCampo(evento) {
+        const campo = evento.target.closest('[data-producto-campo]');
+        if (!campo) return;
+        // La imagen mantiene los errores que acaba de detectar su vista previa.
+        if (campo.dataset.productoCampo !== 'imagen') {
+            campo.removeAttribute('aria-invalid');
+            const mensaje = document.getElementById(`${campo.id}-error`);
+            mensaje.hidden = true;
+            mensaje.textContent = '';
+        }
+        actualizarResumen();
+    }
+    formulario.addEventListener('input', actualizarCampo);
+    formulario.addEventListener('change', actualizarCampo);
+    lista?.addEventListener('click', function (evento) {
+        const enlace = evento.target.closest('a');
+        if (!enlace) return;
+        const campo = document.getElementById(enlace.hash.slice(1));
+        if (campo) {
+            evento.preventDefault();
+            campo.focus();
+        }
+    });
+}
+
 function iniciarInteraccionesGestionProductos() {
     if (!document.querySelector('.gestion-productos')) return;
     const desplegables = document.querySelectorAll('.gestion-producto__cambio-estado');
@@ -129,4 +175,5 @@ function iniciarInteraccionesGestionProductos() {
 }
 
 iniciarVistaPreviaProducto();
+iniciarErroresFormularioProducto();
 iniciarInteraccionesGestionProductos();

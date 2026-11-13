@@ -14,7 +14,7 @@
                 <span class="insignia insignia--neutra"><?= $escapar($producto['categoria']) ?></span>
                 <h1 class="detalle__titulo"><?= $escapar($producto['nombre']) ?></h1>
                 <p class="detalle__descripcion"><?= $escapar($producto['descripcion']) ?></p>
-                <p class="detalle__precio"><?= $dinero($producto['precio']) ?> / <?= $escapar($producto['presentacion']) ?></p>
+                <p class="detalle__precio"><?= $dinero($producto['precio'], true) ?> / <?= $escapar($producto['presentacion']) ?></p>
                 <a class="enlace-texto detalle__ingredientes-enlace" href="#producto-ingredientes">Ver ingredientes y alérgenos</a>
                 <form method="post" action="<?= $url('carrito') ?>" class="agregar-carrito" data-carrito-form>
                     <input type="hidden" name="csrf" value="<?= $csrf ?>">

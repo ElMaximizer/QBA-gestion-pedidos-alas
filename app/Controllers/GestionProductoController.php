@@ -9,6 +9,7 @@ use App\Core\Sesion;
 use App\Core\Vista;
 use App\Models\Producto;
 use App\Services\GestionProducto;
+use App\Services\ImagenProducto;
 use DomainException;
 use Throwable;
 
@@ -91,9 +92,11 @@ final class GestionProductoController
                 ]);
         $version = $producto === null ? '' : Producto::version($producto);
         $error = '';
+        $erroresCampos = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 Sesion::validarCsrf($_POST['csrf'] ?? null);
+                $datosIngresados = [];
                 foreach (
                     [
                         'nombre',
@@ -107,12 +110,23 @@ final class GestionProductoController
                     ]
                     as $campo
                 ) {
-                    $valores[$campo] = Http::texto($_POST, $campo);
+                    $valor = $_POST[$campo] ?? '';
+                    $datosIngresados[$campo] = is_string($valor) ? trim($valor) : $valor;
+                    $valores[$campo] = is_string($valor) ? trim($valor) : '';
                 }
                 $version = Http::texto($_POST, 'version');
+                $erroresCampos = Producto::erroresValidacion($datosIngresados);
                 $archivo = $_FILES['imagen'] ?? null;
                 if ($archivo !== null && !is_array($archivo)) {
-                    throw new DomainException('Revisá la imagen seleccionada.');
+                    $erroresCampos['imagen'] = 'Revisá la imagen seleccionada.';
+                } else {
+                    $errorImagen = ImagenProducto::errorValidacion($archivo);
+                    if ($errorImagen !== null) {
+                        $erroresCampos['imagen'] = $errorImagen;
+                    }
+                }
+                if ($erroresCampos) {
+                    throw new DomainException('Revisá los campos indicados antes de guardar el producto.');
                 }
                 $id = (new GestionProducto(Conexion::obtener()))->guardar(
                     $valores,
@@ -142,6 +156,7 @@ final class GestionProductoController
             'id' => $id,
             'version' => $version,
             'error' => $error,
+            'erroresCampos' => $erroresCampos,
             'esEdicion' => $esEdicion,
             'imagen' => Producto::imagen($valores),
             'categorias' => Producto::CATEGORIAS,

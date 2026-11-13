@@ -9,7 +9,7 @@
             href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>"><?= $escapar($producto['nombre']) ?></a>
     </h3>
     <p class="producto__descripcion"><?= $escapar($producto['descripcion']) ?></p>
-    <div class="producto__precio"> <?= $dinero($producto['precio']) ?> <small class="producto__presentacion">/ <?= $escapar($producto['presentacion']) ?></small>
+    <div class="producto__precio"> <?= $dinero($producto['precio'], true) ?> <small class="producto__presentacion">/ <?= $escapar($producto['presentacion']) ?></small>
     </div>
     <a class="boton boton--contorno producto__boton"
         href="<?= $escapar($url('producto', ['id' => $producto['id_producto']])) ?>">Ver producto </a>
