@@ -39,7 +39,7 @@
                 <textarea class="campo__entrada campo__entrada--multilinea" name="ingredientes" rows="3" maxlength="5000" placeholder="Indica los ingredientes."><?= $escapar($valores['ingredientes']) ?></textarea>
             </label>
             <label class="campo">Información de alérgenos
-                <input class="campo__entrada" name="alergenos" value="<?= $escapar($valores['alergenos']) ?>" placeholder="Por ejemplo: contiene gluten y leche." maxlength="500">
+                <input class="campo__entrada" name="alergenos" value="<?= $escapar($valores['alergenos']) ?>" placeholder="Por ejemplo: contiene gluten y lactosa" maxlength="500">
             </label>
             <label class="campo">Estado
                 <select class="campo__entrada" name="activo">
