@@ -30,10 +30,16 @@ final class Sesion
             return null;
         }
         self::$equipoActual = (new AccesoEquipo(Conexion::obtener()))->buscarAprobado($idUsuario);
-        if (self::$equipoActual === null) {
+        $version = $_SESSION['qba']['equipo_version'] ?? null;
+        if (
+            self::$equipoActual === null ||
+            !is_string($version) ||
+            !hash_equals(self::$equipoActual['version_acceso'], $version)
+        ) {
             self::cerrarEquipo();
             return null;
         }
+        unset(self::$equipoActual['version_acceso']);
         $_SESSION['qba']['equipo_ultimo_acceso'] = time();
         return self::$equipoActual;
     }
@@ -55,8 +61,13 @@ final class Sesion
 
     public static function iniciarEquipo(int $idUsuario): void
     {
+        $equipo = (new AccesoEquipo(Conexion::obtener()))->buscarAprobado($idUsuario);
+        if ($equipo === null) {
+            throw new DomainException('La cuenta del equipo ya no está activa.');
+        }
         self::renovarIdentidad();
         $_SESSION['qba']['equipo_id'] = $idUsuario;
+        $_SESSION['qba']['equipo_version'] = $equipo['version_acceso'];
         $_SESSION['qba']['equipo_ultimo_acceso'] = time();
     }
 

@@ -24,6 +24,7 @@ use App\Controllers\PersonalEquipoController;
 use App\Controllers\ProductoController;
 use App\Controllers\RegistroController;
 use App\Controllers\RegistroEquipoController;
+use App\Controllers\RecuperacionContrasenaController;
 use App\Controllers\RegistroPedidoEquipoController;
 use App\Controllers\StockEquipoController;
 use App\Controllers\SolicitudesEquipoController;
@@ -88,6 +89,12 @@ return [
         'index',
         ['GET', 'HEAD', 'POST'],
     ],
+    'cliente-recuperar-password' => [
+        'clientes/recuperar-contrasena',
+        RecuperacionContrasenaController::class,
+        'cliente',
+        ['GET', 'HEAD', 'POST'],
+    ],
     'cerrar-sesion' => ['clientes/salir', AccesoController::class, 'salir', ['POST']],
     'equipo-registro' => [
         'equipo/registro',
@@ -105,6 +112,12 @@ return [
         'equipo/login',
         AccesoEquipoController::class,
         'index',
+        ['GET', 'HEAD', 'POST'],
+    ],
+    'equipo-recuperar-password' => [
+        'equipo/recuperar-contrasena',
+        RecuperacionContrasenaController::class,
+        'equipo',
         ['GET', 'HEAD', 'POST'],
     ],
     'equipo-panel' => ['equipo/panel', PanelEquipoController::class, 'index', ['GET', 'HEAD']],

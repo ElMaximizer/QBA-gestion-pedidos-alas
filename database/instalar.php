@@ -108,6 +108,7 @@ try {
     $conexion->exec(file_get_contents(__DIR__ . '/pedido-cambios.sql'));
     $conexion->exec(file_get_contents(__DIR__ . '/entregas-mercaderia.sql'));
     $conexion->exec(file_get_contents(__DIR__ . '/acceso-equipo.sql'));
+    $conexion->exec(file_get_contents(__DIR__ . '/recuperacion-password.sql'));
     if (in_array('--demo', $argv, true)) {
         $conexion->exec(file_get_contents(__DIR__ . '/productos_demo.sql'));
     }
