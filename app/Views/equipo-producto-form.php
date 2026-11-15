@@ -84,7 +84,7 @@ $errorCampo = static function (string $campo) use ($erroresCampos, $escapar): st
                 <?= $errorCampo('ingredientes') ?>
             </label>
             <label class="campo">Información de alérgenos <input class="campo__entrada" name="alergenos" value="<?= $escapar($valores['alergenos']) ?>"
-                    placeholder="Por ejemplo: contiene gluten y leche." maxlength="500" <?= $atributosCampo('alergenos') ?>>
+                    placeholder="Por ejemplo: contiene gluten y lactosa." maxlength="500" <?= $atributosCampo('alergenos') ?>>
                 <?= $errorCampo('alergenos') ?>
             </label>
             <label class="campo">Estado <select class="campo__entrada" name="activo" required <?= $atributosCampo('activo', 'producto-activo-ayuda') ?>>
