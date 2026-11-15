@@ -16,22 +16,35 @@ final class AccesoController
     public function index(): void
     {
         header('Cache-Control: no-store');
+        // El destino lo fija el servidor al proteger el pedido; no se lee una URL del navegador.
+        $continuarPedido = ($_SESSION['qba']['continuar_pedido'] ?? false) === true;
+        $destino = $continuarPedido ? 'realizar-pedido' : 'inicio';
         if (Sesion::cliente()) {
-            Http::redirigir('inicio');
+            unset($_SESSION['qba']['continuar_pedido']);
+            Http::redirigir($destino);
         }
         $email = '';
         $error = '';
+        $aviso = $_SESSION['qba']['aviso_cuenta'] ?? '';
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            unset($_SESSION['qba']['aviso_cuenta']);
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 Sesion::validarCsrf($_POST['csrf'] ?? null);
                 $email = Http::texto($_POST, 'email');
-                $cliente = (new AccesoCliente(Conexion::obtener()))->autenticar($email, Http::cadena($_POST, 'password'));
+                $cliente = (new AccesoCliente(Conexion::obtener()))->autenticar(
+                    $email,
+                    Http::cadena($_POST, 'password'),
+                );
                 if (!(int) $cliente['verificado']) {
                     $_SESSION['qba']['registro_pendiente_email'] = $cliente['email'];
-                    throw new DomainException('Tu correo todavía no está verificado. Ingresá el código para activar la cuenta.');
+                    throw new DomainException(
+                        'Tu correo todavía no está verificado. Ingresá el código para activar la cuenta.',
+                    );
                 }
-                Sesion::iniciarCliente((int) $cliente['id_cliente']);
-                Http::redirigir('inicio');
+                Sesion::iniciarCliente((int) $cliente['id_cliente'], $cliente['version_acceso']);
+                Http::redirigir($destino);
             } catch (DomainException $excepcion) {
                 http_response_code(422);
                 $error = $excepcion->getMessage();
@@ -41,8 +54,13 @@ final class AccesoController
                 $error = 'No pudimos iniciar sesión en este momento. Intentá nuevamente.';
             }
         }
-        Vista::mostrar('cliente-login', ['tituloPagina' => 'Acceso para clientes | Panadería Alas',
-            'email' => $email, 'error' => $error]);
+        Vista::mostrar('cliente-login', [
+            'tituloPagina' => 'Acceso para clientes | Panadería Rustic',
+            'email' => $email,
+            'error' => $error,
+            'aviso' => $aviso,
+            'continuarPedido' => $continuarPedido,
+        ]);
     }
 
     public function salir(): void

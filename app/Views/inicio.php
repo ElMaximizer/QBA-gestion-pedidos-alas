@@ -1,48 +1,124 @@
-<main id="contenido">
-    <section class="portada" aria-labelledby="titulo-inicio">
-        <div class="contenedor portada__contenido">
-            <div>
-                <span class="etiqueta">HORNEADO FRESCO CADA DÍA</span>
-                <h1 class="portada__titulo" id="titulo-inicio">El sabor de siempre,<br> hecho para compartir.</h1>
-                <p class="portada__descripcion">Panes, bizcochos y tortas elaborados con dedicación. Encuentra tu próximo favorito en Panadería Alas.</p>
-                <div class="portada__acciones">
-                    <a class="boton boton--dorado" href="<?= $url('productos') ?>">Ver productos</a>
-                    <a class="boton boton--contorno" role="link" aria-disabled="true">Conocer la panadería</a>
-                </div>
-                <p class="etiqueta portada__sello">PANES · BIZCOCHOS · TORTAS</p>
-            </div>
-            <img class="portada__imagen" src="<?= $escapar($recurso('images/panes.png')) ?>" alt="Panes, bizcochos y tortas artesanales" width="664" height="398" fetchpriority="high">
+<?php $imagenDestacada = $productosPortada[0] ?? ($productosDestacados[0] ?? null); ?>
+<main id="contenido" class="inicio-rustic">
+    <section class="inicio-portada" aria-labelledby="inicio-portada-titulo">
+        <?php if ($imagenDestacada !== null && !empty($imagenDestacada['imagen'])): ?>
+            <img class="inicio-portada__foto" src="<?= $escapar($recurso('images/' . $imagenDestacada['imagen'])) ?>"
+                alt="<?= $escapar($imagenDestacada['nombre']) ?>" width="1080" height="724" fetchpriority="high">
+        <?php else: ?>
+            <div class="inicio-portada__foto inicio-portada__foto--sin-productos" aria-hidden="true"></div>
+        <?php endif; ?>
+        <div class="inicio-portada__velo">
         </div>
+        <div class="inicio-portada__sello" aria-hidden="true">
+            <span>HECHO EN</span><strong>Salto</strong><span>PARA COMPARTIR</span>
+        </div>
+        <div class="inicio-portada__texto">
+            <span class="etiqueta-rustic">PANADERÍA ARTESANAL · SALTO, URUGUAY</span>
+            <h1 id="inicio-portada-titulo">Las cosas buenas<br> se disfrutan <em>despacio.</em></h1>
+
+            <a class="boton-rustic boton-rustic--claro" href="<?= $url('productos') ?>">Descubrí nuestros productos <span aria-hidden="true">→</span></a>
+        </div>
+        <a class="inicio-portada__indicacion" href="<?= $productosDestacados ? '#inicio-favoritos' : '#inicio-seleccion' ?>">ENCONTRÁ TU FAVORITO <span aria-hidden="true">↓</span></a>
     </section>
 
-    <section class="categorias" aria-labelledby="titulo-categorias">
-        <div class="contenedor">
-            <div class="encabezado-seccion">
-                <span class="etiqueta">ELIGE TU MOMENTO</span>
-                <h2 class="encabezado-seccion__titulo" id="titulo-categorias">Algo rico para cada día.</h2>
-                <p class="encabezado-seccion__descripcion">Explora nuestra selección artesanal.</p>
+    <section class="inicio-datos contenedor-rustic" aria-label="Información de la panadería">
+        <p>Uruguay 1486 · Salto, Uruguay<br>Martes a domingo · 15:30 a 19:30</p>
+        <a href="<?= $url('como-comprar') ?>">Cómo comprar · retiro y delivery</a>
+    </section>
+
+    <?php if ($productosDestacados): ?>
+        <section id="inicio-favoritos" class="inicio-favoritos contenedor-rustic" aria-labelledby="inicio-favoritos-titulo">
+            <div class="inicio-seccion__encabezado">
+                <div>
+                    <span class="etiqueta-rustic">LA SELECCIÓN DE LA CASA</span>
+                    <h2 id="inicio-favoritos-titulo">Para tentarse un poquito.</h2>
+                </div>
+                <a class="enlace-rustic" href="<?= $url('productos') ?>">Explorar productos </a>
             </div>
-            <div class="categorias__lista">
-                <?php foreach ($categorias as $categoria): ?>
-                <a class="categoria" href="<?= $escapar($url('productos', ['categoria' => $categoria['nombre']])) ?>">
-                    <span class="etiqueta categoria__etiqueta"><?= $escapar($categoria['etiqueta']) ?></span>
-                    <h3 class="categoria__titulo"><?= $escapar($categoria['nombre']) ?></h3>
-                    <p class="categoria__descripcion"><?= $escapar($categoria['descripcion']) ?></p>
-                    <strong class="categoria__accion">Explorar →</strong>
-                </a>
+            <div class="inicio-productos">
+                <?php foreach ($productosDestacados as $producto): ?>
+                    <article class="inicio-producto">
+                        <div class="inicio-producto__foto"><img
+                                src="<?= $escapar($recurso('images/' . $producto['imagen'])) ?>"
+                                alt="<?= $escapar($producto['nombre']) ?>" width="400" height="300" loading="lazy"></div>
+                        <div class="inicio-producto__informacion">
+                            <span class="etiqueta-rustic"><?= $escapar($producto['categoria']) ?></span>
+                            <h3>
+                                <?= $escapar($producto['nombre']) ?>
+                            </h3>
+                            <p><?= $escapar($producto['descripcion']) ?></p>
+                            <?php require __DIR__ . '/partials/producto-compra.php'; ?>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
+        </section>
+    <?php endif; ?>
+
+    <section id="inicio-seleccion" class="inicio-seleccion contenedor-rustic" aria-labelledby="inicio-seleccion-titulo">
+        <div class="inicio-seccion__encabezado">
+            <div>
+                <span class="etiqueta-rustic">PARA CADA MOMENTO DEL DÍA</span>
+                <h2 id="inicio-seleccion-titulo">Encontrá tu favorito.</h2>
+            </div>
+            <a class="enlace-rustic" href="<?= $url('productos') ?>">Ver todo el catálogo </a>
+        </div>
+        <div class="inicio-seleccion__columnas">
+            <a class="inicio-seleccion__imagen" href="<?= $url('productos') ?>">
+                <img src="<?= $escapar($recurso('images/rustic/pan-trenzado.webp')) ?>"
+                    alt="Pan trenzado artesanal con semillas" width="1080" height="724" loading="lazy">
+                <span>Algo rico para cada momento. <span aria-hidden="true">→</span></span>
+            </a>
+            <div class="inicio-categorias">
+                <?php foreach ($categorias as $indice => $categoria): ?>
+                    <a class="inicio-categoria"
+                        href="<?= $escapar($url('productos', ['categoria' => $categoria['nombre']])) ?>"><span
+                            class="inicio-categoria__numero"><?= sprintf('%02d', $indice + 1) ?></span>
+                        <div>
+                            <h3><?= $escapar($categoria['nombre']) ?></h3>
+                            <p><?= $escapar($categoria['descripcion']) ?></p>
+                        </div><span class="inicio-categoria__flecha" aria-hidden="true">→</span>
+                    </a>
                 <?php endforeach; ?>
             </div>
         </div>
     </section>
 
-    <section class="contenedor destacados" aria-labelledby="titulo-destacados">
-        <div class="encabezado-seccion">
-            <span class="etiqueta">HECHOS PARA DISFRUTAR</span>
-            <h2 class="encabezado-seccion__titulo" id="titulo-destacados">Los favoritos de la casa</h2>
-            <p class="encabezado-seccion__descripcion">Una selección para empezar.</p>
+    <section id="inicio-presentacion" class="inicio-presentacion contenedor-rustic"
+        aria-labelledby="inicio-presentacion-titulo">
+        <div>
+            <span class="etiqueta-rustic">EL UNIVERSO RUSTIC</span>
+            <h2 id="inicio-presentacion-titulo">Lo simple.<br>Lo de siempre.<br><em>Lo que nos reúne.</em></h2>
         </div>
-        <div class="destacados__lista">
-            <?php foreach ($productosDestacados as $producto) { require __DIR__ . '/partials/producto-tarjeta.php'; } ?>
+        <div class="inicio-presentacion__detalle">
+            <p>Creemos en esos pequeños rituales que hacen más lindo el día: un roll para la merienda, un cup para darte un gusto o algo salado para compartir.</p>
+            <p>Por eso hacemos lo que hacemos: para acompañar tus momentos con algo rico, hecho con dedicación.</p>
+            <a class="enlace-rustic" href="<?= $url('nosotros') ?>">Conocé nuestra panadería <span aria-hidden="true">→</span></a>
+        </div>
+    </section>
+
+    <section class="inicio-historia" aria-labelledby="inicio-historia-titulo">
+        <div class="inicio-historia__imagen">
+            <img src="<?= $escapar($recurso('images/rustic/pan-artesanal.webp')) ?>"
+                alt="Pan artesanal junto a su molde de fermentación" width="4928" height="3264" loading="lazy">
+        </div>
+        <div class="inicio-historia__texto">
+            <span class="etiqueta-rustic">EL OFICIO. EL CUIDADO. EL SABOR.</span>
+            <h2 id="inicio-historia-titulo">Hay cosas que<br>merecen <em>su tiempo.</em></h2>
+            <p>La dedicación se nota en los detalles: en cada masa, en los rellenos y en las combinaciones que dan ganas de volver a compartir.</p>
+            <a class="boton-rustic boton-rustic--oscuro" href="<?= $url('nosotros') ?>">Nuestra historia <span aria-hidden="true">→</span></a>
+        </div>
+    </section>
+
+    <section class="inicio-visita contenedor-rustic" aria-labelledby="inicio-visita-titulo">
+        <span class="etiqueta-rustic">TU PRÓXIMO MOMENTO RUSTIC</span>
+        <div class="inicio-visita__columnas">
+            <h2 id="inicio-visita-titulo">La mesa está lista.<br><em>Solo faltás vos.</em></h2>
+            <div>
+                <p>Uruguay 1486, Salto, Uruguay<br>Martes a domingo · 15:30 a 19:30</p>
+                <a class="boton-rustic boton-rustic--oscuro" href="<?= $url('productos') ?>">Elegí algo rico <span aria-hidden="true">→</span></a>
+                <a class="enlace-rustic inicio-visita__contacto" href="<?= $url('contacto') ?>">Hablemos </a>
+            </div>
         </div>
     </section>
 </main>

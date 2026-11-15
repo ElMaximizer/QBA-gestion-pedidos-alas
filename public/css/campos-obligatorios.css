@@ -1,0 +1,7 @@
+/* Indicador visual compartido para los campos obligatorios. */
+.pagina .campo-obligatorio {
+    display: inline;
+    color: #b91c1c;
+    font-weight: 700;
+    line-height: inherit;
+}

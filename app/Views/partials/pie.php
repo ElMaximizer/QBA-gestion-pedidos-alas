@@ -1,34 +1,46 @@
-    <?php if ($esPanel): require __DIR__ . '/equipo-pie.php'; else: ?>
-    <footer class="pie-pagina">
-        <div class="contenedor">
-            <div class="pie-pagina__columnas">
+<?php if ($esPanel): ?>
+    <?php require __DIR__ . '/equipo-pie.php'; ?>
+<?php else: ?>
+    <footer class="pie-rustic">
+        <div class="contenedor-rustic">
+            <div class="pie-rustic__contenido">
                 <div>
-                    <span class="etiqueta pie-pagina__etiqueta">PANADERÍA ARTESANAL</span>
-                    <h2 class="pie-pagina__titulo">PANADERÍA ALAS</h2>
-                    <p class="pie-pagina__lema">El sabor de siempre,<br>hecho para compartir.</p>
+                    <a class="pie-rustic__logo" href="<?= $url('inicio') ?>"><img
+                            src="<?= $escapar($recurso('images/rustic/logo-blanco.svg')) ?>"
+                            alt="Panadería artesanal Rustic, Salto Uruguay" width="1200" height="1200"
+                            loading="lazy"></a>
+                    <p>El sabor de siempre.<br>Las ganas de compartir.</p>
                 </div>
-                <nav aria-label="Explora Alas">
-                    <span class="etiqueta pie-pagina__etiqueta">EXPLORA ALAS</span>
-                    <div class="pie-pagina__enlaces">
-                        <a class="pie-pagina__enlace" href="<?= $url('inicio') ?>">Inicio</a>
-                        <a class="pie-pagina__enlace" href="<?= $url('productos') ?>">Productos</a>
-                        <a class="pie-pagina__enlace" role="link" aria-disabled="true">Nosotros</a>
-                        <a class="pie-pagina__enlace" role="link" aria-disabled="true">Contacto</a>
-                    </div>
+                <nav aria-label="Enlaces de la panadería">
+                    <a href="<?= $url('productos') ?>">Nuestros productos </a>
+                    <a href="<?= $url('nosotros') ?>">Nuestra historia </a>
+                    <a href="<?= $url('contacto') ?>">Contacto </a>
+                    <a href="<?= $url('como-comprar') ?>">Cómo comprar </a>
                 </nav>
-                <div class="pie-pagina__consulta">
-                    <span class="etiqueta pie-pagina__etiqueta">CONVERSEMOS</span>
-                    <h3 class="pie-pagina__subtitulo">¿Tienes un pedido en mente?</h3>
-                    <p class="pie-pagina__descripcion">Consulta por disponibilidad, productos y preparaciones especiales.</p>
-                    <a class="boton boton--dorado pie-pagina__boton" role="link" aria-disabled="true">Hacer una consulta →</a>
+                <div class="pie-rustic__redes">
+                    <div class="pie-rustic__sociales">
+                        <a class="pie-rustic__red" href="https://www.instagram.com/rustic.pan.salto/" target="_blank"
+                            rel="noopener noreferrer" aria-label="Instagram de Panadería Rustic (abre en otra pestaña)" title="Instagram">
+                            <span class="pie-pagina__icono-red pie-pagina__icono-red--instagram" aria-hidden="true"></span>
+                        </a>
+                        <a class="pie-rustic__red" href="https://wa.me/59893555459" target="_blank"
+                            rel="noopener noreferrer" aria-label="WhatsApp de Panadería Rustic (abre en otra pestaña)" title="WhatsApp">
+                            <span class="pie-pagina__icono-red pie-pagina__icono-red--whatsapp" aria-hidden="true"></span>
+                        </a>
+                    </div>
+                    <a href="tel:+59898734738">Teléfono: 098 734 738</a>
+                    <a href="https://wa.me/59893555459" target="_blank" rel="noopener noreferrer"
+                        aria-label="WhatsApp: 093 555 459 (abre en otra pestaña)">WhatsApp: 093 555 459</a>
                 </div>
             </div>
-            <div class="pie-pagina__base">
-                <small class="pie-pagina__legal">© <?= date('Y') ?> Panadería Alas</small>
-                <a class="pie-pagina__enlace" href="<?= $url($equipoActual ? 'equipo-panel' : 'equipo-login') ?>">Acceso al equipo →</a>
+            <div class="pie-rustic__base">
+                <small>© <?= date('Y') ?> Rustic · Salto, Uruguay</small>
+                <a href="<?= $url('aviso-legal') ?>">Términos y privacidad</a>
+                <a href="<?= $url($equipoActual ? 'equipo-panel' : 'equipo-login') ?>">Acceso al equipo </a>
             </div>
         </div>
     </footer>
-    <?php endif; ?>
+    <?php require __DIR__ . '/carrito-panel.php'; ?>
+<?php endif; ?>
 </body>
 </html>

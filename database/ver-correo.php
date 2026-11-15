@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 if (PHP_SAPI !== 'cli') {
     http_response_code(404);
-    exit;
+    exit();
 }
 
 require dirname(__DIR__) . '/app/bootstrap.php';
@@ -27,6 +27,9 @@ try {
     }
     echo "Bandeja local de desarrollo — {$correo['creado_en']}\n{$correo['asunto']}\n\n{$correo['cuerpo']}\n";
 } catch (Throwable $error) {
-    fwrite(STDERR, "No se pudo consultar la bandeja local. Revisá la conexión y la instalación de la base.\n");
+    fwrite(
+        STDERR,
+        "No se pudo consultar la bandeja local. Revisá la conexión y la instalación de la base.\n",
+    );
     exit(1);
 }

@@ -48,6 +48,45 @@
     margin-top: 18px;
 }
 
+.registro__aceptaciones {
+    display: grid;
+    gap: 12px;
+}
+
+.registro__aceptacion {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    align-items: start;
+    gap: 8px 12px;
+}
+
+.registro__casilla {
+    width: 20px;
+    height: 20px;
+    margin: 3px 0 0;
+    accent-color: var(--gold);
+    cursor: pointer;
+}
+
+.registro__politicas {
+    color: var(--navy);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.pagina:not(.pagina--equipo) .registro__politicas a {
+    color: #0645ad;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.registro__politicas-ayuda {
+    margin-left: 32px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
 .registro__insignia {
     margin-bottom: 20px;
 }

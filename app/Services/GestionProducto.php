@@ -12,14 +12,18 @@ final class GestionProducto
     private readonly Producto $productos;
     private readonly ImagenProducto $imagenes;
 
-    public function __construct(PDO $db)
+    public function __construct(PDO $conexion)
     {
-        $this->productos = new Producto($db);
+        $this->productos = new Producto($conexion);
         $this->imagenes = new ImagenProducto();
     }
 
-    public function guardar(array $datos, ?array $archivo = null, ?int $id = null, string $version = ''): int
-    {
+    public function guardar(
+        array $datos,
+        ?array $archivo = null,
+        ?int $id = null,
+        string $version = '',
+    ): int {
         $datos = Producto::validar($datos);
         $imagen = $this->imagenes->guardar($archivo);
         try {

@@ -1,0 +1,447 @@
+/* Rustic Americana: identidad cálida, editorial y limpia para toda la web. */
+:root {
+    --rustic-ink: #25221f;
+    --rustic-paper: #faf8f3;
+    --rustic-white: #fffefa;
+    --rustic-red: #a84432;
+    --rustic-red-dark: #823627;
+    --rustic-butter: #e9c77d;
+    --rustic-muted: #736b62;
+    --rustic-line: #e4ddd2;
+    --rustic-shadow: 0 18px 50px rgb(37 34 31 / 8%);
+    color-scheme: light;
+}
+
+body.pagina {
+    color: var(--rustic-ink);
+    background: var(--rustic-paper);
+    font-family: 'Aptos', 'Segoe UI', sans-serif;
+    letter-spacing: 0.005em;
+}
+
+.pagina p {
+    color: var(--rustic-muted);
+    line-height: 1.72;
+}
+
+.pagina h1,
+.pagina h2,
+.pagina h3,
+.pagina h4 {
+    color: var(--rustic-ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+}
+
+.pagina a {
+    text-underline-offset: 4px;
+}
+
+.pagina :focus-visible {
+    outline: 3px solid var(--rustic-butter);
+    outline-offset: 3px;
+}
+
+.contenedor {
+    width: min(100% - 48px, 1280px);
+}
+
+/* Cabecera: discreta, amplia y con navegación bien alineada. */
+.encabezado--publico {
+    position: relative;
+    z-index: 30;
+    border-bottom: 1px solid var(--rustic-line);
+    background: rgb(255 254 250 / 96%);
+    box-shadow: none;
+}
+
+.pagina:not(.pagina--equipo) .encabezado--publico {
+    position: sticky;
+    top: 0;
+}
+
+.encabezado--publico .encabezado__contenido {
+    min-height: 82px;
+    gap: clamp(20px, 4vw, 56px);
+}
+
+.marca__nombre {
+    color: var(--rustic-ink);
+    font:
+        600 25px/1 Georgia,
+        'Times New Roman',
+        serif;
+    letter-spacing: 0.035em;
+}
+
+.marca__descripcion {
+    margin-top: 7px;
+    color: var(--rustic-red);
+    font-size: 9px;
+    letter-spacing: 0.19em;
+}
+
+.encabezado__menu {
+    justify-content: flex-end;
+    gap: clamp(14px, 2vw, 30px);
+}
+
+.navegacion {
+    gap: clamp(14px, 2.2vw, 30px);
+}
+
+.navegacion__enlace {
+    color: #4e4942;
+    font-size: 13px;
+    font-weight: 600;
+    transition: color 0.18s ease;
+}
+
+.navegacion__enlace:hover,
+.navegacion__enlace[aria-current='page'] {
+    color: var(--rustic-red);
+}
+
+.carrito__cantidad {
+    background: var(--rustic-red);
+    color: white;
+}
+
+.cuenta__activador {
+    border-color: var(--rustic-line);
+    border-radius: 999px;
+    background: var(--rustic-white);
+}
+
+/* Botones, tarjetas e inputs: menos redondeo, más estilo de tienda editorial. */
+.boton {
+    min-height: 46px;
+    border-radius: 5px;
+    padding: 12px 21px;
+    font-size: 13px;
+    font-weight: 650;
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+}
+
+.boton:hover {
+    transform: translateY(-1px);
+}
+
+.boton--dorado {
+    border-color: var(--rustic-red);
+    background: var(--rustic-red);
+    color: white;
+}
+
+.boton--dorado:hover {
+    border-color: var(--rustic-red-dark);
+    background: var(--rustic-red-dark);
+}
+
+.boton--azul {
+    border-color: var(--rustic-ink);
+    background: var(--rustic-ink);
+    color: white;
+}
+
+.boton--azul:hover {
+    background: #46413b;
+}
+
+.boton--contorno {
+    border-color: #cfc6ba;
+    background: transparent;
+    color: var(--rustic-ink);
+}
+
+.boton--contorno:hover {
+    border-color: var(--rustic-red);
+    background: #f5eee5;
+}
+
+.tarjeta,
+.producto {
+    border: 1px solid var(--rustic-line);
+    border-radius: 5px;
+    background: var(--rustic-white);
+    box-shadow: 0 7px 24px rgb(37 34 31 / 4%);
+}
+
+.campo__entrada,
+.contacto__campo input,
+.contacto__campo select,
+.contacto__campo textarea {
+    min-height: 48px;
+    border: 1px solid #d8d0c5;
+    border-radius: 4px;
+    background: var(--rustic-white);
+    color: var(--rustic-ink);
+}
+
+.etiqueta {
+    color: var(--rustic-red);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.17em;
+}
+
+.producto {
+    overflow: hidden;
+    border-radius: 3px;
+    padding: 0 0 20px;
+    box-shadow: none;
+}
+
+.producto:hover {
+    box-shadow: var(--rustic-shadow);
+}
+
+.producto__imagen-enlace {
+    overflow: hidden;
+    border-radius: 0;
+    background: #eee8de;
+}
+
+.producto__imagen {
+    transition: transform 0.45s ease;
+}
+
+.producto:hover .producto__imagen {
+    transform: scale(1.035);
+}
+
+.producto__categoria {
+    margin: 17px 19px 8px;
+    color: var(--rustic-red);
+    font-size: 9px;
+    letter-spacing: 0.15em;
+}
+
+.producto__nombre {
+    margin: 0 19px 8px;
+    font:
+        500 24px/1.12 Georgia,
+        'Times New Roman',
+        serif;
+}
+
+.producto__descripcion {
+    margin: 0 19px 14px;
+    font-size: 13px;
+}
+
+/* Catálogo, detalle y contacto. */
+.pagina-pedidos {
+    padding-block: clamp(34px, 5vw, 70px);
+}
+
+.titulo-pagina {
+    max-width: 900px;
+    margin-bottom: 30px;
+}
+
+.titulo-pagina__titulo {
+    margin: 12px 0;
+    font:
+        500 clamp(36px, 5vw, 58px)/1.02 Georgia,
+        'Times New Roman',
+        serif;
+}
+
+.titulo-pagina__descripcion {
+    max-width: 670px;
+    font-size: 16px;
+}
+
+.busqueda {
+    gap: 12px;
+}
+
+.filtros {
+    gap: 8px;
+}
+
+.filtros__boton {
+    min-width: auto;
+    padding-inline: 17px;
+}
+
+.catalogo__cantidad {
+    color: var(--rustic-muted);
+    font-size: 12px;
+}
+
+.catalogo__lista {
+    gap: 18px;
+}
+
+.detalle {
+    gap: clamp(28px, 5vw, 76px);
+}
+
+.detalle__imagen {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+    border-radius: 3px;
+    box-shadow: 12px 12px 0 #eee5d9;
+}
+
+.detalle__titulo {
+    font:
+        500 clamp(38px, 4vw, 56px)/1.02 Georgia,
+        'Times New Roman',
+        serif;
+}
+
+.detalle__descripcion {
+    color: var(--rustic-muted);
+    font-size: 17px;
+}
+
+.detalle h2 {
+    font:
+        500 26px Georgia,
+        'Times New Roman',
+        serif;
+}
+
+.contacto__columnas {
+    gap: clamp(22px, 4vw, 52px);
+}
+
+.contacto__formulario,
+.contacto__panel {
+    border-radius: 5px;
+    box-shadow: none;
+}
+
+.contacto__panel {
+    background: #293b35;
+}
+
+.contacto__panel h2 {
+    color: #fffefa;
+}
+
+/* Cuenta y equipo: coherencia visual sin alterar sus herramientas. */
+.registro-pagina {
+    padding-block: clamp(34px, 6vw, 72px);
+}
+
+.registro {
+    gap: clamp(28px, 5vw, 72px);
+}
+
+.registro__titulo-historia {
+    font:
+        500 clamp(40px, 5vw, 62px)/1.02 Georgia,
+        'Times New Roman',
+        serif;
+}
+
+.registro__imagen {
+    border-radius: 3px;
+}
+
+.registro__tarjeta {
+    border-radius: 5px;
+    box-shadow: var(--rustic-shadow);
+}
+
+.pagina--equipo {
+    background: #f4f0e9;
+}
+
+.pagina--equipo .encabezado-equipo {
+    background: #293b35;
+}
+
+.pagina--equipo .encabezado-equipo .marca__nombre,
+.pagina--equipo .encabezado-equipo .marca__descripcion {
+    color: #fffefa;
+}
+
+.pagina--equipo .navegacion-equipo {
+    border-bottom: 1px solid var(--rustic-line);
+    background: var(--rustic-white);
+}
+
+.pagina--equipo .panel {
+    padding-block: clamp(28px, 4vw, 52px);
+}
+
+.pagina--equipo .titulo-pagina__titulo {
+    font-size: clamp(34px, 4vw, 50px);
+}
+
+.pagina--equipo .tarjeta {
+    box-shadow: 0 6px 20px rgb(37 34 31 / 4%);
+}
+
+@media (max-width: 800px) {
+    .contenedor {
+        width: min(100% - 34px, 680px);
+    }
+
+    .encabezado--publico .encabezado__contenido {
+        min-height: 72px;
+    }
+
+    .detalle {
+        gap: 30px;
+    }
+}
+
+@media (max-width: 520px) {
+    .contenedor {
+        width: min(100% - 28px, 460px);
+    }
+
+    .marca__nombre {
+        font-size: 21px;
+    }
+
+    .encabezado--publico .encabezado__contenido {
+        gap: 8px;
+    }
+
+    .navegacion {
+        gap: 10px;
+    }
+
+    .navegacion__enlace {
+        font-size: 12px;
+    }
+
+    .contacto__columnas {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
+/* En Inicio, la navegación queda centrada en el encabezado de escritorio. */
+@media (min-width: 1001px) {
+    .encabezado--inicio .encabezado__contenido {
+        position: relative;
+    }
+
+    .encabezado--inicio .navegacion {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}

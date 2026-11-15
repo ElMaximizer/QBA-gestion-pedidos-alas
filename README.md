@@ -1,12 +1,98 @@
-# QBA — Gestión de pedidos de Panadería Alas
+# QBA — Gestión de pedidos de Panadería Rustic
 
-Proyecto PHP con MVC y CSS según BEM. Conserva el diseño público del
-[repositorio anterior](https://github.com/ElMaximizer/software-pedidos-alas/tree/6e4a0b26bc2ba412db66dd1541acb209d3e4f6ae).
+Proyecto PHP organizado en controladores, modelos y vistas. El diseño público incorpora el tema Rustic,
+conservando los flujos de pedidos y cuentas de la base del proyecto.
+
+La [guía para leer y mantener el código](docs/codigo.md) explica las carpetas,
+las convenciones y cómo aplicar el formato compartido de PHP, CSS y JavaScript.
+
+Las [24 historias de usuario vigentes](docs/historias-usuario.md) definen la
+numeración, los actores y el alcance indicado por el usuario para cada HU.
+
+## Rediseño Rustic y contenido del inicio
+
+Desde **Panel → Contenido del inicio**, administrador y dueño pueden elegir hasta
+3 favoritos y ordenar hasta 5 productos como prioridad para la imagen de portada.
+Se muestra el primero que siga activo; los siguientes sirven de respaldo si se
+desactivan o eliminan los anteriores. Sin una selección de portada se usa el primer
+favorito disponible; sin productos se conserva el fondo de la portada. Las
+selecciones se guardan juntas y un formulario anterior
+no sobrescribe cambios de otra pestaña. Los empleados no tienen acceso al editor.
+
+El carrito sigue abriendo sobre la página y el pedido continúa exigiendo una cuenta.
+
+Desde el formulario de pedido, «Volver al carrito» y «Revisar carrito» regresan
+al inicio con el panel abierto. La indicación de apertura se retira de la URL
+para que recargar no vuelva a abrirlo. `/carrito` se conserva como recurso de
+lectura y modificación del panel y como vista de respaldo sin JavaScript.
+
+Para bases existentes, aplicar `database/contenido-inicio.sql` o ejecutar el
+instalador **sin `--demo`**. La migración agrega `productos.portada_orden`, se puede
+repetir y conserva productos y pedidos. El inicio mantiene la imagen/favoritos
+disponibles mientras se aplica la migración. No cambia el registro ni los accesos.
+
+    C:\xampp\php\php.exe database\instalar.php
+
+Las pruebas de este cambio están en `tests/contenido-inicio.php`; usan una base
+temporal independiente de los datos de la aplicación.
+
+## Atención del equipo: consultas y solicitudes
+
+Los accesos están en la sección **Atención del equipo**, al final del panel, con
+sus contadores reales. No se agregan enlaces a la navegación superior.
+
+- **Consultas recibidas**: disponible para cualquier integrante aprobado del equipo.
+  Muestra remitente, correo, motivo, fecha y texto completo; filtra nuevas/leídas
+  y permite marcar como leída mediante POST y CSRF. El estado es compartido.
+- **Solicitudes de acceso**: administradores y dueños gestionan allí la whitelist.
+  Solo el dueño ve y resuelve las solicitudes pendientes
+  del registro del equipo y permite aprobarlas como empleado o rechazarlas.
+  La decisión conserva la cuenta y su contraseña; no se puede sobrescribir una
+  solicitud ya resuelta con un formulario anterior. Los roles de administrador
+  se asignan desde **Administrar personal**, después de aprobar el acceso.
+
+Las bandejas muestran 10 registros por página y comparten estilos BEM y paginación.
+Usan las tablas existentes `mensajes_contacto` y `usuarios_equipo`, sin otra
+migración. La primera se crea con `database/contacto.sql` o el instalador sin
+`--demo`. Las pruebas de `tests/panel-atencion.php` usan una base temporal separada.
+
+## Whitelist de cédulas del equipo
+
+En **Panel → Atención del equipo → Solicitudes de acceso**, administradores y
+dueños pueden habilitar o quitar cédulas. Los empleados y visitantes no pueden
+leer ni modificar la lista; las modificaciones requieren POST y CSRF. La
+aprobación o rechazo de solicitudes sigue reservada al dueño.
+
+La whitelist se guarda como JSON en `storage/equipo/whitelist.local.json`, fuera
+de `public/`, excluido de Git y protegido por `.htaccess` para Apache. Un archivo
+ausente o una lista vacía impide todas las nuevas solicitudes. Un JSON ilegible
+o malformado también las bloquea. Las cédulas se normalizan con las mismas reglas
+del equipo, por lo que los ceros iniciales no crean identidades diferentes.
+Habilitar no crea ni aprueba cuentas; quitar no borra solicitudes ni desactiva
+usuarios existentes. Los cambios se guardan bajo bloqueo y mediante reemplazo
+atómico, y la solicitud mantiene el bloqueo de lectura hasta crear su registro.
+
+No requiere SQL. La lista empieza vacía y se crea al habilitar la primera cédula.
+Para otro entorno, se puede definir `QBA_EQUIPO_WHITELIST` con la ruta absoluta de
+un JSON privado y persistente. El usuario de PHP necesita escribir tanto el
+archivo como su directorio y el archivo de bloqueo. Mantener esa ruta fuera de
+la raíz pública, respaldarla y conservarla entre despliegues; si se usan
+contenedores, ubicarla en almacenamiento persistente. No publicar cédulas en Git.
+`config/whitelist-equipo.example.json` muestra el formato inicial vacío:
+
+```json
+{ "cedulas": [] }
+```
+
+`php tests/whitelist-equipo.php` verifica permisos, CSRF, normalización, JSON
+inválido, registros permitidos/rechazados y escrituras concurrentes en un archivo
+y una base temporales. `php tests/equipo.php` usa su propia lista de pruebas.
 
 ## Registro del equipo
 
 Desde **Acceso al equipo → Solicitar usuario**, en el pie del sitio, se puede solicitar un usuario
-con nombre, cédula, correo y contraseña. Se conserva el formulario del proyecto
+con nombre, cédula, correo y contraseña, si la cédula fue habilitada previamente
+en la whitelist. Se conserva el formulario del proyecto
 anterior y el flujo de solicitud pendiente de aprobación del dueño.
 
 La solicitud se guarda en **usuarios_equipo**, con rol empleado y estado
@@ -27,10 +113,9 @@ y de clientes permanecen independientes y pueden compartir correo. Se conserva
 el carrito y, si existe, la sesión de cliente. Las contraseñas no se recuperan
 en el formulario ni se guardan en la sesión.
 
-Esta etapa incorpora el registro y la confirmación de la solicitud. La aprobación,
-el rechazo y la asignación de otros roles se implementarán en sus pasos
-correspondientes. Todavía no hay un panel de revisión
-ni una cuenta de dueño creada automáticamente.
+El dueño revisa las solicitudes desde **Panel → Atención del equipo → Solicitudes
+de acceso**. Puede aprobar el acceso como empleado o rechazarlo; otros permisos se
+asignan desde **Administrar personal**. No se crea una cuenta de dueño automáticamente.
 
 Para incorporar la tabla sobre una instalación existente:
 
@@ -52,7 +137,7 @@ Al ingresar aparece el panel del equipo con el nombre, el rol y el cierre
 de sesión. Es el punto de entrada para las funciones que se implementen después;
 su estructura se describe en la sección siguiente.
 El menú **Hola, nombre → Panel del equipo** permite regresar desde el sitio.
-La recuperación de contraseña y el panel de aprobación siguen pendientes.
+La recuperación de contraseña sigue pendiente. El dueño ya puede revisar las solicitudes desde el panel.
 No se crean dueños ni se aprueban solicitudes automáticamente.
 
 La sesión guarda el identificador del usuario y consulta su aprobación y rol
@@ -80,26 +165,46 @@ la tabla de intentos conservando los datos y las aprobaciones actuales:
 
 ## Panel del equipo — estructura visual
 
-La rama técnica admin/panel incorpora solamente la presentación del
+El panel del equipo toma como base el diseño del
 [panel anterior](https://github.com/ElMaximizer/software-pedidos-alas/blob/produccion/app/Views/admin/panel.php):
-cabecera interna con Salir, navegación, tarjetas de resumen, Próximos retiros,
+cabecera interna con Salir, navegación, tarjetas de resumen, acciones rápidas,
 Atención del equipo y pie de gestión interna. Reutiliza los colores, tamaños y
 componentes existentes con clases BEM y adaptación a pantallas pequeñas.
 
 Empleado, administrador y dueño comparten la misma pantalla. Las opciones de
-Atención del equipo conservan la visibilidad del proyecto anterior: consultas
-para todos; alta de personal y bandeja local para administrador; gestión de
-personal, solicitudes, actividad y bandeja local para dueño. Esa visibilidad
-es únicamente presentación; los permisos de cada futura operación deberán
-validarse en su implementación correspondiente. HU06 ya incorpora esa validación
-para la gestión de productos.
+Atención del equipo incluyen consultas para todos y **Administrar personal** y
+**Solicitudes de acceso** para el dueño. Se ocultan los módulos que todavía no
+tienen función. El menú conserva los accesos a Productos, Contenido del inicio,
+Pedidos y Stock según el rol. Administrador y dueño también acceden a **Ventas**
+desde el menú, que identifica la sección actual. Las tarjetas del resumen permiten
+consultar los pedidos del día y el listado de pedidos; la tarjeta de productos
+ofrece su gestión a administrador y dueño. El regreso al sitio público está en
+el menú.
+
+La navegación del equipo usa el mismo menú hamburguesa del sitio público hasta
+1000 px. En escritorio los enlaces permanecen visibles; Salir sigue disponible
+en la cabecera. Se comparten `navegacion.js`, los estilos del botón y los SVG de
+`public/images/`. El menú admite Escape, cierre al elegir un enlace o tocar fuera
+y navegación por teclado. Sin JavaScript, los enlaces permanecen visibles.
+
+**Administrar personal** abre la gestión de roles en `/equipo/permisos`.
+Las solicitudes enlazan a esa misma pantalla. El antiguo acceso
+`/equipo/personal` redirige ahí al dueño, conservando los filtros; para el
+administrador conserva la consulta sin edición. Ambas usan una sola vista,
+hoja de estilos y consulta del listado. Los permisos para modificar roles
+siguen comprobándose en el servidor y solo los tiene el dueño.
 
 HU06 muestra en **Productos activos** la cantidad real de productos activos y
 de sus categorías, excluyendo los eliminados. Se actualiza al volver al panel
-después de agregar, editar, activar, desactivar o eliminar productos. Los otros
-contadores muestran — y el área de retiros muestra Próximamente. Los accesos
-a módulos futuros están deshabilitados y no tienen URL ni
-formularios de operación. HU06 habilita **Productos** y **+ Agregar producto**
+después de agregar, editar, activar, desactivar o eliminar productos. Las consultas
+y solicitudes también muestran cantidades reales. **Pedidos de hoy** cuenta los
+pedidos con retiro para hoy, excepto los cancelados, e indica cuántos continúan
+en estado Pendiente. **Por entregar** cuenta todos los pendientes, en preparación
+o listos para retirar, también los atrasados y los de fechas futuras. Excluye
+entregados y cancelados. Los tres valores se obtienen juntos en una consulta sin
+unir los detalles, usando la fecha de Uruguay; se actualizan al recargar el panel
+y muestran cero si no hay pedidos. No requieren cambios en la base. Las pruebas
+están en `tests/panel-resumen.php`. HU06 habilita **Productos** y **+ Agregar producto**
 para administrador y dueño. También funcionan el regreso al sitio, el regreso
 al panel y el cierre de sesión.
 
@@ -122,12 +227,15 @@ Se conservan el [listado](https://github.com/ElMaximizer/software-pedidos-alas/b
 y el [formulario anterior](https://github.com/ElMaximizer/software-pedidos-alas/blob/produccion/app/Views/admin/producto-form.php),
 con su cabecera, colores, medidas, confirmación y adaptación a celular. Se
 reutilizan las tarjetas, campos y avisos, con clases BEM. Alta y edición comparten
-el mismo formulario. JavaScript solo agrega la vista previa de imagen; todo el
-guardado funciona sin JavaScript.
+el mismo formulario. JavaScript agrega la vista previa y el nombre de la imagen,
+los errores de archivo, el foco en los avisos y el indicador de guardado para
+evitar envíos repetidos. Todo el guardado funciona sin JavaScript; en ese caso,
+el selector nativo muestra el archivo elegido.
 
 El listado muestra inicialmente los productos activos. Busca por nombre o código
 PRD-001 y permite seleccionar inactivos o todos los estados. Muestra 25 productos
-por página y mantiene los filtros al cambiar de página. El
+por página y mantiene la búsqueda, el estado y la página al agregar, editar,
+eliminar o volver al listado. Los filtros aplicados se pueden restablecer. El
 formulario incluye nombre, categoría, descripción, precio, presentación,
 ingredientes, alérgenos, estado e imagen opcional. Las categorías del proyecto
 anterior son Panes, Bizcochos, Tortas y Especiales.
@@ -139,8 +247,22 @@ campos no editables, como id, destacado, imagen y eliminado_en enviados como
 texto, no cambian los valores que decide el servidor. El id a editar o eliminar
 sale de la URL; la imagen se obtiene exclusivamente de la subida del archivo.
 
+Alta y edición muestran todos los errores detectados junto a sus campos y en
+un resumen con enlaces para corregirlos con teclado. Los datos válidos se
+conservan; si se había adjuntado una imagen, se indica volver a seleccionarla.
+Las reglas de validación son las mismas con y sin JavaScript. Los precios del
+listado administrativo, las tarjetas públicas y la ficha muestran los centavos
+cuando corresponden, sin redondearlos. Las pruebas se mantienen solo en `tests/`
+del entorno local, excluido del seguimiento de Git.
+
 **Inactivo** oculta temporalmente el producto y permite editarlo o reactivarlo.
-**Eliminar** primero muestra una confirmación y después requiere POST y CSRF.
+El botón **Cambiar estado**, junto a Editar y Eliminar, permite elegir Activo o Inactivo
+y guardar desde el listado, incluso sin JavaScript. Conserva la búsqueda, el
+filtro y la página; si el producto deja de coincidir con el filtro, sale del
+listado. El cambio exige permisos, POST, CSRF y la versión vigente del producto,
+sin modificar sus otros datos. Se verifica con `php tests/productos-estado.php`.
+**Eliminar** primero muestra una confirmación con el código y la categoría,
+ofrece un enlace para editar el estado y después requiere POST y CSRF.
 Hace una baja lógica: marca activo=0 y eliminado_en en UTC, conservando la fila
 y la referencia de los pedidos. Los detalles del pedido mantienen sus nombres y
 precios originales. El catálogo, el carrito y el cierre del pedido respetan la
@@ -173,11 +295,148 @@ los datos; GestionProducto coordina el guardado con ImagenProducto. Las vistas
 reutilizan la estructura interna del panel y gestion-productos.css contiene sus
 estilos específicos.
 
+## HU07 — Controlar stock
+
+Desde **Panel → Stock**, administrador y dueño consultan y ajustan el inventario
+de materias primas. El alta se despliega desde **Agregar materia prima** y queda
+abierta si el servidor informa un error. Las cantidades admiten cero, coma o
+punto y hasta tres decimales, sin separadores de miles.
+
+**Guardar stock** reemplaza la cantidad disponible y el mínimo de reposición;
+**Registrar mercadería** suma una recepción de proveedor mediante su propio flujo.
+Una materia prima necesita reposición cuando su cantidad disponible es igual o
+menor que el mínimo. Cada tarjeta muestra los valores guardados y la unidad.
+
+La búsqueda, la disponibilidad y la página se conservan al guardar. Se pueden
+restablecer los filtros desde el listado. Si falla un ajuste, la tarjeta conserva
+las cantidades ingresadas y su versión original. Si la materia prima ya no
+aparece en esa página, el aviso muestra las cantidades enviadas y un enlace al
+inventario completo. También permite recargar los valores guardados antes de
+intentar otro ajuste. JavaScript agrega el indicador
+de guardado, evita envíos repetidos y lleva el foco al aviso. Los formularios y
+el despliegue del alta funcionan sin JavaScript. No requiere cambios de SQL.
+
+## HU08 — Consultar ventas
+
+Desde **Panel → Ventas**, administrador y dueño consultan un período con ambas
+fechas incluidas. Los accesos **Hoy**, **Últimos 7 días** y **Este mes** cargan las
+fechas correspondientes; también se puede elegir un rango personalizado.
+
+Los ingresos cuentan los pagos confirmados en el período según su fecha de pago.
+Los pendientes corresponden a pedidos creados en el período que aún no se
+pagaron. Se excluyen los pedidos cancelados. Los medios de pago muestran
+cantidades de pedidos pagados, separadas de los importes.
+
+Los indicadores de ingresos y pagos pendientes y cada total del detalle muestran
+los centavos cuando corresponden, sin redondear los importes de los pedidos.
+
+El detalle indica cuántos pagos muestra y los ordena del más reciente al más
+antiguo. Conserva el límite de 100 registros; si hay más, aclara que el resumen
+incluye todo el período y sugiere acotar las fechas para reducir los resultados.
+En celular, cada fila se presenta como una ficha con sus etiquetas. JavaScript
+agrega el indicador de consulta y el foco en los errores; los filtros y accesos
+rápidos funcionan sin JavaScript. No requiere cambios de SQL.
+
+## HU09 — Registrar entregas de mercadería
+
+Desde **Panel → Registrar mercadería** o **Stock → Registrar mercadería**, una
+cuenta aprobada de administrador o dueño registra la recepción de un proveedor.
+Se indica proveedor, fecha de recepción (hasta hoy), comprobante y observaciones
+opcionales, y entre 1 y 20 materias primas activas con sus cantidades recibidas.
+Las unidades se toman del inventario de HU07; no se convierten unidades ni se
+modifican el stock mínimo o los productos del catálogo. Una materia prima se
+incluye una sola vez por entrega. El proveedor se registra por nombre, sin
+incorporar un módulo de administración de proveedores.
+
+Las cantidades admiten coma o punto y hasta tres decimales. El cálculo usa
+milésimas enteras, compartido con HU07 mediante CantidadStock. Solo se aceptan
+cantidades mayores que cero y el stock resultante no puede superar
+999.999.999,999. Los insumos se bloquean en orden dentro de una transacción:
+el historial, sus detalles y todo el stock se confirman juntos o se revierten.
+Esto evita perder sumas de otras recepciones concurrentes. Un formulario de
+ajuste manual de HU07 anterior a una recepción debe recargarse antes de guardar.
+
+CSRF y un formulario de sesión válido durante 30 minutos protegen el registro.
+Una clave única en la base evita duplicar una recepción por doble clic o reenvío
+del mismo formulario, también si dos solicitudes llegan al mismo tiempo. Después
+del guardado se redirige con 303 al historial. La identidad del responsable, las
+unidades y los saldos los determina el servidor; no se aceptan del navegador.
+El permiso se vuelve a comprobar en cada petición, incluido un formulario abierto.
+
+**Stock → Ver entregas de proveedores** muestra 25 recepciones por página y
+permite buscar por proveedor, comprobante o materia prima. Cada recepción
+conserva el responsable, fecha, observaciones y el nombre, unidad, cantidad y
+saldo anterior/resultante de cada insumo. Los nombres históricos se mantienen
+aunque luego cambie el inventario. Esta historia registra recepciones; no incluye
+edición, eliminación, devoluciones ni facturación de proveedores.
+
+El formulario y el historial reutilizan el diseño interno y los componentes de
+stock, con estilos BEM en mercaderia.css. JavaScript agrega y quita filas sin
+recargar; las mismas acciones funcionan mediante POST sin JavaScript y no
+modifican el stock hasta confirmar la recepción.
+
+La búsqueda y la página se conservan al abrir el registro, agregar o quitar
+insumos, volver al historial y confirmar una recepción. El historial permite
+limpiar la búsqueda y distingue la cantidad recibida de los saldos **Antes** y
+**Después** de cada movimiento. El formulario muestra cuántos insumos incluye;
+con JavaScript, la cantidad indica su unidad y se señalan materias primas
+repetidas antes de confirmar. El botón muestra el envío en curso sin perder la
+acción de registro; la protección contra duplicados se mantiene en el servidor.
+
+Para actualizar una instalación existente, ejecutar desde la raíz del proyecto:
+
+    C:\xampp\php\php.exe database\instalar.php
+
+El instalador aplica **database/entregas-mercaderia.sql** después del inventario y
+las cuentas del equipo. Crea entregas_mercaderia y entrega_mercaderia_detalles
+sin borrar ni recargar datos. No usar --demo para actualizar una instalación real.
+Cambiar de rama no actualiza la base automáticamente.
+
+Rutas: **/equipo/stock/entregas** (GET/HEAD) y
+**/equipo/stock/entregas/registrar** (GET/HEAD/POST).
+EntregasMercaderiaController coordina el formulario y la sesión;
+EntregaMercaderia valida, registra la transacción y consulta el historial;
+StockMateriaPrima proporciona los insumos activos.
+
+Para probar esta historia en una base temporal aislada, con limpieza al terminar:
+
+    C:\xampp\php\php.exe tests\mercaderia.php
+
+Las pruebas cubren precisión decimal, validaciones, permisos, CSRF, reenvíos,
+recepciones simultáneas con conexiones independientes, rollback completo,
+integración con HU07, conservación del historial y la
+actualización de la base sin pérdida de recepciones.
+
+## HU10 — Consultar personal y actividad
+
+Administrador y dueño consultan el personal desde el menú del equipo. El
+administrador ve las cuentas aprobadas en **Personal**; el dueño usa la vista
+compartida de **Personal y permisos**, que también incluye cuentas desactivadas.
+La consulta permite buscar por nombre o correo y filtrar por rol, con un resumen
+de los filtros aplicados y una opción para restablecerlos.
+
+La actividad es acumulada y no tiene filtro por fecha. **Cambios en pedidos**
+cuenta eventos del historial, por lo que un pedido puede aportar varios cambios.
+**Entregas de mercadería** cuenta recepciones registradas. Si todos los contadores
+de una cuenta están en cero, se indica que no tiene actividad registrada.
+
+En celular, el listado presenta una ficha por persona con etiquetas para sus
+datos y contadores. Los filtros funcionan sin JavaScript; con JavaScript se
+muestra el estado de consulta y se lleva el foco a los avisos. Los errores de
+filtros del administrador permanecen en la misma pantalla para corregirlos.
+No requiere cambios de SQL.
+
 ## HU16 — Registrarse
 
 Desde **Acceso clientes** se puede crear una cuenta con nombre, correo y
 contraseña, y activarla con un código de seis dígitos. El correo es único y las
 contraseñas se guardan mediante password_hash, sin conservarlas en texto plano.
+
+El registro exige marcar la aceptación de Términos y condiciones, Política de
+privacidad en 2 casillas independientes, una debajo
+de otra. Aparecen sin marcar y el servidor exige las tres aceptaciones. Los enlaces a términos
+y privacidad, azules y subrayados, abren las secciones existentes del aviso legal en otra pestaña,
+sin perder el formulario. Sus textos todavía están pendientes de publicación.
 
 La verificación vence en 10 minutos, admite hasta cinco intentos fallidos y
 permite reenviar un código después de un minuto. Los límites se guardan en la
@@ -242,8 +501,10 @@ del proyecto anterior. El cliente debe haber verificado el correo mediante HU16.
 Si la contraseña es correcta pero falta la verificación, se ofrece completar ese
 paso sin otorgar una sesión autenticada ni enviar otro código automáticamente.
 
-Al ingresar se vuelve al inicio y aparece el menú **Hola, nombre** con **Cerrar
-sesión**. El registro y el acceso reutilizan el campo de contraseña, sus estilos
+Al ingresar se vuelve al inicio, o al formulario de pedido si el acceso se pidió
+desde el carrito. Aparece el menú **Hola, nombre** con **Cerrar sesión**. El
+destino se fija en la sesión del servidor; no se aceptan URLs de retorno enviadas
+por el navegador. El registro y el acceso reutilizan el campo de contraseña, sus estilos
 BEM y el control para mostrarla. Los formularios funcionan sin JavaScript.
 La recuperación de contraseña y el historial de **HU20**
 no forman parte de esta implementación.
@@ -267,18 +528,375 @@ cambia la identidad asociada. Un id_cliente enviado desde el navegador se ignora
 Los pedidos anteriores conservan su asociación original, incluidos los de
 invitados con NULL. La consulta del historial se implementará en HU20.
 
+## Configuración de la cuenta de cliente
+
+El menú **Hola, nombre**, junto a **Mis pedidos** y **Cerrar sesión**, incluye
+**Configurar mi cuenta** (`/clientes/cuenta`). Es exclusivo para clientes y
+permite actualizar el nombre y teléfono de contacto, cambiar contraseña, verificar un nuevo correo y
+acceder a la confirmación de eliminación. Las cuentas del equipo conservan su
+gestión independiente. Los formularios funcionan sin JavaScript.
+
+La configuración se organiza con un menú lateral en escritorio y navegación
+adaptada al celular: datos personales, direcciones, contraseña, correo y
+eliminación. Se muestra una sección por vez; las redirecciones y errores
+conservan la sección de la operación.
+
+El teléfono del perfil es opcional: admite entre 6 y 15 dígitos, con prefijo
+internacional, espacios, paréntesis y guiones (hasta 30 caracteres). Se precarga
+al confirmar un pedido y se puede cambiar para esa compra sin modificar el
+perfil. El teléfono es opcional para los pedidos web: se puede borrar el
+valor precargado sin modificar la cuenta, tanto para retiro como para domicilio.
+Si se completa, se valida el formato. Eliminar la cuenta
+borra el teléfono del perfil, conservando los contactos históricos de pedidos.
+
+**Mis direcciones** permite agregar, editar y eliminar direcciones con un
+nombre de hasta 50 caracteres y una dirección completa de hasta 250. La primera
+es principal; se puede elegir otra y, al eliminar la principal, se selecciona
+una de las restantes. Cada operación comprueba la propiedad en el servidor.
+Cada dirección admite referencias opcionales (piso, apartamento o entrecalles)
+de hasta 120 caracteres. Se copian junto con la dirección al pedido; el conjunto
+con el rótulo «Referencias» admite hasta 250 caracteres para conservar el formato
+de las entregas actuales. Se valida antes de guardar y no se trunca el texto.
+Al elegir envío a domicilio, el pedido ofrece las direcciones de la cuenta y
+permite escribir una dirección distinta. El servidor obtiene el texto de la
+dirección seleccionada y lo copia al pedido: editar o eliminar la libreta no
+cambia las entregas ya registradas. Eliminar la cuenta retira también sus
+direcciones guardadas.
+
+La contraseña actual se exige para cambiar la contraseña, solicitar un nuevo
+correo o eliminar la cuenta. Se conservan sus espacios y las reglas de longitud
+del registro; seis intentos incorrectos bloquean esas operaciones durante un
+minuto. Las modificaciones requieren POST, CSRF e identidad revalidada, sin
+aceptar un ID de cliente ni permisos enviados por el navegador.
+
+El cambio de contraseña usa el mismo flujo que el correo: primero se ingresan
+la contraseña actual, la nueva y su confirmación para enviar un código al
+correo vigente. Luego un formulario independiente pide solo el código.
+La nueva contraseña se guarda pendiente únicamente como hash; no se aplica
+hasta confirmar y nunca se devuelve al navegador ni se guarda en sesión.
+Se puede cancelar el cambio sin afectar la contraseña actual. Reenviar exige
+volver a completar las contraseñas y esperar un minuto, incluso al cancelar.
+El código dura 10 minutos, admite cinco intentos y se consume al confirmar.
+Cambiar el correo también invalida los códigos de contraseña anteriores.
+El envío y la confirmación funcionan igual con o sin JavaScript.
+
+El correo vigente sigue funcionando mientras el nuevo está pendiente. El código
+se envía con la configuración existente de PHPMailer o la bandeja local, vence
+en diez minutos y admite cinco errores. Solicitar otro requiere esperar un
+minuto, incluso si se cancela la solicitud anterior. Si falla el envío, se
+conserva la solicitud y el acceso actual. El correo solo se cambia al confirmar
+el código; un correo ocupado en ese momento no reemplaza el anterior.
+
+Cambiar contraseña o confirmar correo renueva cookie y CSRF, mantiene el carrito
+y revoca las demás sesiones. La contraseña nueva también cancela cambios de
+correo pendientes. La versión persistente evita que volver a un correo anterior
+reactive sesiones revocadas. Al incorporar esta funcionalidad, las sesiones de
+cliente anteriores deben iniciar sesión nuevamente; las del equipo no cambian.
+
+Eliminar exige una página de confirmación: primero la contraseña actual para
+recibir un código en el correo vigente, luego el código y la casilla de aceptación.
+No hace falta volver a ingresar la contraseña para confirmar. El código se guarda
+como hash, vence en 10 minutos, admite cinco intentos y un envío por minuto.
+Cancelar invalida el código sin eludir el tiempo de espera. Si cambia el correo o
+la contraseña, el código anterior deja de autorizar la eliminación. Pedirlo o un
+fallo de envío no elimina la cuenta; el correo usa la configuración existente de
+PHPMailer o la bandeja local. Se anonimizan el nombre y el correo del perfil, se invalida la
+contraseña y se retira la verificación. La fila se conserva para mantener las
+referencias de pedidos y comprobantes; no se cancelan ni se borran pedidos,
+pagos, datos históricos de entrega o comprobantes. El correo liberado puede
+registrarse de nuevo como otra identidad, sin acceso a los pedidos antiguos.
+
+Para una base existente, aplicar **`database/cuenta-clientes.sql`** y
+**`database/direcciones-clientes.sql`** sobre la base configurada, después de
+`clientes.sql`, con respaldo previo y antes de desplegar el PHP actualizado.
+Agregan `clientes.version_sesion`, `cambios_correo_cliente` y
+`direcciones_cliente`; son repetibles y no reemplazan cuentas ni pedidos.
+Si la configuración de cuenta ya estaba instalada, solo falta el SQL de
+direcciones. El instalador incorpora ambos cambios para nuevas instalaciones.
+Cada entorno debe aplicar sus propias migraciones.
+Después de esos SQL, aplicar **`database/contacto-clientes.sql`** para incorporar
+`clientes.telefono` y `direcciones_cliente.referencias`, vacíos por defecto.
+Es repetible, conserva los datos y no modifica pedidos históricos.
+Aplicar también **`database/codigo-password-clientes.sql`** antes de desplegar
+el flujo de contraseña con código. Agrega `codigos_password_cliente` sin
+modificar cuentas ni pedidos existentes; el instalador también la incorpora.
+Si ya se aplicó la versión anterior, repetir el SQL agrega
+`password_pendiente_hash`; los códigos antiguos sin una contraseña pendiente
+no pueden confirmar cambios.
+
+`php tests/cuenta-cliente.php` verifica migración, perfil, permisos, contraseñas,
+códigos, errores de envío, sesiones simultáneas y conservación del historial en
+una base temporal. No utiliza cuentas reales ni envía correos externos.
+`php tests/direcciones-cliente.php` comprueba la libreta, propiedad, CSRF,
+dirección principal, integración con pedidos y conservación del historial.
+`php tests/codigo-password-cliente.php` verifica caducidad, consumo, límites,
+identidad, cambio de correo y errores de envío del código de contraseña.
+
+Para habilitar el código de eliminación, aplicar
+**`database/codigo-eliminacion-clientes.sql`** con respaldo previo, después de
+`clientes.sql` y antes de desplegar los archivos actualizados. Crea una tabla
+repetible sin modificar cuentas ni pedidos; el instalador también la incorpora.
+`php tests/codigo-eliminacion-cliente.php` verifica vigencia, límites, propiedad,
+cancelación, errores de envío y consumo del código en una base temporal.
+
+## HU01 — Registrar un pedido desde el equipo
+
+Administrador y dueño acceden desde **Nuevo pedido**, en el panel o en el
+listado de pedidos. La dirección es `/equipo/pedidos/registrar`. Se conserva
+la distribución del formulario anterior: cliente y retiro, líneas de productos
+y un resumen lateral con el total.
+
+El cliente atendido en el mostrador o por teléfono no necesita una cuenta web.
+Se registran nombre, teléfono, fecha y hora de retiro, productos, cantidades y
+notas opcionales. Solo se ofrecen productos activos; se permiten hasta 50
+productos distintos y entre 1 y 99 unidades por producto. El resumen se actualiza
+con JavaScript y también al agregar o quitar líneas mediante el servidor.
+
+Se reutiliza `Pedido` para validar, calcular en centavos y guardar cabecera y
+detalles en una transacción. El pedido comienza en **Pendiente** y aparece en
+el listado de HU04. Los precios se comprueban nuevamente al guardar: si cambiaron,
+se muestran los nuevos importes para revisarlos antes de volver a confirmar.
+El token del formulario evita duplicados por doble envío. Un error conserva
+los datos ingresados. Los errores de registro se muestran junto a cada campo,
+con un resumen enlazado para corregirlos con teclado. En transferencias, después
+de un error se indica que hay que volver a seleccionar el comprobante.
+El carrito público no se utiliza ni se vacía.
+
+El selector de productos, los subtotales y el total muestran centavos cuando
+corresponde, sin redondearlos. El resumen usa el mismo formato con JavaScript
+y al recalcularse en el servidor. Los importes enteros se muestran sin decimales.
+
+`php tests/pedido-equipo-validacion.php` verifica la presentación de errores por
+campo, conservación de valores, importes exactos con varios productos, comprobante
+y reenvío sin duplicados en una base temporal.
+
+`id_usuario_registro` identifica a la cuenta del equipo que tomó el pedido;
+`id_cliente` conserva NULL para estos pedidos. Ambos identificadores, el total
+y el estado se deciden en el servidor. Los pedidos web conservan su asociación
+al cliente. HU11 habilita el mismo formulario para las cuentas de empleado.
+
+Para actualizar una instalación existente, ejecutar el instalador habitual:
+
+    C:\xampp\php\php.exe database\instalar.php
+
+También se puede ejecutar `database/pedidos-equipo.sql` desde MySQL sobre la base
+del proyecto, después de `estructura.sql` y `equipo.sql`. Agrega la columna del
+responsable y su clave foránea sin modificar los pedidos existentes y admite
+ejecuciones repetidas. No se necesita cargar nuevamente los datos de demostración.
+
+## HU11 — Registrar pedidos como empleado
+
+Las cuentas aprobadas de empleado usan el mismo acceso **Nuevo pedido** y el
+formulario del equipo que administrador y dueño. El resumen de un pedido nuevo
+muestra el cliente, la forma de pago y la modalidad de entrega antes de guardar.
+El registro conserva el pago pendiente; una transferencia requiere el comprobante
+y su revisión posterior.
+
+Se muestran los límites de productos y cantidades y el número de líneas del
+pedido. JavaScript actualiza el resumen, conserva el foco al quitar una línea y
+muestra el registro en curso, manteniendo la acción del botón y la protección
+contra duplicados del servidor. Sin JavaScript, la dirección y el selector nativo
+del comprobante quedan disponibles para completar los datos de envío o pago.
+Si el catálogo está vacío, al empleado se le indica pedir la habilitación de
+productos al administrador o al dueño. No requiere cambios de SQL.
+
+## HU12 — Consultar pedidos como empleado
+
+El equipo consulta los productos a preparar y la fecha de retiro o envío desde
+**Pedidos**, usando la búsqueda y los filtros de estado y fecha del listado.
+El listado destaca la fecha programada e indica que su orden corresponde
+a la fecha de registro, del más reciente al más antiguo.
+
+**Ver productos y detalle** abre la fecha y modalidad programadas, el estado,
+las indicaciones del cliente y las cantidades por producto. Se mantienen los
+subtotales y el total del pedido con sus centavos, sin redondear los importes
+históricos guardados. Los pedidos cancelados o entregados se
+identifican expresamente. El regreso al listado conserva sus
+filtros y página. La consulta funciona sin JavaScript y no requiere cambios SQL.
+
+## HU13 — Actualizar el estado de un pedido como empleado
+
+El listado del equipo muestra el estado actual y el próximo avance autorizado.
+Cuando existe una sola opción, se ofrece directamente **Iniciar preparación**,
+**Marcar listo para retirar** o **Marcar como entregado**, según el pedido y su
+modalidad. El servidor mantiene la validación de los cambios permitidos para
+cada rol; administrador y dueño conservan su selector cuando tienen varias
+opciones. Los pedidos cerrados indican al empleado cómo solicitar una corrección.
+
+El cambio de estado conserva el estado del pago. Los errores identifican el
+número de pedido y aparecen junto a la acción. Con JavaScript, el botón muestra
+el guardado en curso y permanece bloqueado aunque se cambie el selector; al
+volver mediante el navegador se restablece. El envío funciona sin JavaScript
+con POST y CSRF y conserva los filtros del listado. No requiere cambios de SQL.
+
+## HU14 — Consultar productos como empleado
+
+El empleado accede a **Productos** desde el menú del equipo o desde la tarjeta
+**Productos activos** del panel. La consulta de `/equipo/catalogo` es de solo
+lectura, exige una cuenta aprobada del equipo y utiliza los productos activos
+del catálogo existente, excluyendo los eliminados.
+
+Permite buscar por nombre y filtrar por categoría. Cada ficha muestra imagen,
+código, descripción, precio con centavos cuando corresponde y presentación.
+**Ingredientes y alérgenos** despliega la información sin salir de la consulta;
+si no está registrada, se indica expresamente. Todos los filtros y desplegables
+funcionan sin JavaScript.
+
+Administrador y dueño conservan la gestión de productos y sus permisos. La nueva
+pantalla no ofrece acciones de edición ni carrito; no requiere cambios de SQL.
+El formato de precios del catálogo permite mostrar centavos mediante el helper
+existente, conservando el comportamiento predeterminado de las demás vistas.
+
+## HU02 — Cambiar el estado de un pedido
+
+En el listado del equipo, cada pedido muestra su estado actual y un selector de
+nuevo estado con las opciones autorizadas para la cuenta. El botón indica el
+estado que se guardará. Si ocurre un error, se conserva la selección válida y se
+asocia el mensaje al control. La confirmación identifica el pedido y su estado.
+El flujo funciona sin JavaScript. Con JavaScript se conserva la confirmación de
+cancelación existente.
+
+`php tests/estado-pedidos.php` verifica guardado, errores, historial y permisos
+con cuentas y pedidos ficticios en una base temporal.
+
+## HU03 — Cancelar un pedido
+
+El botón **Cancelar pedido** y el selector de estado solicitan confirmación antes
+de cancelar. Se muestran el número, el cliente y el estado actual del pedido, y
+se aclara que sus datos e historial se conservan. El diálogo pone el foco en
+**Volver** y lo devuelve al control de origen al cerrar con Volver o Escape.
+Sin JavaScript, PHP presenta una página de confirmación antes de guardar.
+
+Los permisos y el estado se comprueban nuevamente al guardar. La confirmación
+de la interfaz no reemplaza estos controles. `php tests/cancelacion-pedidos.php`
+verifica el flujo, los permisos y la conservación de datos en una base temporal.
+
+## HU04 — Consultar pedidos
+
+El listado conserva búsqueda, estado, fecha, vista y página al paginar, cambiar
+entre lista y cuadrícula, abrir un detalle y realizar acciones desde el listado.
+La confirmación de cancelación sin JavaScript también conserva ese contexto.
+Los filtros aplicados se muestran junto a **Limpiar filtros**, que mantiene el
+modo de vista. Los mensajes distinguen la lista vacía de una búsqueda sin resultados.
+
+`php tests/contexto-pedidos.php` verifica estos recorridos, el escape y la
+validación de parámetros con pedidos ficticios en una base temporal.
+
+## HU05 — Registrar y revisar pagos
+
+El listado distingue el estado del pedido del estado del pago: efectivo pendiente
+o realizado, transferencia aprobada y comprobante pendiente, por revisar o rechazado.
+Las acciones identifican el pedido para lectores de pantalla y los mensajes de
+guardado o error incluyen su número. El enlace al comprobante anticipa que abre
+otra pestaña y permite consultarlo también después de una revisión o cancelación.
+
+Los pedidos cancelados no ofrecen nuevos cobros ni revisiones. Las reglas y los
+permisos siguen controlados por el servidor. Con JavaScript, el envío muestra que
+se está guardando y bloquea temporalmente las acciones de pago del mismo pedido.
+Sin JavaScript, los formularios conservan el envío normal mediante POST y CSRF.
+
+El total del listado muestra los centavos cuando corresponde, sin redondearlos,
+para comprobar el importe exacto antes de registrar efectivo o revisar una
+transferencia. La confirmación conserva la búsqueda, los filtros y la vista.
+
+`php tests/pagos-equipo.php` verifica estados, cobros, comprobantes, revisiones,
+importes exactos, contexto del listado, permisos y reenvíos con datos ficticios
+en una base temporal. Las pruebas se conservan solo en el entorno local.
+
+## HU22 — Administrar usuarios y permisos
+
+Desde **Personal y permisos**, el dueño puede asignar roles a las cuentas del
+equipo. Al guardar un rol, desactivar o reactivar una cuenta, se conservan la
+búsqueda y el filtro de rol del listado. Si el nuevo rol deja de coincidir con el
+filtro, se muestra la confirmación junto al resultado vacío y la opción de
+restablecer los filtros.
+
+Los errores de permisos o de búsqueda no abren el formulario de alta de empleados.
+Ese formulario se abre cuando falla la creación de una cuenta, conservando los
+datos de identificación para corregirlos. Las pruebas se mantienen solo en local.
+
+## HU23 — Administrar pedidos como dueño
+
+Administrador y dueño consultan el listado de HU04 y acceden a **Ver / modificar pedido**.
+La dirección es `/equipo/pedidos/editar?id=1`. La edición reutiliza el controlador,
+formulario MVC, estilos BEM y resumen de HU01. El administrador edita pedidos
+Pendientes, En preparación o Listos para retirar, incluidos sus datos, productos,
+cantidades y estado. El empleado no tiene acceso a esta acción. Los permisos se
+comprueban en el listado, el formulario y el guardado con el rol real de la cuenta.
+
+Permite corregir cliente, teléfono, retiro, notas, productos, cantidades y estado.
+La edición comparte los errores por campo del alta: conserva los datos enviados,
+asocia cada mensaje con su control y ofrece enlaces desde el resumen de errores.
+También identifica errores de estado y motivo, respetando el teléfono opcional de
+los pedidos web y las fechas históricas válidas.
+
+El acceso desde el listado, el guardado y las opciones para volver conservan la
+búsqueda, el estado, la fecha, la vista y la página. El contexto se mantiene por
+formulario, incluso ante errores, reenvíos o conflictos con otra pantalla. Paginar
+el historial y reabrir un pedido también conservan esa consulta de origen.
+
+El dueño también puede corregir pedidos **Entregados** y **Cancelados**,
+conservando los datos anteriores. El administrador puede cerrar un pedido activo,
+pero una corrección posterior al cierre queda a cargo del dueño. Al editar se aceptan fechas de
+retiro pasadas válidas, para mantener o corregir registros históricos.
+
+Los productos existentes conservan nombre y precio originales, incluso si fueron
+desactivados o retirados del catálogo. Los productos eliminados de la base se
+mantienen mediante su detalle histórico. Solo se pueden agregar productos activos
+nuevos y se comprueba su precio al guardar. El servidor calcula el total; conserva
+la cuenta del cliente, la seña y el responsable de creación del pedido.
+
+Cada modificación guarda responsable, fecha, motivo opcional y las versiones
+anterior y nueva en `pedido_cambios`. El historial se consulta desde el mismo
+formulario, paginado de a diez cambios. El pedido, sus líneas y el historial se
+guardan en una transacción: si falla una parte, se revierte todo. Un formulario
+anterior no sobrescribe modificaciones recientes y reenviar el mismo formulario
+no repite el cambio. Guardar sin modificar datos no genera una entrada adicional.
+
+El historial muestra los importes y precios unitarios con sus centavos cuando
+corresponde. Las correcciones de modalidad y dirección de entrega también
+presentan los valores anteriores y nuevos, incluso cuando son los únicos datos
+modificados. Los registros antiguos que no incluyen esos campos se muestran sin
+reconstruir información ausente.
+
+La instalación incorpora `database/pedido-cambios.sql`, que crea el historial sin
+modificar los pedidos existentes. Se puede aplicar con el instalador habitual o
+ejecutando ese archivo en la base del proyecto, después de `estructura.sql` y
+`equipo.sql`. No permite reconstruir modificaciones anteriores a HU23.
+
 ## HU18 — Realizar un pedido
 
-El cliente puede explorar y filtrar productos, ver su detalle, agregar cantidades
-al carrito, actualizarlo y completar sus datos para coordinar el retiro. Al
+El cliente puede explorar y filtrar productos, consultar sus ingredientes y
+alérgenos en las tarjetas y agregar la cantidad elegida directamente al carrito,
+tanto desde Inicio como desde el catálogo. Puede actualizarlo sin iniciar sesión.
+Para completar sus datos y confirmar
+debe ingresar con una cuenta de cliente verificada. Al
 confirmar, el pedido y sus líneas se guardan en MySQL como **Pendiente**, se vacía
 el carrito y se muestra el número del pedido.
 
-Se conserva el comportamiento anterior de admitir pedidos sin iniciar sesión:
-en esos casos id_cliente queda en NULL. Con HU17 se toma la identidad de la sesión.
-No hay cobros en línea, registro de señas, envío de
-correos, panel administrativo ni historial de pedidos en esta historia.
-Los enlaces de nosotros y contacto siguen inactivos.
+El servidor protege tanto la apertura del formulario como su envío por POST.
+Sin sesión de cliente, o si esta venció, se solicita iniciar sesión antes de
+continuar, conservando el carrito. Al ingresar se renuevan la cookie, CSRF y los
+formularios, y se vuelve al pedido sin enviarlo automáticamente. Registrarse y
+verificar el correo antes de ingresar también conserva esa continuación.
+La sesión del equipo no reemplaza la cuenta de cliente para realizar un pedido
+desde la web. Los pedidos nuevos se asocian al id_cliente de la sesión, ignorando
+los identificadores enviados por el navegador. Los pedidos históricos con
+id_cliente NULL se conservan. No hay cambios en la estructura de la base.
+El carrito, el resumen, Mis pedidos y las instrucciones de transferencia muestran
+los centavos sin redondear. Los importes enteros conservan su presentación habitual.
+
+Los enlaces de transferencia abren el diálogo con JavaScript y también permiten
+consultar las instrucciones y cargar el comprobante desde
+**/clientes/pedidos/transferencia?id=…** (GET/HEAD), sin JavaScript. Esta página
+solo admite pedidos propios con una transferencia pendiente de informar; usa el
+mismo contenido y el mismo POST de carga que el diálogo. Si no hay datos bancarios
+configurados, ofrece consultar a la panadería.
+
+Al cambiar de pedido se limpia el archivo seleccionado; al reabrir el mismo pedido
+se conservan su nombre, número e importe. El foco acompaña el cambio de paso y
+vuelve al enlace de origen al cerrar. El pago sigue pendiente de revisión del equipo
+después de enviar el comprobante. La solución compartida también se usa en HU20.
 
 ## Requisitos
 
@@ -419,6 +1037,11 @@ y generar enlaces, formularios y redirecciones.
 | /equipo/solicitud-enviada | GET, HEAD | Confirmación de la solicitud de esta sesión |
 | /equipo/login | GET, HEAD, POST | Iniciar sesión con cédula y contraseña |
 | /equipo/panel | GET, HEAD | Panel visual de la cuenta aprobada del equipo |
+| /equipo/consultas | GET, HEAD, POST | Consultas de contacto y estado de lectura para el equipo aprobado |
+| /equipo/solicitudes | GET, HEAD, POST | Solicitudes pendientes y aprobación o rechazo exclusivos del dueño |
+| /equipo/pedidos | GET, HEAD, POST | Consultar pedidos del equipo y registrar la seña según permisos |
+| /equipo/pedidos/registrar | GET, HEAD, POST | Registrar un pedido como administrador o dueño |
+| /equipo/pedidos/editar?id=1 | GET, HEAD, POST | Editar pedidos abiertos como administrador o cualquier pedido como dueño, con historial |
 | /equipo/salir | POST | Cerrar la sesión del equipo conservando el carrito |
 | /equipo/productos | GET, HEAD | Listado y filtros de productos para administrador y dueño |
 | /equipo/productos/agregar | GET, HEAD, POST | Agregar un producto |
@@ -448,8 +1071,8 @@ redirige con 303 para evitar repetirla al recargar.
 ## Reglas del pedido
 
 - Entre 1 y 99 unidades por producto y hasta 50 productos distintos.
-- Nombre, teléfono y fecha/hora futura de retiro obligatorios, según la zona
-  America/Montevideo; notas opcionales de hasta 2000 caracteres.
+- Nombre y fecha/hora futura de retiro obligatorios, según la zona
+  America/Montevideo; teléfono y notas opcionales (notas hasta 2000 caracteres).
 - Los precios, el total y el estado los determina el servidor. Los importes se
   calculan en centavos enteros y se guardan como DECIMAL.
 - Los productos del carrito se consultan juntos. Antes de guardar se bloquean
@@ -462,11 +1085,22 @@ redirige con 303 para evitar repetirla al recargar.
 
 ## BEM y diseño
 
-Se conservan las imágenes, colores, tipografía, medidas y puntos de adaptación
-del diseño público anterior. Los bloques nuevos incluyen detalle, campo,
+Los SVG se guardan como archivos en `public/images/`; los nuevos iconos también
+deben crearse ahí, sin incrustar su contenido en PHP, HTML, CSS o JavaScript.
+Los iconos monocromáticos del footer y del menú usan esos archivos como máscaras
+CSS para heredar el color del tema y sus estados de interacción.
+
+La tienda mantiene la identidad Rustic, con colores crema y terracota y títulos
+serif. `rustic-nuevo.css` define su presentación final; el panel conserva sus
+temas propios. Inicio muestra los datos del local y los favoritos antes de la
+presentación de la panadería. En móvil, las categorías del catálogo se distribuyen
+en dos columnas y el carrito permanece visible junto al menú. Contacto ofrece
+teléfono, WhatsApp y ubicación, con el formulario antes del panel informativo.
+
+Los componentes incluyen detalle, campo,
 carrito-fila, cantidad y resumen. Los elementos usan bloque__elemento y los
 modificadores, bloque--modificador; por ejemplo, campo__entrada y boton--dorado.
-inicio.css conserva la portada y la cabecera/pie compartidos; componentes.css
+inicio.css contiene la base de la cabecera y el pie compartidos; componentes.css
 reúne los formularios y tarjetas reutilizados. pedidos.css y registro.css
 contienen los estilos de cada flujo. El registro usa los bloques registro y
 contrasena, con elementos como registro__tarjeta y contrasena__boton.
@@ -478,6 +1112,8 @@ se comparte entre los formularios, la confirmación y la pantalla protegida.
 
 ## Verificación
 
+    C:\xampp\php\php.exe tests\pedidos-equipo.php
+    C:\xampp\php\php.exe tests\gestion-pedidos.php
     C:\xampp\php\php.exe tests\pedidos.php
     C:\xampp\php\php.exe tests\productos.php
     C:\xampp\php\php.exe tests\registro.php
@@ -487,11 +1123,18 @@ se comparte entre los formularios, la confirmación y la pantalla protegida.
     C:\xampp\php\php.exe tests\correo.php
     C:\xampp\php\php.exe tests\rutas.php
 
-Las pruebas crean una base temporal qba_hu06_test_*, qba_hu16_test_*, qba_hu17_test_*, qba_hu18_test_* o qba_equipo_test_*, un servidor local y sus
+Las pruebas crean una base temporal qba_hu01_test_*, qba_hu06_test_*, qba_hu16_test_*, qba_hu17_test_*, qba_hu18_test_*, qba_hu23_test_* o qba_equipo_test_*, un servidor local y sus
 sesiones, y los eliminan al terminar. Requieren permisos locales para crear y
 eliminar esa base y crear un trigger de prueba. Cubren validaciones, precios
 manipulados o modificados, productos retirados, CSRF, formularios malformados,
 rollback de cabecera y detalles, doble envío y el recorrido HTTP completo.
+HU01 comprueba los permisos del equipo, el responsable del registro, la separación
+del carrito público, líneas sin JavaScript, cambios del catálogo, recuperación de
+errores y actualización de una base existente sin perder pedidos.
+HU23 comprueba la edición del administrador en pedidos abiertos, las correcciones
+exclusivas del dueño en pedidos cerrados, la revocación de permisos,
+precios y productos históricos, versiones anteriores, conservación de identidad y
+seña, historial, doble envío, paginación y rollback ante un fallo del historial.
 El registro también comprueba contraseñas protegidas, correos duplicados,
 códigos vencidos o bloqueados, reenvíos y conservación del carrito.
 Las pruebas fuerzan la bandeja local o un receptor SMTP temporal en 127.0.0.1;
