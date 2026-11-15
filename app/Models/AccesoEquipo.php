@@ -61,10 +61,18 @@ final class AccesoEquipo
     public function buscarAprobado(int $idUsuario): ?array
     {
         $consulta = $this->conexion
-            ->prepare("SELECT id_usuario, nombre, cedula, email, rol FROM usuarios_equipo
+            ->prepare("SELECT id_usuario, nombre, cedula, email, password_hash, estado, rol FROM usuarios_equipo
             WHERE id_usuario = ? AND estado = 'aprobado'");
         $consulta->execute([$idUsuario]);
         $usuario = $consulta->fetch();
-        return $usuario && isset(UsuarioEquipo::ROLES[$usuario['rol']]) ? $usuario : null;
+        if (!$usuario || !isset(UsuarioEquipo::ROLES[$usuario['rol']])) {
+            return null;
+        }
+        $usuario['version_acceso'] = hash(
+            'sha256',
+            $usuario['password_hash'] . "\0" . $usuario['email'] . "\0" . $usuario['estado'],
+        );
+        unset($usuario['password_hash'], $usuario['estado']);
+        return $usuario;
     }
 }
