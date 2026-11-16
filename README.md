@@ -6,6 +6,13 @@ conservando los flujos de pedidos y cuentas de la base del proyecto.
 La [guía para leer y mantener el código](docs/codigo.md) explica las carpetas,
 las convenciones y cómo aplicar el formato compartido de PHP, CSS y JavaScript.
 
+La estructura completa y las actualizaciones de la base están reunidas en
+[`database/completa.sql`](database/completa.sql). Es el único SQL necesario para
+instalar o actualizar el proyecto; incluye las 20 tablas, la recuperación de
+contraseña de clientes y equipo y la revisión de comprobantes de transferencia.
+La [guía de la base](docs/base-datos.md) explica cómo importarlo y qué conserva
+al actualizar.
+
 Las [24 historias de usuario vigentes](docs/historias-usuario.md) definen la
 numeración, los actores y el alcance indicado por el usuario para cada HU.
 
@@ -26,12 +33,9 @@ al inicio con el panel abierto. La indicación de apertura se retira de la URL
 para que recargar no vuelva a abrirlo. `/carrito` se conserva como recurso de
 lectura y modificación del panel y como vista de respaldo sin JavaScript.
 
-Para bases existentes, aplicar `database/contenido-inicio.sql` o ejecutar el
-instalador **sin `--demo`**. La migración agrega `productos.portada_orden`, se puede
+Para bases existentes, importar `database/completa.sql`. Agrega `productos.portada_orden`, se puede
 repetir y conserva productos y pedidos. El inicio mantiene la imagen/favoritos
 disponibles mientras se aplica la migración. No cambia el registro ni los accesos.
-
-    C:\xampp\php\php.exe database\instalar.php
 
 Las pruebas de este cambio están en `tests/contenido-inicio.php`; usan una base
 temporal independiente de los datos de la aplicación.
@@ -53,8 +57,8 @@ sus contadores reales. No se agregan enlaces a la navegación superior.
 
 Las bandejas muestran 10 registros por página y comparten estilos BEM y paginación.
 Usan las tablas existentes `mensajes_contacto` y `usuarios_equipo`, sin otra
-migración. La primera se crea con `database/contacto.sql` o el instalador sin
-`--demo`. Las pruebas de `tests/panel-atencion.php` usan una base temporal separada.
+migración adicional. Ambas se crean al importar `database/completa.sql`.
+Las pruebas de `tests/panel-atencion.php` usan una base temporal separada.
 
 ## Whitelist de cédulas del equipo
 
@@ -117,11 +121,8 @@ El dueño revisa las solicitudes desde **Panel → Atención del equipo → Soli
 de acceso**. Puede aprobar el acceso como empleado o rechazarlo; otros permisos se
 asignan desde **Administrar personal**. No se crea una cuenta de dueño automáticamente.
 
-Para incorporar la tabla sobre una instalación existente:
-
-    C:\xampp\php\php.exe database\instalar.php
-
-El instalador conserva los clientes, productos y pedidos existentes. El origen
+Para incorporar la tabla sobre una instalación existente, importar
+`database/completa.sql`, que conserva los clientes, productos y pedidos. El origen
 visual y funcional es el [registro del equipo anterior](https://github.com/ElMaximizer/software-pedidos-alas/blob/produccion/app/Views/auth/pagina.php).
 
 ## Inicio de sesión del equipo
@@ -137,7 +138,8 @@ Al ingresar aparece el panel del equipo con el nombre, el rol y el cierre
 de sesión. Es el punto de entrada para las funciones que se implementen después;
 su estructura se describe en la sección siguiente.
 El menú **Hola, nombre → Panel del equipo** permite regresar desde el sitio.
-La recuperación de contraseña sigue pendiente. El dueño ya puede revisar las solicitudes desde el panel.
+La recuperación de contraseña está disponible desde el acceso del equipo y usa
+las tablas incluidas en `database/completa.sql`. El dueño revisa las solicitudes desde el panel.
 No se crean dueños ni se aprueban solicitudes automáticamente.
 
 La sesión guarda el identificador del usuario y consulta su aprobación y rol
@@ -158,10 +160,8 @@ intentos_acceso_equipo conserva una clave SHA-256 de la cédula, contadores y
 fechas UTC, sin contraseñas. Se limpian hasta cien registros de más de un día
 por intento. El acceso no envía correos.
 
-En una instalación existente, ejecutá el instalador sin --demo para agregar
-la tabla de intentos conservando los datos y las aprobaciones actuales:
-
-    C:\xampp\php\php.exe database\instalar.php
+En una instalación existente, importá `database/completa.sql` para agregar
+la tabla de intentos conservando los datos y las aprobaciones actuales.
 
 ## Panel del equipo — estructura visual
 
@@ -383,13 +383,9 @@ con JavaScript, la cantidad indica su unidad y se señalan materias primas
 repetidas antes de confirmar. El botón muestra el envío en curso sin perder la
 acción de registro; la protección contra duplicados se mantiene en el servidor.
 
-Para actualizar una instalación existente, ejecutar desde la raíz del proyecto:
-
-    C:\xampp\php\php.exe database\instalar.php
-
-El instalador aplica **database/entregas-mercaderia.sql** después del inventario y
-las cuentas del equipo. Crea entregas_mercaderia y entrega_mercaderia_detalles
-sin borrar ni recargar datos. No usar --demo para actualizar una instalación real.
+Para actualizar una instalación existente, importar `database/completa.sql`.
+Crea entregas_mercaderia y entrega_mercaderia_detalles junto con el inventario y
+las cuentas del equipo, sin borrar ni recargar datos.
 Cambiar de rama no actualiza la base automáticamente.
 
 Rutas: **/equipo/stock/entregas** (GET/HEAD) y
@@ -445,13 +441,10 @@ se calculan en UTC. El código se guarda protegido antes de entregar el correo;
 el envío SMTP se realiza sin mantener bloqueos en la base de datos.
 
 Por defecto los mensajes se guardan en una **bandeja local de desarrollo**.
-Después de registrarte, consultá el último mensaje con el mismo correo que
-usaste en el formulario:
-
-    C:\xampp\php\php.exe database\ver-correo.php tu-correo@ejemplo.com
-
-Ingresá ese código en la pantalla de verificación para completar el registro.
-La bandeja no tiene una ruta web pública y el comando solo funciona por CLI.
+Después de registrarte, consultá en phpMyAdmin la tabla `correos_locales` de tu
+base de desarrollo. Filtrá por el destinatario del formulario y abrí el mensaje
+con el `id_correo` más reciente. Ingresá ese código en la pantalla de verificación
+para completar el registro. La bandeja no tiene una ruta web pública.
 El envío real usa PHPMailer por SMTP y se activa con la configuración siguiente.
 
 ### Enviar los códigos con Gmail
@@ -506,8 +499,8 @@ desde el carrito. Aparece el menú **Hola, nombre** con **Cerrar sesión**. El
 destino se fija en la sesión del servidor; no se aceptan URLs de retorno enviadas
 por el navegador. El registro y el acceso reutilizan el campo de contraseña, sus estilos
 BEM y el control para mostrarla. Los formularios funcionan sin JavaScript.
-La recuperación de contraseña y el historial de **HU20**
-no forman parte de esta implementación.
+La recuperación de contraseña está disponible desde el acceso del cliente y
+utiliza las tablas `recuperaciones_password` y `limites_recuperacion_password`.
 
 La identidad se guarda únicamente en el servidor y se revalida contra la base
 una vez por petición. Al ingresar o salir se renuevan la cookie y CSRF, se conserva
@@ -606,23 +599,13 @@ referencias de pedidos y comprobantes; no se cancelan ni se borran pedidos,
 pagos, datos históricos de entrega o comprobantes. El correo liberado puede
 registrarse de nuevo como otra identidad, sin acceso a los pedidos antiguos.
 
-Para una base existente, aplicar **`database/cuenta-clientes.sql`** y
-**`database/direcciones-clientes.sql`** sobre la base configurada, después de
-`clientes.sql`, con respaldo previo y antes de desplegar el PHP actualizado.
-Agregan `clientes.version_sesion`, `cambios_correo_cliente` y
-`direcciones_cliente`; son repetibles y no reemplazan cuentas ni pedidos.
-Si la configuración de cuenta ya estaba instalada, solo falta el SQL de
-direcciones. El instalador incorpora ambos cambios para nuevas instalaciones.
-Cada entorno debe aplicar sus propias migraciones.
-Después de esos SQL, aplicar **`database/contacto-clientes.sql`** para incorporar
-`clientes.telefono` y `direcciones_cliente.referencias`, vacíos por defecto.
-Es repetible, conserva los datos y no modifica pedidos históricos.
-Aplicar también **`database/codigo-password-clientes.sql`** antes de desplegar
-el flujo de contraseña con código. Agrega `codigos_password_cliente` sin
-modificar cuentas ni pedidos existentes; el instalador también la incorpora.
-Si ya se aplicó la versión anterior, repetir el SQL agrega
-`password_pendiente_hash`; los códigos antiguos sin una contraseña pendiente
-no pueden confirmar cambios.
+Para una base existente, importar **`database/completa.sql`** con respaldo previo
+y antes de desplegar el PHP actualizado. Agrega `clientes.version_sesion`,
+`cambios_correo_cliente`, `direcciones_cliente`, los campos de teléfono y
+referencias y `codigos_password_cliente`, sin reemplazar cuentas ni pedidos.
+También incorpora `password_pendiente_hash`; los códigos antiguos sin una
+contraseña pendiente no pueden confirmar cambios. Cada entorno debe importar
+el SQL sobre su propia base.
 
 `php tests/cuenta-cliente.php` verifica migración, perfil, permisos, contraseñas,
 códigos, errores de envío, sesiones simultáneas y conservación del historial en
@@ -632,10 +615,8 @@ dirección principal, integración con pedidos y conservación del historial.
 `php tests/codigo-password-cliente.php` verifica caducidad, consumo, límites,
 identidad, cambio de correo y errores de envío del código de contraseña.
 
-Para habilitar el código de eliminación, aplicar
-**`database/codigo-eliminacion-clientes.sql`** con respaldo previo, después de
-`clientes.sql` y antes de desplegar los archivos actualizados. Crea una tabla
-repetible sin modificar cuentas ni pedidos; el instalador también la incorpora.
+La tabla del código de eliminación también está incluida en `database/completa.sql`,
+sin modificar cuentas ni pedidos al repetir la importación.
 `php tests/codigo-eliminacion-cliente.php` verifica vigencia, límites, propiedad,
 cancelación, errores de envío y consumo del código en una base temporal.
 
@@ -675,14 +656,9 @@ y reenvío sin duplicados en una base temporal.
 y el estado se deciden en el servidor. Los pedidos web conservan su asociación
 al cliente. HU11 habilita el mismo formulario para las cuentas de empleado.
 
-Para actualizar una instalación existente, ejecutar el instalador habitual:
-
-    C:\xampp\php\php.exe database\instalar.php
-
-También se puede ejecutar `database/pedidos-equipo.sql` desde MySQL sobre la base
-del proyecto, después de `estructura.sql` y `equipo.sql`. Agrega la columna del
-responsable y su clave foránea sin modificar los pedidos existentes y admite
-ejecuciones repetidas. No se necesita cargar nuevamente los datos de demostración.
+Para actualizar una instalación existente, importar `database/completa.sql` sobre
+la base del proyecto. Agrega la columna del responsable y su clave foránea sin
+modificar los pedidos existentes y admite ejecuciones repetidas.
 
 ## HU11 — Registrar pedidos como empleado
 
@@ -859,10 +835,8 @@ presentan los valores anteriores y nuevos, incluso cuando son los únicos datos
 modificados. Los registros antiguos que no incluyen esos campos se muestran sin
 reconstruir información ausente.
 
-La instalación incorpora `database/pedido-cambios.sql`, que crea el historial sin
-modificar los pedidos existentes. Se puede aplicar con el instalador habitual o
-ejecutando ese archivo en la base del proyecto, después de `estructura.sql` y
-`equipo.sql`. No permite reconstruir modificaciones anteriores a HU23.
+`database/completa.sql` crea el historial sin modificar los pedidos existentes.
+No permite reconstruir modificaciones anteriores a HU23.
 
 ## HU18 — Realizar un pedido
 
@@ -921,23 +895,15 @@ local de XAMPP, usuario root, contraseña vacía y la base **qba_pedidos_alas**.
 Se puede cambiar mediante QBA_DB_HOST, QBA_DB_PORT, QBA_DB_NAME, QBA_DB_USER y
 QBA_DB_PASSWORD. Las credenciales de otros entornos se pasan como variables.
 
-Desde la raíz del repositorio, en PowerShell:
+En phpMyAdmin, creá o seleccioná **qba_pedidos_alas** y usá **Importar** para
+cargar `database/completa.sql`. Ese único archivo prepara catálogo, stock,
+clientes, cuentas del equipo, pedidos, pagos, comprobantes, entregas de mercadería,
+consultas y recuperación de contraseña.
 
-    C:\xampp\php\php.exe database\instalar.php --demo
-
-El instalador crea la base y las tablas productos, pedidos, pedido_detalles,
-clientes, correos_locales, intentos_acceso_cliente, usuarios_equipo e
-intentos_acceso_equipo. database/clientes.sql incorpora las tablas de HU16
-sobre la base existente, conservando los productos y pedidos registrados.
-La opción --demo agrega tres productos de muestra, con sus textos e ingredientes
-de demostración. Se deben revisar esos datos antes de usar un catálogo real.
-Sin esa opción se crea solamente la estructura. La instalación se puede repetir
-y no importa datos del repositorio anterior.
-
-Si ya tenías HU16 instalado, ejecutá el instalador sin --demo para incorporar
-la tabla de HU17 conservando los datos existentes:
-
-    C:\xampp\php\php.exe database\instalar.php
+Para una base existente, hacé un respaldo e importá el mismo archivo dentro de
+esa base. Se puede repetir y conserva los datos. No agrega productos de muestra
+ni cambia las categorías del catálogo por su nombre. En una instalación nueva,
+los productos se cargan desde el panel del equipo.
 
 ## Ejecutar en desarrollo
 
@@ -993,7 +959,7 @@ y [servidor de PHP](https://www.php.net/manual/en/features.commandline.webserver
 - config/database.php: conexión configurable mediante variables de entorno.
 - config/correo.php: valores de correo y carga de la configuración privada o del entorno.
 - lib/PHPMailer/: archivos oficiales de la librería de correo, licencia y versión.
-- database/: estructura, productos de muestra e instalador exclusivo de CLI.
+- database/completa.sql: estructura y actualizaciones de toda la base.
 - public/css/inicio.css: estilos compartidos y portada.
 - public/css/componentes.css: formularios, tarjetas, avisos y botones compartidos.
 - public/css/pedidos.css: componentes de HU18.
