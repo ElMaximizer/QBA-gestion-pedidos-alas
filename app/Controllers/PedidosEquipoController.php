@@ -10,6 +10,7 @@ use App\Core\Vista;
 use App\Models\ConsultaPedidos;
 use App\Models\Pedido;
 use App\Services\FiltrosPedidos;
+use App\Services\NotificacionEstadoPedido;
 use DomainException;
 use Throwable;
 
@@ -78,13 +79,19 @@ final class PedidosEquipoController
                     if ($estadoNuevo === 'Cancelado' && $this->pedirConfirmacionCancelacion($idPedido, $accion, $usuario['rol'], $filtrosListado)) {
                         return;
                     }
-                    (new Pedido(Conexion::obtener()))->actualizarEstadoEquipo(
+                    $modeloPedido = new Pedido(Conexion::obtener());
+                    $pedidoAnterior = $modeloPedido->buscarGestion($idPedido);
+                    $estadoAnterior = $pedidoAnterior['estado'] ?? null;
+                    $modeloPedido->actualizarEstadoEquipo(
                         $idPedido,
                         $estadoNuevo,
                         (int) $usuario['id_usuario'],
                     );
                     $_SESSION['qba']['aviso_pedidos'] =
-                        'Pedido #' . $idPedido . ': estado guardado como «' . $estadoNuevo . '».';
+                        'Pedido #' . $idPedido . ': estado guardado como «' . $estadoNuevo . '».' .
+                        ($estadoAnterior !== null && $estadoAnterior !== $estadoNuevo
+                            ? $this->notaCorreoEstadoPedido($idPedido, $estadoNuevo)
+                            : ' El pedido ya estaba en ese estado; no se envió otro correo.');
                 } elseif ($accion === 'cancelar_pedido') {
                     if (!$puedeCancelar) {
                         http_response_code(403);
@@ -93,11 +100,17 @@ final class PedidosEquipoController
                     if ($this->pedirConfirmacionCancelacion($idPedido, $accion, $usuario['rol'], $filtrosListado)) {
                         return;
                     }
-                    (new Pedido(Conexion::obtener()))->cancelarDesdeEquipo(
+                    $modeloPedido = new Pedido(Conexion::obtener());
+                    $pedidoAnterior = $modeloPedido->buscarGestion($idPedido);
+                    $estadoAnterior = $pedidoAnterior['estado'] ?? null;
+                    $modeloPedido->cancelarDesdeEquipo(
                         $idPedido,
                         (int) $usuario['id_usuario'],
                     );
-                    $_SESSION['qba']['aviso_pedidos'] = 'Pedido #' . $idPedido . ' cancelado. Sus datos y su historial se conservan.';
+                    $_SESSION['qba']['aviso_pedidos'] = 'Pedido #' . $idPedido . ' cancelado. Sus datos y su historial se conservan.' .
+                        ($estadoAnterior !== null && $estadoAnterior !== 'Cancelado'
+                            ? $this->notaCorreoEstadoPedido($idPedido, 'Cancelado')
+                            : ' El pedido ya estaba cancelado; no se envió otro correo.');
                 } else {
                     throw new DomainException('Seleccioná una acción válida.');
                 }
@@ -187,6 +200,21 @@ final class PedidosEquipoController
     private function leerFiltrosListado(): array
     {
         return FiltrosPedidos::leer($_GET);
+    }
+
+    private function notaCorreoEstadoPedido(int $idPedido, string $estadoNuevo): string
+    {
+        try {
+            $resultado = (new NotificacionEstadoPedido(Conexion::obtener()))->notificar($idPedido, $estadoNuevo);
+            return match ($resultado) {
+                NotificacionEstadoPedido::ENVIADO => ' Se envió un aviso al correo del cliente.',
+                NotificacionEstadoPedido::LOCAL => ' El aviso quedó en la bandeja local; no se envió por Gmail.',
+                default => ' No hay un correo verificado asociado a este pedido.',
+            };
+        } catch (Throwable $error) {
+            error_log('Aviso de cambio de estado: falló el envío (' . $error::class . ').');
+            return ' El pedido quedó actualizado, pero no se pudo enviar el correo. Revisá la configuración de Gmail.';
+        }
     }
 
     private function pedirConfirmacionCancelacion(int $idPedido, string $accion, string $rol, array $filtrosListado): bool
