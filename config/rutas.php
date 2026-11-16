@@ -96,7 +96,7 @@ return [
         ['GET', 'HEAD', 'POST'],
     ],
     'cerrar-sesion' => ['clientes/salir', AccesoController::class, 'salir', ['POST']],
-    'equipo-registro' => [
+    'sesion-cerrada' => ['sesion/cerrada', AccesoController::class, 'cerrada', ['GET', 'HEAD']],    'equipo-registro' => [
         'equipo/registro',
         RegistroEquipoController::class,
         'index',
