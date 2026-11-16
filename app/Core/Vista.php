@@ -36,6 +36,7 @@ final class Vista
                 'equipo-solicitud-enviada',
                 'equipo-login',
                 'recuperacion-contrasena',
+                'sesion-cerrada',
             ],
             true,
         );
@@ -162,6 +163,10 @@ final class Vista
         if ($esPanel) {
             $estilos[] = 'css/tema-rustic.css';
             $estilos[] = 'css/tema-rustic-americana.css';
+        }
+
+        if ($vista === 'sesion-cerrada') {
+            $estilos[] = 'css/sesion-cerrada.css';
         }
 
         extract($variables, EXTR_SKIP);
