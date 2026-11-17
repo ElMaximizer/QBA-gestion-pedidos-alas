@@ -63,10 +63,25 @@ final class AccesoController
         ]);
     }
 
+    public function cerrada(): void
+    {
+        header('Cache-Control: no-store');
+        $tipoCuenta = $_SESSION['qba']['sesion_cerrada'] ?? null;
+        unset($_SESSION['qba']['sesion_cerrada']);
+        if (!in_array($tipoCuenta, ['cliente', 'equipo'], true)) {
+            Http::redirigir('inicio');
+        }
+        Vista::mostrar('sesion-cerrada', [
+            'tituloPagina' => 'Sesión cerrada | Rustic',
+            'tipoCuenta' => $tipoCuenta,
+        ]);
+    }
+
     public function salir(): void
     {
         Sesion::validarCsrf($_POST['csrf'] ?? null);
         Sesion::cerrarCliente();
-        Http::redirigir('inicio');
+        $_SESSION['qba']['sesion_cerrada'] = 'cliente';
+        Http::redirigir('sesion-cerrada');
     }
 }

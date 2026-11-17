@@ -27,6 +27,7 @@
                 $placeholderPassword = '••••••••';
                 require __DIR__ . '/partials/campo-contrasena.php';
                 ?>
+                <a class="recuperacion-enlace" href="<?= $url('equipo-recuperar-password') ?>">¿Olvidaste tu contraseña?</a>
                 <button class="boton boton--dorado boton--completo">Iniciar sesión</button>
                 <hr class="registro__separador">
                 <p class="texto-pequeno">¿Todavía no tienes acceso?</p>

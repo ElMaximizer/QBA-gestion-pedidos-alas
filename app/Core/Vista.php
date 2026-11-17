@@ -35,6 +35,8 @@ final class Vista
                 'equipo-registro',
                 'equipo-solicitud-enviada',
                 'equipo-login',
+                'recuperacion-contrasena',
+                'sesion-cerrada',
             ],
             true,
         );
@@ -79,6 +81,11 @@ final class Vista
         if ($vista === 'realizar-pedido') {
             $estilos[] = 'css/entrega-pedido.css';
             $scripts[] = 'js/entrega-pedido.js';
+        }
+
+        if ($vista === 'recuperacion-contrasena') {
+            $estilos[] = 'css/recuperacion-contrasena.css';
+            $scripts[] = 'js/registro.js';
         }
 
         if ($vista === 'equipo-contenido-inicio') {
@@ -156,6 +163,10 @@ final class Vista
         if ($esPanel) {
             $estilos[] = 'css/tema-rustic.css';
             $estilos[] = 'css/tema-rustic-americana.css';
+        }
+
+        if ($vista === 'sesion-cerrada') {
+            $estilos[] = 'css/sesion-cerrada.css';
         }
 
         extract($variables, EXTR_SKIP);

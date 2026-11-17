@@ -1,0 +1,77 @@
+.recuperacion-pagina {
+    display: grid;
+    justify-items: center;
+    gap: 1.25rem;
+    padding-block: clamp(2rem, 6vw, 4.5rem);
+}
+
+.recuperacion-pagina > .enlace-volver,
+.recuperacion-tarjeta {
+    width: min(100%, 620px);
+}
+
+.recuperacion-pagina > .enlace-volver {
+    margin-inline: auto;
+}
+
+.recuperacion-tarjeta {
+    display: grid;
+    gap: 1rem;
+}
+
+.recuperacion-tarjeta .registro__titulo {
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3rem);
+}
+
+.recuperacion-tarjeta .registro__descripcion {
+    margin: 0;
+}
+
+.recuperacion-tarjeta .aviso p {
+    margin-block: .4rem 0;
+}
+
+.recuperacion-codigo-validado {
+    margin: 0;
+    padding: .85rem 1rem;
+    border: 1px solid #c9dfd2;
+    border-radius: 10px;
+    color: #315a43;
+    background: #eef7f0;
+    line-height: 1.5;
+}
+
+.recuperacion-enlace {
+    align-self: start;
+    color: var(--rust, #a94830);
+    font-size: .9rem;
+    font-weight: 650;
+    text-underline-offset: .2em;
+}
+
+.recuperacion-enlace:hover {
+    text-decoration-thickness: 2px;
+}
+
+.recuperacion-acciones {
+    display: grid;
+    gap: .85rem;
+    justify-items: center;
+}
+
+.recuperacion-acciones form {
+    width: 100%;
+}
+
+.recuperacion-cambiar-identidad {
+    color: var(--rust, #a94830);
+    font-size: .9rem;
+    text-underline-offset: .2em;
+}
+
+@media (max-width: 560px) {
+    .recuperacion-tarjeta {
+        padding: 1.25rem;
+    }
+}

@@ -38,6 +38,7 @@
                 $autocompletePassword = 'current-password';
                 require __DIR__ . '/partials/campo-contrasena.php';
                 ?>
+                <a class="recuperacion-enlace" href="<?= $url('cliente-recuperar-password') ?>">¿Olvidaste tu contraseña?</a>
                 <button class="boton boton--dorado boton--completo">Ingresar</button>
                 <p class="texto-pequeno">¿Todavía no tenés cuenta?</p>
                 <a class="boton boton--contorno boton--completo" href="<?= $url('registro') ?>">Crear cuenta de cliente</a>
